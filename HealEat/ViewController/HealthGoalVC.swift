@@ -1,5 +1,5 @@
 //
-//  HomeViewController.swift
+//  HealthGoalViewController.swift
 //  HealEat
 //
 //  Created by 김호성 on 2025.01.08.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HomeViewController: UIViewController {
+class HealthGoalVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()

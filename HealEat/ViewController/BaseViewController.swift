@@ -7,22 +7,22 @@
 
 import UIKit
 
-class BaseViewController: UITabBarController {
+class BaseVC: UITabBarController {
     
-    private let homeViewController = UINavigationController(rootViewController: HomeViewController())
-    private let searchViewController = UINavigationController(rootViewController: SearchViewController())
-    private let healthGoalViewController = UINavigationController(rootViewController: HealthGoalViewController())
-    private let myPageViewController = UINavigationController(rootViewController: MyPageViewController())
+    private let homeVC = UINavigationController(rootViewController: HomeVC())
+    private let searchVC = UINavigationController(rootViewController: SearchVC())
+    private let healthGoalVC = UINavigationController(rootViewController: HealthGoalVC())
+    private let myPageVC = UINavigationController(rootViewController: MyPageViewController())
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         
         self.viewControllers = [
-            homeViewController,
-            searchViewController,
-            healthGoalViewController,
-            myPageViewController,
+            homeVC,
+            searchVC,
+            healthGoalVC,
+            myPageVC,
         ]
         
         let tabBarAppearance = UITabBarAppearance()
@@ -33,10 +33,10 @@ class BaseViewController: UITabBarController {
         
         self.tabBar.tintColor = .black
         
-        homeViewController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(), tag: 0)
-        searchViewController.tabBarItem = UITabBarItem(title: "Search", image: UIImage(), tag: 1)
-        healthGoalViewController.tabBarItem = UITabBarItem(title: "HealthGoal", image: UIImage(), tag: 2)
-        myPageViewController.tabBarItem = UITabBarItem(title: "MyPage", image: UIImage(), tag: 3)
+        homeVC.tabBarItem = UITabBarItem(title: "Home", image: UIImage(), tag: 0)
+        searchVC.tabBarItem = UITabBarItem(title: "Search", image: UIImage(), tag: 1)
+        healthGoalVC.tabBarItem = UITabBarItem(title: "HealthGoal", image: UIImage(), tag: 2)
+        myPageVC.tabBarItem = UITabBarItem(title: "MyPage", image: UIImage(), tag: 3)
         
 //        homeViewController.tabBarItem.selectedImage = UIImage(named: "icon_home_fill")
 //        styleViewController.tabBarItem.selectedImage = UIImage(named: "icon_style_fill")
