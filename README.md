@@ -1,7 +1,6 @@
 # Frontend
 
 ### 코드 컨벤션
-참고: https://github.com/StyleShare/swift-style-guide
 
 - 식별자는 **카멜케이스**로 작성
 
