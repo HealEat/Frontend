@@ -1,3 +1,11 @@
+---
+name: "💡 Issue Report"
+about: "To-do"
+title: "[Issue] "
+labels: issue
+assignees: ''
+---
+
 # 💡 어떤 기능인가요?
 <!-- 작업하는 내용에 대해 설명해주세요. -->
 
