@@ -1,13 +1,13 @@
 //
-//  SearchViewController.swift
+//  LoginVC.swift
 //  HealEat
 //
-//  Created by 김호성 on 2025.01.08.
+//  Created by tokkislove on 1/14/25.
 //
 
 import UIKit
 
-class SearchVC: UIViewController {
+class LoginVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
