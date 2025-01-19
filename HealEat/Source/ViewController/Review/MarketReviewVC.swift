@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ReviewVC: UIViewController {
+class MarketReviewVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -42,6 +42,16 @@ class TabBarSegmentedControl: UIView {
         updateSelectedBarConstraints(index: selected)
     }
     
+    private func getSelectedIndex() -> Int? {
+        for (index, subview) in tabBarStackView.arrangedSubviews.enumerated() {
+            guard let button = subview as? UIButton else { continue }
+            if button.isSelected == true {
+                return index
+            }
+        }
+        return nil
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -92,7 +102,16 @@ class TabBarSegmentedControl: UIView {
     }
     
     @objc func onClickMenu(_ sender: UIButton) {
-        delegate?.didSelectMenu(index: sender.tag)
+        guard let past = getSelectedIndex() else { return }
+        let now = sender.tag
+        if past == now {
+            return
+        } else if past < now {
+            delegate?.didSelectMenu(direction: .forward, index: sender.tag)
+        } else {
+            delegate?.didSelectMenu(direction: .reverse, index: sender.tag)
+        }
+        
         UIView.animate(withDuration: 0.2, animations: { [weak self] in
             self?.setupUI(selected: sender.tag)
             self?.layoutIfNeeded()
@@ -101,5 +120,5 @@ class TabBarSegmentedControl: UIView {
 }
 
 protocol TabBarSegmentedControlDelegate: AnyObject {
-    func didSelectMenu(index: Int)
+    func didSelectMenu(direction: UIPageViewController.NavigationDirection, index: Int)
 }

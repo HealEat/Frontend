@@ -10,6 +10,10 @@ import SnapKit
 
 class MarketView: UIView {
     
+    var pageViewControllers: [UIViewController] = []
+    
+    let scrolledAreaHeightConstraint: CGFloat = 300
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .systemBackground
@@ -22,9 +26,19 @@ class MarketView: UIView {
     
     lazy var navigationView: UIView = {
         let view = UIView()
-        
-        
-        
+        return view
+    }()
+    
+    lazy var navigationBackButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+        button.tintColor = .label
+        return button
+    }()
+    
+    lazy var expandableAreaView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .red
         return view
     }()
     
@@ -38,15 +52,58 @@ class MarketView: UIView {
         return tabBarSegmentedControl
     }()
     
+    lazy var menuPageViewController: UIPageViewController = {
+        let pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+        if let firstViewController = pageViewControllers.first {
+            pageViewController.setViewControllers([firstViewController], direction: .forward, animated: true, completion: nil)
+        }
+        return pageViewController
+    }()
+    
     
     private func addComponents() {
+        self.addSubview(navigationView)
+        navigationView.addSubview(navigationBackButton)
+        self.addSubview(expandableAreaView)
         self.addSubview(topTabBar)
+        self.addSubview(menuPageViewController.view)
         setConstraints()
     }
     private func setConstraints() {
-        topTabBar.snp.makeConstraints({ make in
+        navigationView.snp.makeConstraints({ make in
+            make.top.leading.trailing.equalTo(self.safeAreaLayoutGuide)
+        })
+        navigationBackButton.snp.makeConstraints({ make in
+            make.width.height.equalTo(32)
+            make.leading.top.bottom.equalToSuperview()
+        })
+        expandableAreaView.snp.makeConstraints({ make in
+            make.top.equalTo(navigationView.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.centerY.equalToSuperview()
+            make.height.equalTo(scrolledAreaHeightConstraint)
+        })
+        topTabBar.snp.makeConstraints({ make in
+            make.top.equalTo(expandableAreaView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+        })
+        menuPageViewController.view.snp.makeConstraints({ make in
+            make.top.equalTo(topTabBar.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
+        })
+    }
+    
+    func expandArea() {
+        expandableAreaView.snp.remakeConstraints({ make in
+            make.top.equalTo(navigationView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(scrolledAreaHeightConstraint)
+        })
+    }
+    func shrinkArea() {
+        expandableAreaView.snp.remakeConstraints({ make in
+            make.top.equalTo(navigationView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(0)
         })
     }
 }

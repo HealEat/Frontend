@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ReviewView: UIView {
+class MarketReviewView: UIView {
 
     /*
     // Only override draw() if you perform custom drawing.
