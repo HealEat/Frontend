@@ -1,9 +1,4 @@
-//
-//  MarketHomeVC.swift
-//  HealEat
-//
-//  Created by 김호성 on 2025.01.18.
-//
+// Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
 
