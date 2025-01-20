@@ -4,11 +4,9 @@ import UIKit
 
 class MarketHomeVC: UIViewController {
     
-    weak var delegate: InnerScrollDelegate?
-
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         self.view = marketHomeView
     }
     
@@ -21,13 +19,7 @@ class MarketHomeVC: UIViewController {
 
 extension MarketHomeVC: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//        print(scrollView.contentOffset)
-    }
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if scrollView.contentOffset.y == 0 {
-            delegate?.expand()
-        } else if scrollView.contentOffset.y > 0 {
-            delegate?.shrink()
-        }
+        print(scrollView.contentOffset)
+//        scrollView.contentOffset.y = 0
     }
 }

@@ -7,7 +7,7 @@ class MarketView: UIView {
     
     var pageViewControllers: [UIViewController] = []
     
-    let scrolledAreaHeightConstraint: CGFloat = 300
+    var expanded: Bool = true
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -40,9 +40,8 @@ class MarketView: UIView {
     lazy var topTabBar: TabBarSegmentedControl = {
         let tabBarSegmentedControl = TabBarSegmentedControl(menus: [
             "홈",
-            "메뉴",
-            "리뷰",
             "사진",
+            "리뷰",
         ])
         return tabBarSegmentedControl
     }()
@@ -75,7 +74,7 @@ class MarketView: UIView {
         expandableAreaView.snp.makeConstraints({ make in
             make.top.equalTo(navigationView.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(scrolledAreaHeightConstraint)
+            make.height.equalTo(GlobalConst.marketScrolledAreaHeightConstraint)
         })
         topTabBar.snp.makeConstraints({ make in
             make.top.equalTo(expandableAreaView.snp.bottom)
@@ -87,18 +86,13 @@ class MarketView: UIView {
         })
     }
     
-    func expandArea() {
+    func updateExpandableAreaView(height: CGFloat) {
+        let correctedHeight = min(max(0, height), GlobalConst.marketScrolledAreaHeightConstraint)
+        
         expandableAreaView.snp.remakeConstraints({ make in
             make.top.equalTo(navigationView.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(scrolledAreaHeightConstraint)
-        })
-    }
-    func shrinkArea() {
-        expandableAreaView.snp.remakeConstraints({ make in
-            make.top.equalTo(navigationView.snp.bottom)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(0)
+            make.height.equalTo(correctedHeight)
         })
     }
 }
