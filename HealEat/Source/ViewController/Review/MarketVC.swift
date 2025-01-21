@@ -4,6 +4,28 @@ import UIKit
 
 class MarketVC: UIViewController {
 
+    private let typeCollectionViewHandler = TypeCollectionViewHandler(types: [
+        "속 편한 음식",
+        "야채",
+        "죽",
+        "따뜻한 음식",
+    ])
+    private let detailRatingCollectionViewHandler = DetailRatingCollectionViewHandler(detailRatings: [
+        ("질병 관리", 4.7, 15),
+        ("베지테리언", 3.4, 13),
+        ("다이어트", 4.3, 5),
+    ])
+    private let previewCollectionViewHandler = PreviewCollectionViewHandler(urls: [
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/f8ba911ed379439fbe831212be8701f9-231103%206PM%20%EB%B0%95%EC%A7%84%EC%98%81%20Conceptphoto03(Clean).jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/4bdca5fcc29c48c08071eaaa5cd43e79-231103%206PM%20%EB%B0%95%EC%A7%84%EC%98%81%20%ED%94%84%EB%A1%9C%ED%95%84%20%EC%82%AC%EC%A7%84.jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/0.jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/gallery_150125165011.jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/c726ced3865543a296dde99424fda29c-Still%20Alive.jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/9b145cd47f4f40df8c62ab3af0b60fcb-JYP-Groove%20Missing-OnlineCover.png")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/9e9bc12fbb24494d98695ac1fa8be153-JYP_Groove%20Missing_%ED%8B%B0%EC%A0%80%ED%81%B4%EB%A6%B0%EB%B3%B8_02.jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/9726350cf1224be19c2d8c7d64710d32-JYP_Groove%20Missing_%ED%8B%B0%EC%A0%80%ED%81%B4%EB%A6%B0%EB%B3%B8_01.jpg")!,
+    ])
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -20,6 +42,22 @@ class MarketVC: UIViewController {
             MarketHomeVC(),
         ]
         view.topTabBar.delegate = self
+        view.navigationTitleLabel.text = "본죽&비빔밥cafe 홍대점"
+        view.titleLabel.text = "본죽&비빔밥cafe 홍대점"
+        view.subtitleLabel.text = "죽"
+        view.ratingStarView.star = 4
+        view.ratingLabel.text = "4.0 (23)"
+        view.openLabel.text = "영업 중"
+        view.openHourLabel.text = "9:30 - 20:30"
+        
+        view.typeCollectionView.delegate = typeCollectionViewHandler
+        view.typeCollectionView.dataSource = typeCollectionViewHandler
+        
+        view.detailRatingCollectionView.delegate = detailRatingCollectionViewHandler
+        view.detailRatingCollectionView.dataSource = detailRatingCollectionViewHandler
+        
+        view.previewCollectionView.delegate = previewCollectionViewHandler
+        view.previewCollectionView.dataSource = previewCollectionViewHandler
         
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panGestureHandler(recognizer: )))
         view.addGestureRecognizer(panGestureRecognizer)
@@ -30,23 +68,25 @@ class MarketVC: UIViewController {
     
     @objc func panGestureHandler(recognizer: UIPanGestureRecognizer) {
         let translation = recognizer.translation(in: marketView)
-        var height = marketView.expanded ? GlobalConst.marketScrolledAreaHeightConstraint : 0
+        var height = marketView.expanded ? marketView.expandableView.frame.height : 0
         height += translation.y
         marketView.updateExpandableAreaView(height: height)
-        
+        marketView.navigationTitleLabel.alpha = 1 - height / marketView.expandableView.frame.height
         if recognizer.state == .ended {
             if height > 0 {
-                if height < GlobalConst.marketScrolledAreaHeightConstraint/2 {
+                if height < marketView.expandableView.frame.height/2 {
                     height = 0
                     marketView.expanded = false
                 } else {
-                    height = GlobalConst.marketScrolledAreaHeightConstraint
+                    height = marketView.expandableView.frame.height
                     marketView.expanded = true
                 }
             }
             UIView.animate(withDuration: 0.2) { [weak self] in
-                self?.marketView.updateExpandableAreaView(height: height)
-                self?.marketView.layoutIfNeeded()
+                guard let self = self else { return }
+                self.marketView.navigationTitleLabel.alpha = 1 - height / self.marketView.expandableView.frame.height
+                self.marketView.updateExpandableAreaView(height: height)
+                self.marketView.layoutIfNeeded()
             }
             return
         }
