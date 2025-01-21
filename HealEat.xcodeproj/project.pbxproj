@@ -83,6 +83,7 @@
 				96DB35752D2E4B83001FE074 /* Sources */,
 				96DB35762D2E4B83001FE074 /* Frameworks */,
 				96DB35772D2E4B83001FE074 /* Resources */,
+				7C2E03332D3931D5002F2FEC /* Add File Header */,
 			);
 			buildRules = (
 			);
@@ -153,6 +154,27 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		7C2E03332D3931D5002F2FEC /* Add File Header */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Add File Header";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "HEADER_FILE=\"${SRCROOT}/HEADER.txt\"\n\n# HEADER.txt 파일이 있는지 확인\nif [ -f \"$HEADER_FILE\" ]; then\n    # 프로젝트 내 모든 .swift 파일을 찾고 주석이 없는 경우 추가\n    find \"${SRCROOT}\" -name \"*.swift\" -exec sh -c '\n    for file; do\n        # 이미 Copyright 주석이 포함된 파일은 건너뜀\n        if ! grep -q \"Copyright\" \"$file\"; then\n            echo \"$(cat $HEADER_FILE)\n$(cat $file)\" > $file\n        fi\n    done' sh {} +\nfi\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		96DB35752D2E4B83001FE074 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -171,7 +193,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = JU27F4BHH8;
+				DEVELOPMENT_TEAM = CACTN7F6PL;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealEat/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -198,7 +221,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = JU27F4BHH8;
+				DEVELOPMENT_TEAM = CACTN7F6PL;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealEat/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

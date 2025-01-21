@@ -1,3 +1,30 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
 //  SceneDelegate.swift
 //  HealEat
@@ -53,4 +80,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
 }
-

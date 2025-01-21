@@ -1,3 +1,30 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //  CustomSearchBar.swift
 //  HealEat
 //
@@ -81,4 +108,3 @@ class CustomSearchBar: UIView {
         }
     }
 }
-
