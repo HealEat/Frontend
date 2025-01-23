@@ -26,16 +26,25 @@ class MarketVC: UIViewController {
         URL(string: "https://lv2-cdn.azureedge.net/jypark/9726350cf1224be19c2d8c7d64710d32-JYP_Groove%20Missing_%ED%8B%B0%EC%A0%80%ED%81%B4%EB%A6%B0%EB%B3%B8_01.jpg")!,
     ])
     
+    private let marketHomeVC: MarketHomeVC = {
+        let viewController = MarketHomeVC()
+        viewController.marketHomeView.locationLabel.text = "서울 마포구 홍익로 10 106호"
+        viewController.marketHomeView.openLabel.text = "영업 중"
+        viewController.marketHomeView.openHourLabel.text = "9:30 - 20:30"
+        viewController.marketHomeView.mainScrollView.isUserInteractionEnabled = false
+        return viewController
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.view = marketView
+        marketHomeVC.onGesture = panGestureHandler(recognizer:)
     }
     
     private lazy var marketView: MarketView = {
         let view = MarketView()
         
-        let marketHomeVC = MarketHomeVC()
         view.pageViewControllers = [
             marketHomeVC,
             MarketReviewVC(),
@@ -63,10 +72,13 @@ class MarketVC: UIViewController {
         view.addGestureRecognizer(panGestureRecognizer)
         addChild(view.menuPageViewController)
         view.menuPageViewController.didMove(toParent: self)
+        if let pageVC = view.pageViewControllers.first {
+            view.menuPageViewController.setViewControllers([pageVC], direction: .forward, animated: false)
+        }
         return view
     }()
     
-    @objc func panGestureHandler(recognizer: UIPanGestureRecognizer) {
+    @objc private func panGestureHandler(recognizer: UIPanGestureRecognizer) {
         let translation = recognizer.translation(in: marketView)
         var height = marketView.expanded ? marketView.expandableView.frame.height : 0
         height += translation.y
@@ -77,9 +89,11 @@ class MarketVC: UIViewController {
                 if height < marketView.expandableView.frame.height/2 {
                     height = 0
                     marketView.expanded = false
+                    marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = true
                 } else {
                     height = marketView.expandableView.frame.height
                     marketView.expanded = true
+                    marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = false
                 }
             }
             UIView.animate(withDuration: 0.2) { [weak self] in
@@ -97,6 +111,14 @@ class MarketVC: UIViewController {
 extension MarketVC: TabBarSegmentedControlDelegate {
     func didSelectMenu(direction: UIPageViewController.NavigationDirection, index: Int) {
         marketView.menuPageViewController.setViewControllers([marketView.pageViewControllers[index]], direction: direction, animated: true, completion: nil)
+        marketView.expanded = false
+        marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = true
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            guard let self = self else { return }
+            self.marketView.navigationTitleLabel.alpha = 1
+            self.marketView.updateExpandableAreaView(height: 0)
+            self.marketView.layoutIfNeeded()
+        }
         print(index)
     }
 }

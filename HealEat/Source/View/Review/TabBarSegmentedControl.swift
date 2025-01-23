@@ -106,7 +106,7 @@ class TabBarSegmentedControl: UIView {
         guard let past = getSelectedIndex() else { return }
         let now = sender.tag
         if past == now {
-            return
+            delegate?.didSelectMenu(direction: .forward, index: sender.tag)
         } else if past < now {
             delegate?.didSelectMenu(direction: .forward, index: sender.tag)
         } else {

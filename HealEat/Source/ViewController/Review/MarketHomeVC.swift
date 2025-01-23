@@ -4,6 +4,8 @@ import UIKit
 
 class MarketHomeVC: UIViewController {
     
+    var onGesture: ((UIPanGestureRecognizer) -> Void)?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -12,14 +14,24 @@ class MarketHomeVC: UIViewController {
     
     lazy var marketHomeView: MarketHomeView = {
         let view = MarketHomeView()
-        view.mainScrollView.delegate = self
+        view.mainScrollView.isUserInteractionEnabled = false
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panGestureHandler(recognizer: )))
+        panGestureRecognizer.delegate = self
+        view.mainScrollView.addGestureRecognizer(panGestureRecognizer)
         return view
     }()
+    
+    @objc private func panGestureHandler(recognizer: UIPanGestureRecognizer) {
+        if marketHomeView.mainScrollView.contentOffset.y != 0 {
+            return
+        }
+        onGesture?(recognizer)
+    }
+    
 }
 
-extension MarketHomeVC: UIScrollViewDelegate {
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print(scrollView.contentOffset)
-//        scrollView.contentOffset.y = 0
+extension MarketHomeVC: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }
