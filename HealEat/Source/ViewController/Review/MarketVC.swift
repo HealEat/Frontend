@@ -85,17 +85,16 @@ class MarketVC: UIViewController {
         marketView.updateExpandableAreaView(height: height)
         marketView.navigationTitleLabel.alpha = 1 - height / marketView.expandableView.frame.height
         if recognizer.state == .ended {
-            if height > 0 {
-                if height < marketView.expandableView.frame.height/2 {
-                    height = 0
-                    marketView.expanded = false
-                    marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = true
-                } else {
-                    height = marketView.expandableView.frame.height
-                    marketView.expanded = true
-                    marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = false
-                }
+            if height < marketView.expandableView.frame.height/2 {
+                height = 0
+                marketView.expanded = false
+                marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = true
+            } else {
+                height = marketView.expandableView.frame.height
+                marketView.expanded = true
+                marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = false
             }
+            
             UIView.animate(withDuration: 0.2) { [weak self] in
                 guard let self = self else { return }
                 self.marketView.navigationTitleLabel.alpha = 1 - height / self.marketView.expandableView.frame.height
@@ -119,6 +118,5 @@ extension MarketVC: TabBarSegmentedControlDelegate {
             self.marketView.updateExpandableAreaView(height: 0)
             self.marketView.layoutIfNeeded()
         }
-        print(index)
     }
 }

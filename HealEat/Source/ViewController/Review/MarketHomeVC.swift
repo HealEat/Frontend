@@ -22,7 +22,7 @@ class MarketHomeVC: UIViewController {
     }()
     
     @objc private func panGestureHandler(recognizer: UIPanGestureRecognizer) {
-        if marketHomeView.mainScrollView.contentOffset.y != 0 {
+        if marketHomeView.mainScrollView.contentOffset.y > 0 {
             return
         }
         onGesture?(recognizer)
