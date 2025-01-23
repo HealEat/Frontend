@@ -54,8 +54,8 @@ class MarketVC: UIViewController {
         view.navigationTitleLabel.text = "본죽&비빔밥cafe 홍대점"
         view.titleLabel.text = "본죽&비빔밥cafe 홍대점"
         view.subtitleLabel.text = "죽"
-        view.ratingStarView.star = 4
-        view.ratingLabel.text = "4.0 (23)"
+        view.ratingStarView.star = 4.4
+        view.ratingLabel.text = "4.4 (23)"
         view.openLabel.text = "영업 중"
         view.openHourLabel.text = "9:30 - 20:30"
         

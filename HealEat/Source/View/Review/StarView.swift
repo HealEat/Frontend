@@ -1,59 +1,53 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
-import SnapKit
 
 class StarView: UIView {
     
     private let accentColor: UIColor
     private let baseColor: UIColor
     
-    var star: Int {
+    var fill: Float {
         didSet {
-            for i in 0..<star {
-                starStackView.subviews[i].tintColor = accentColor
-            }
-            for i in star..<5 {
-                starStackView.subviews[i].tintColor = baseColor
-            }
+            setNeedsDisplay()
         }
     }
     
-    init(accentColor: UIColor, baseColor: UIColor) {
+    init(accentColor: UIColor, baseColor: UIColor, fill: Float) {
         self.accentColor = accentColor
         self.baseColor = baseColor
-        star = 0
+        self.fill = max(0, min(fill, 1))
         super.init(frame: .zero)
-        addComponents()
+        self.snp.makeConstraints({ make in
+            make.width.equalTo(self.snp.height)
+        })
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    lazy var starStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.spacing = 3
-        stackView.alignment = .fill
-        stackView.distribution = .equalSpacing
+    lazy var maskImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = UIImage(systemName: "star.fill")
+        imageView.frame = bounds
         
-        for i in 0..<5 {
-            let imageView = UIImageView()
-            imageView.image = UIImage(systemName: "star.fill")
-            stackView.addArrangedSubview(imageView)
-        }
-        return stackView
+        return imageView
     }()
     
-    private func addComponents() {
-        self.addSubview(starStackView)
-        setConstraints()
-    }
-    
-    private func setConstraints() {
-        starStackView.snp.makeConstraints({ make in
-            make.edges.equalToSuperview()
-        })
+    override func draw(_ rect: CGRect) {
+        let width = rect.width
+        let height = rect.height
+        
+        let backgroundRect = CGRect(x: 0, y: 0, width: width, height: height)
+        let backgroundPath = UIBezierPath(rect: backgroundRect)
+        baseColor.setFill()
+        backgroundPath.fill()
+        
+        let processRect = CGRect(x: 0, y: 0, width: CGFloat(fill)*width, height: height)
+        let processPath = UIBezierPath(rect: processRect)
+        accentColor.setFill()
+        processPath.fill()
     }
 }
