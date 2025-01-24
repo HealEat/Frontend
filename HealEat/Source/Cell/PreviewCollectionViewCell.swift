@@ -32,4 +32,12 @@ class PreviewCollectionViewCell: UICollectionViewCell {
             make.edges.equalToSuperview()
         })
     }
+    
+    func updateSize(width: CGFloat, height: CGFloat) {
+        previewImageView.snp.remakeConstraints({ make in
+            make.edges.equalToSuperview()
+            make.width.equalTo(width)
+            make.height.equalTo(height)
+        })
+    }
 }

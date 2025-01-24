@@ -107,14 +107,42 @@ class MarketHomeView: UIView {
         return button
     }()
     
-//    lazy var imageCollectionView: UICollectionView = {
-//        
-//    }
+    lazy var imagePreviewView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
+    lazy var imageCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.estimatedItemSize = CGSize(width: 100, height: 100)
+        layout.minimumInteritemSpacing = 12
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 16
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.isUserInteractionEnabled = false
+        collectionView.backgroundColor = .clear
+        collectionView.register(PreviewCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: PreviewCollectionViewCell.self))
+        
+        return collectionView
+    }()
+    
+    lazy var imageMoreButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("사진 더보기", for: .normal)
+        button.tintColor = UIColor(red: 106/255, green: 106/255, blue: 106/255, alpha: 1)
+        button.layer.borderColor = UIColor(red: 213/255, green: 213/255, blue: 213/255, alpha: 1).cgColor
+        button.layer.cornerRadius = 12
+        button.layer.borderWidth = 1
+        return button
+    }()
     
     private func addComponents() {
         self.addSubview(mainScrollView)
         mainScrollView.addSubview(contentView)
         contentView.addSubview(infoStackView)
+        contentView.addSubview(imageCollectionView)
         
         infoStackView.addArrangedSubview(locationView)
         infoStackView.addArrangedSubview(openView)
@@ -183,6 +211,11 @@ class MarketHomeView: UIView {
         linkButton.snp.makeConstraints({ make in
             make.centerY.equalToSuperview()
             make.leading.equalTo(linkImageView.snp.trailing).offset(10)
+        })
+        imageCollectionView.snp.makeConstraints({ make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.top.equalTo(infoStackView.snp.bottom).offset(32)
+            make.height.equalTo(390)
         })
     }
 }
