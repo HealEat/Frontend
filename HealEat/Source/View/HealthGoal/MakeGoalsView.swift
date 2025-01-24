@@ -86,9 +86,7 @@ class MakeGoalsView: UIView {
         [dateButton, countButton, goalTextField].forEach(backgroundStack.addArrangedSubview(_:))
         addSubview(goalStackView)
         goalBackground.addSubview(backgroundStack)
-        /*[dateButton, countButton, goalTextField].forEach {
-            goalBackground.addSubview($0)
-        }*/
+        
         
         goalStackView.snp.makeConstraints { make in
             make.center.equalToSuperview()
@@ -112,8 +110,9 @@ class MakeGoalsView: UIView {
         backgroundStack.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
-        
     }
+    
+
 }
 
 extension UITextField {
