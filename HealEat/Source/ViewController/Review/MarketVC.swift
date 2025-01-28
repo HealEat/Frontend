@@ -26,12 +26,35 @@ class MarketVC: UIViewController {
         URL(string: "https://lv2-cdn.azureedge.net/jypark/9726350cf1224be19c2d8c7d64710d32-JYP_Groove%20Missing_%ED%8B%B0%EC%A0%80%ED%81%B4%EB%A6%B0%EB%B3%B8_01.jpg")!,
     ])
     
+    private var imageCollectionViewHandler = ImageCollectionViewHandler(urls: [
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/f8ba911ed379439fbe831212be8701f9-231103%206PM%20%EB%B0%95%EC%A7%84%EC%98%81%20Conceptphoto03(Clean).jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/4bdca5fcc29c48c08071eaaa5cd43e79-231103%206PM%20%EB%B0%95%EC%A7%84%EC%98%81%20%ED%94%84%EB%A1%9C%ED%95%84%20%EC%82%AC%EC%A7%84.jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/0.jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/gallery_150125165011.jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/c726ced3865543a296dde99424fda29c-Still%20Alive.jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/9b145cd47f4f40df8c62ab3af0b60fcb-JYP-Groove%20Missing-OnlineCover.png")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/9e9bc12fbb24494d98695ac1fa8be153-JYP_Groove%20Missing_%ED%8B%B0%EC%A0%80%ED%81%B4%EB%A6%B0%EB%B3%B8_02.jpg")!,
+        URL(string: "https://lv2-cdn.azureedge.net/jypark/9726350cf1224be19c2d8c7d64710d32-JYP_Groove%20Missing_%ED%8B%B0%EC%A0%80%ED%81%B4%EB%A6%B0%EB%B3%B8_01.jpg")!,
+    ])
+    
     private let marketHomeVC: MarketHomeVC = {
         let viewController = MarketHomeVC()
         viewController.marketHomeView.locationLabel.text = "서울 마포구 홍익로 10 106호"
         viewController.marketHomeView.openLabel.text = "영업 중"
         viewController.marketHomeView.openHourLabel.text = "9:30 - 20:30"
+        viewController.marketHomeView.reviewTitleLabel.text = "'본죽&비빔밥cafe 홍대점'의\n건강 평점을 남겨주세요!"
         viewController.marketHomeView.mainScrollView.isUserInteractionEnabled = false
+        return viewController
+    }()
+    
+    private let marketImageVC: MarketImageVC = {
+        let viewController = MarketImageVC()
+        viewController.marketImageView.imageCollectionView.isUserInteractionEnabled = false
+        return viewController
+    }()
+    
+    private let marketReviewVC: MarketReviewVC = {
+        let viewController = MarketReviewVC()
         return viewController
     }()
     
@@ -40,6 +63,16 @@ class MarketVC: UIViewController {
         
         self.view = marketView
         marketHomeVC.onGesture = panGestureHandler(recognizer:)
+        marketHomeVC.changePageTo = { [weak self] index in
+            guard let button = self?.marketView.topTabBar.tabBarStackView.arrangedSubviews[index] as? UIButton else { return }
+            self?.marketView.topTabBar.onClickMenu(button)
+        }
+        marketHomeVC.marketHomeView.imageCollectionView.dataSource = imageCollectionViewHandler
+        marketHomeVC.marketHomeView.imageCollectionView.delegate = imageCollectionViewHandler
+        
+        marketImageVC.onGesture = panGestureHandler(recognizer:)
+        marketImageVC.marketImageView.imageCollectionView.dataSource = imageCollectionViewHandler
+        marketImageVC.marketImageView.imageCollectionView.delegate = imageCollectionViewHandler
     }
     
     private lazy var marketView: MarketView = {
@@ -47,8 +80,8 @@ class MarketVC: UIViewController {
         
         view.pageViewControllers = [
             marketHomeVC,
-            MarketReviewVC(),
-            MarketHomeVC(),
+            marketImageVC,
+            marketReviewVC,
         ]
         view.topTabBar.delegate = self
         view.navigationTitleLabel.text = "본죽&비빔밥cafe 홍대점"
@@ -89,10 +122,12 @@ class MarketVC: UIViewController {
                 height = 0
                 marketView.expanded = false
                 marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = true
+                marketImageVC.marketImageView.imageCollectionView.isUserInteractionEnabled = true
             } else {
                 height = marketView.expandableView.frame.height
                 marketView.expanded = true
                 marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = false
+                marketImageVC.marketImageView.imageCollectionView.isUserInteractionEnabled = false
             }
             
             UIView.animate(withDuration: 0.2) { [weak self] in

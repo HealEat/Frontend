@@ -40,7 +40,7 @@ class MarketView: UIView {
     lazy var navigationTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .bold)
-        label.textColor = .label
+        label.textColor = .healeatBlack
         label.alpha = 0
         return label
     }()
@@ -59,13 +59,14 @@ class MarketView: UIView {
     lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.textColor = .healeatBlack
         return label
     }()
     
     lazy var subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 8)
-        label.textColor = UIColor(red: 106/255, green: 106/255, blue: 106/255, alpha: 1)
+        label.textColor = .healeatGray5
         return label
     }()
     
@@ -73,7 +74,7 @@ class MarketView: UIView {
         let button = UIButton()
         button.setImage(UIImage(systemName: "bookmark"), for: .normal)
         button.setImage(UIImage(systemName: "bookmark.fill"), for: .selected)
-        button.tintColor = .label
+        button.tintColor = .healeatBlack
         return button
     }()
     
@@ -83,7 +84,7 @@ class MarketView: UIView {
     }()
     
     lazy var ratingStarView: StarsView = {
-        let starView = StarsView(accentColor: UIColor(red: 255/255, green: 207/255, blue: 48/255, alpha: 1), baseColor: UIColor(red: 184/255, green: 184/255, blue: 184/255, alpha: 1))
+        let starView = StarsView(accentColor: .healeatYellow, baseColor: UIColor(red: 184/255, green: 184/255, blue: 184/255, alpha: 1))
         return starView
     }()
     

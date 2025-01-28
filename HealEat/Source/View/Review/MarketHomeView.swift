@@ -1,12 +1,13 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
+import CHTCollectionViewWaterfallLayout
 
 class MarketHomeView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = .systemBackground
+        self.backgroundColor = .white
         addComponents()
     }
     
@@ -113,11 +114,10 @@ class MarketHomeView: UIView {
     }()
     
     lazy var imageCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.estimatedItemSize = CGSize(width: 100, height: 100)
+        let layout = CHTCollectionViewWaterfallLayout()
+        layout.columnCount = 2
+        layout.minimumColumnSpacing = 16
         layout.minimumInteritemSpacing = 12
-        layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 16
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsVerticalScrollIndicator = false
@@ -130,8 +130,69 @@ class MarketHomeView: UIView {
     
     lazy var imageMoreButton: UIButton = {
         let button = UIButton()
-        button.setTitle("사진 더보기", for: .normal)
-        button.tintColor = UIColor(red: 106/255, green: 106/255, blue: 106/255, alpha: 1)
+        
+        var configuration = UIButton.Configuration.plain()
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16)
+        configuration.background.backgroundColor = UIColor.white
+        configuration.attributedTitle = AttributedString("사진 더보기", attributes: AttributeContainer([
+            .font: UIFont.systemFont(ofSize: 13),
+            .foregroundColor: UIColor(red: 106/255, green: 106/255, blue: 106/255, alpha: 1),
+        ]))
+        configuration.titleAlignment = .center
+        
+        button.configuration = configuration
+        button.layer.borderColor = UIColor(red: 213/255, green: 213/255, blue: 213/255, alpha: 1).cgColor
+        button.layer.cornerRadius = 12
+        button.layer.borderWidth = 1
+        return button
+    }()
+    
+    lazy var separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(red: 161/255, green: 161/255, blue: 161/255, alpha: 1)
+        return view
+    }()
+    
+    lazy var reviewView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
+    lazy var reviewStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 13
+        stackView.alignment = .center
+        stackView.distribution = .equalSpacing
+        return stackView
+    }()
+    
+    lazy var reviewTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        return label
+    }()
+    
+    lazy var reviewStarsView: StarsView = {
+        let starView = StarsView(accentColor: UIColor(red: 255/255, green: 207/255, blue: 48/255, alpha: 1), baseColor: UIColor(red: 184/255, green: 184/255, blue: 184/255, alpha: 1))
+        return starView
+    }()
+    
+    lazy var reviewMoreButton: UIButton = {
+        let button = UIButton()
+        
+        var configuration = UIButton.Configuration.plain()
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16)
+        configuration.background.backgroundColor = UIColor.white
+        configuration.attributedTitle = AttributedString("건강 후기 남기러 가기", attributes: AttributeContainer([
+            .font: UIFont.systemFont(ofSize: 13),
+            .foregroundColor: UIColor(red: 106/255, green: 106/255, blue: 106/255, alpha: 1),
+        ]))
+        configuration.titleAlignment = .center
+        
+        button.configuration = configuration
         button.layer.borderColor = UIColor(red: 213/255, green: 213/255, blue: 213/255, alpha: 1).cgColor
         button.layer.cornerRadius = 12
         button.layer.borderWidth = 1
@@ -142,7 +203,9 @@ class MarketHomeView: UIView {
         self.addSubview(mainScrollView)
         mainScrollView.addSubview(contentView)
         contentView.addSubview(infoStackView)
-        contentView.addSubview(imageCollectionView)
+        contentView.addSubview(imagePreviewView)
+        contentView.addSubview(separatorView)
+        contentView.addSubview(reviewView)
         
         infoStackView.addArrangedSubview(locationView)
         infoStackView.addArrangedSubview(openView)
@@ -159,6 +222,15 @@ class MarketHomeView: UIView {
         linkView.addSubview(linkImageView)
         linkView.addSubview(linkButton)
         
+        imagePreviewView.addSubview(imageCollectionView)
+        imagePreviewView.addSubview(imageMoreButton)
+        
+        reviewView.addSubview(reviewStackView)
+        
+        reviewStackView.addArrangedSubview(reviewTitleLabel)
+        reviewStackView.addArrangedSubview(reviewStarsView)
+        reviewStackView.addArrangedSubview(reviewMoreButton)
+        
         setConstraints()
     }
     
@@ -169,7 +241,7 @@ class MarketHomeView: UIView {
         contentView.snp.makeConstraints({ make in
             make.edges.equalToSuperview()
             make.width.equalToSuperview()
-            make.height.equalTo(3000)
+//            make.height.equalTo(3000)
         })
         infoStackView.snp.makeConstraints({ make in
             make.top.equalToSuperview().inset(16)
@@ -212,10 +284,35 @@ class MarketHomeView: UIView {
             make.centerY.equalToSuperview()
             make.leading.equalTo(linkImageView.snp.trailing).offset(10)
         })
+        imagePreviewView.snp.makeConstraints({ make in
+            make.top.equalTo(infoStackView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+        })
         imageCollectionView.snp.makeConstraints({ make in
             make.leading.trailing.equalToSuperview().inset(16)
-            make.top.equalTo(infoStackView.snp.bottom).offset(32)
+            make.top.equalToSuperview().inset(32)
             make.height.equalTo(390)
+        })
+        imageMoreButton.snp.makeConstraints({ make in
+            make.top.equalTo(imageCollectionView.snp.bottom).offset(12)
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().inset(16)
+        })
+        separatorView.snp.makeConstraints({ make in
+            make.top.equalTo(imagePreviewView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(1)
+        })
+        reviewView.snp.makeConstraints({ make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(separatorView.snp.bottom)
+        })
+        reviewStackView.snp.makeConstraints({ make in
+            make.top.bottom.equalToSuperview().inset(32)
+            make.centerX.equalToSuperview()
+        })
+        reviewStarsView.snp.makeConstraints({ make in
+            make.height.equalTo(13)
         })
     }
 }
