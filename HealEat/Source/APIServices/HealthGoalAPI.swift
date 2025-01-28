@@ -7,7 +7,7 @@ enum HealthGoalAPI {
     case getHealthGoal
     case postHealthGoal(param: HealthGoalRequest)
     case deleteHealthGoal(planId: Int)
-    case changeHealthGoal(planId: Int)
+    case changeHealthGoal(planId: Int, param: HealthGoalRequest)
 }
 
 
@@ -27,7 +27,7 @@ extension HealthGoalAPI: TargetType {
         case .postHealthGoal(let param): return "plans"
             
         case .deleteHealthGoal(let planId): return "plans/\(planId)"
-        case .changeHealthGoal(let planId): return "plans/\(planId)"
+        case .changeHealthGoal(let planId, let param): return "plans/\(planId)"
         }
     }
 
@@ -52,8 +52,8 @@ extension HealthGoalAPI: TargetType {
             return .requestJSONEncodable(param)
         case .deleteHealthGoal :
             return .requestPlain
-        case .changeHealthGoal :
-            return .requestPlain
+        case .changeHealthGoal(let planId, let param) :
+            return .requestJSONEncodable(param)
         }
     }
     

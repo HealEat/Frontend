@@ -18,15 +18,16 @@ class HealthGoalVC: UIViewController {
         $0.showsHorizontalScrollIndicator = false
         $0.alwaysBounceVertical = true
         $0.alwaysBounceHorizontal = false
+        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 45, right: 0)
     }
     
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then({
         $0.scrollDirection = .vertical
-        $0.minimumLineSpacing = 10
-        $0.minimumInteritemSpacing = 5
+        $0.minimumLineSpacing = 1
+        $0.minimumInteritemSpacing = 1
     })).then {
         $0.register(HealthGoalCell.self, forCellWithReuseIdentifier: HealthGoalCell.identifier)
-        $0.backgroundColor = .clear
+        $0.backgroundColor = UIColor.black.withAlphaComponent(0.2)
         $0.isScrollEnabled = false
         $0.showsHorizontalScrollIndicator = false
         $0.dataSource = self
@@ -40,9 +41,18 @@ class HealthGoalVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setUpConstraints()
-        //fetchHealthGoalData()
-        saveHealthGoalData()
+        
+        let healthGoal = HealthGoalRequest(duration: "DAY", number: 3, goal: "물 마시기")
+        let changeData = HealthGoalRequest(duration: "DAY", number: 4, goal: "일찍 자기")
+        //saveHealthGoalData(goal: healthGoal)
+        //deleteHealthGoalData(planId: 1)
+        //changeHealthGoalData(planId: 2, goal: changeData)
         navigationController?.navigationBar.isHidden = true
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchHealthGoalData()
     }
     
 
@@ -85,23 +95,55 @@ class HealthGoalVC: UIViewController {
     private func fetchHealthGoalData() {
         HealthGoalManager.getHealthGoals { result in
             switch result {
-            case .success(let healthGoal):
-                print(healthGoal)
+            case .success(let data):
+                self.healthGoalList = data.result?.healthPlanList ?? []
+                DispatchQueue.main.async {
+                    self.makeGoalsView.userName = data.result?.healthPlanList[0].name
+                    self.goalSeparatorView.userName = data.result?.healthPlanList[0].name
+                    self.goalSeparatorView.goalCount = data.result?.healthPlanList.count
+                    self.collectionView.reloadData()
+                }
             case .failure(let error):
-                print("실패")
+                print("건강목표 조회 실패: \(error.localizedDescription)")
             }
         }
     }
     
-    private func saveHealthGoalData() {
-        let healthGoal = HealthGoalRequest(duration: "WEEK", number: 4, goal: "일찍 일어나기")
-        HealthGoalManager.postHealthGoal(healthGoal) { isSuccess, response in
+    private func saveHealthGoalData(goal: HealthGoalRequest) {
+        
+        HealthGoalManager.postHealthGoal(goal) { isSuccess, response in
             if isSuccess {
-                print("성공: \(response)")
+                print("건강목표 저장 성공: \(response)")
             } else {
                 if let data = response?.data,
                    let errorMessage = String(data: data, encoding: .utf8) {
                     print("서버 에러 메시지: \(errorMessage)")
+                }
+            }
+        }
+    }
+    
+    private func deleteHealthGoalData(planId: Int) {
+        HealthGoalManager.deleteHealthGoal(planId) { isSuccess, response in
+            if isSuccess {
+                print("건강목표 삭제 성공: \(response)")
+            } else {
+                if let data = response?.data,
+                   let errorMessage = String(data: data, encoding: .utf8) {
+                    print("서버 에러 메시지: \(errorMessage)")
+                }
+            }
+        }
+    }
+    
+    private func changeHealthGoalData(planId: Int, goal: HealthGoalRequest) {
+        HealthGoalManager.changeHealthGoal(goal, planId: planId) { isSuccess, response in
+            if isSuccess {
+                print("건강목표 수정 성공: \(response)")
+            } else {
+                if let data = response?.data,
+                   let errorMessage = String(data: data, encoding: .utf8) {
+                    
                 }
             }
         }
@@ -118,6 +160,12 @@ extension HealthGoalVC: UICollectionViewDelegate, UICollectionViewDataSource, UI
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HealthGoalCell.identifier, for: indexPath) as! HealthGoalCell
+        let data = healthGoalList[indexPath.row]
+        cell.goalCountLabel.text = "목표\(indexPath.row + 1)"
+        let duration = TimeUnit(rawValue: data.duration) ?? .none
+        cell.periodTextLabel?.text = duration.inKorean
+        cell.countTextLabel?.text = "\(data.goalNumber)회"
+        cell.goalTextLabel?.text = data.goal
         return cell
     }
     

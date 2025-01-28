@@ -26,34 +26,41 @@ class HealthGoalCell: UICollectionViewCell {
     }
     
     
-    private lazy var goalCountLabel = UILabel().then {
+    public lazy var goalCountLabel = UILabel().then {
         $0.text = "목표1"
         $0.textColor = UIColor(hex: "7D7D7D")
         $0.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
     }
+    // `UILabel`을 외부에서 사용할 수 있도록
+    public var periodTextLabel: UILabel?
+    public var countTextLabel: UILabel?
+    public var goalTextLabel: UILabel?
     
-    private lazy var periodLabel = UIView().then {
+    public lazy var periodLabel = UIView().then {
         let label = UILabel().then { label in
             label.text = "일주일"
             label.textColor = UIColor(hex: "#797979") ?? UIColor.gray
             label.font = UIFont.systemFont(ofSize: 10, weight: .medium)
         }
+        self.periodTextLabel = label // 외부에서 접근할 수 있도록 저장
         $0.addSubview(label)
         label.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
+        
         $0.layer.cornerRadius = 12
         $0.clipsToBounds = true
         $0.layer.borderColor = UIColor(hex: "#B5B5B5")?.cgColor
         $0.layer.borderWidth = 1
     }
     
-    private lazy var countLabel = UIView().then {
+    public lazy var countLabel = UIView().then {
         let label = UILabel().then { label in
             label.text = "3회"
             label.textColor = UIColor(hex: "#797979") ?? UIColor.gray
             label.font = UIFont.systemFont(ofSize: 10, weight: .medium)
         }
+        self.countTextLabel = label
         $0.addSubview(label)
         label.snp.makeConstraints { make in
             make.center.equalToSuperview()
@@ -64,12 +71,13 @@ class HealthGoalCell: UICollectionViewCell {
         $0.layer.borderWidth = 1
     }
     
-    private lazy var goalLabel = UIView().then {
+    public lazy var goalLabel = UIView().then {
         let label = UILabel().then { label in
             label.text = "저염식하기"
             label.textColor = UIColor(hex: "#797979") ?? UIColor.gray
             label.font = UIFont.systemFont(ofSize: 10, weight: .medium)
         }
+        self.goalTextLabel = label
         $0.addSubview(label)
         label.snp.makeConstraints { make in
             make.center.equalToSuperview()
@@ -146,7 +154,7 @@ class HealthGoalCell: UICollectionViewCell {
     // MARK: - Init Methods
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .systemPink
+        backgroundColor = .white
         setUpConstraints()
     }
             
@@ -200,7 +208,7 @@ class HealthGoalCell: UICollectionViewCell {
         }
         
         memoView.snp.makeConstraints { make in
-            make.top.equalTo(goalBackground.snp.bottom).offset(15)
+            make.top.equalTo(goalBackground.snp.bottom).offset(70)
             make.bottom.equalToSuperview().inset(15)
             make.horizontalEdges.equalToSuperview().inset(16)
         }

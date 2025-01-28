@@ -3,7 +3,11 @@
 import UIKit
 
 class MakeGoalsView: UIView {
-    var userName: String?
+    var userName: String? {
+        didSet {
+            updateUI()
+        }
+    }
     
     // MARK: - UI Properties
     
@@ -19,14 +23,6 @@ class MakeGoalsView: UIView {
         $0.numberOfLines = 0
         $0.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         $0.textColor = UIColor(hex: "#4E4E4E")
-        
-        let fullText = "\(userName ?? "이용자") 님만의 건강 관리 목표를 세워보세요!"
-        let attributedString = NSMutableAttributedString(string: fullText)
-        let nameRange = (fullText as NSString).range(of: "\(userName ?? "이용자")")
-        attributedString.addAttribute(.foregroundColor, value: UIColor(hex: "#009459") ?? UIColor.green, range: nameRange)
-        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 16, weight: .medium), range: nameRange)
-        
-        $0.attributedText = attributedString
     }
     
     private lazy var goalBackground = UIView().then {
@@ -110,6 +106,16 @@ class MakeGoalsView: UIView {
         backgroundStack.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
+    }
+    
+    private func updateUI() {
+        let fullText = "\(userName ?? "이용자") 님만의 건강 관리 목표를 세워보세요!"
+        let attributedString = NSMutableAttributedString(string: fullText)
+        let nameRange = (fullText as NSString).range(of: "\(userName ?? "이용자")")
+        attributedString.addAttribute(.foregroundColor, value: UIColor(hex: "#009459") ?? UIColor.green, range: nameRange)
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 16, weight: .medium), range: nameRange)
+        
+        goalLabel.attributedText = attributedString
     }
     
 
