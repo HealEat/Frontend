@@ -5,9 +5,7 @@ import Then
 
 class HealthGoalVC: UIViewController {
     var userName: String?
-    var healthGoalList: [HealthPlan] = [
-        HealthPlan(id: 0, name: "김서현", duration: "일주일", goalNumber: 7, count: 3, goal: "9시 전 취침", memo: "힘들지만 화이팅!", memoImages: []),
-        HealthPlan(id: 1, name: "김서현", duration: "한 달", goalNumber: 3, count: 1, goal: "매일 스트레칭하기", memo: "유튜브 참고", memoImages: [])]
+    var healthGoalList: [HealthPlan] = []
     
     // MARK: - UI Properties
     private let makeGoalsView = MakeGoalsView()
@@ -27,6 +25,7 @@ class HealthGoalVC: UIViewController {
         $0.minimumInteritemSpacing = 1
     })).then {
         $0.register(HealthGoalCell.self, forCellWithReuseIdentifier: HealthGoalCell.identifier)
+        $0.register(NoHealthGoalCell.self, forCellWithReuseIdentifier: NoHealthGoalCell.identifier)
         $0.backgroundColor = UIColor.black.withAlphaComponent(0.2)
         $0.isScrollEnabled = false
         $0.showsHorizontalScrollIndicator = false
@@ -48,12 +47,14 @@ class HealthGoalVC: UIViewController {
         //deleteHealthGoalData(planId: 1)
         //changeHealthGoalData(planId: 2, goal: changeData)
         navigationController?.navigationBar.isHidden = true
+        fetchUserProfile()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         fetchHealthGoalData()
     }
+
     
 
     
@@ -80,9 +81,19 @@ class HealthGoalVC: UIViewController {
         collectionView.snp.makeConstraints { make in
             make.width.equalTo(view.safeAreaLayoutGuide.snp.width)
             make.top.equalTo(goalSeparatorView.snp.bottom)
-            make.height.equalTo(healthGoalList.count * 258)
+            make.height.equalTo(max(258, healthGoalList.count * 258))
             make.bottom.equalToSuperview()
         }
+    }
+    
+    private func updateCollectionViewHeight() {
+        let collectionViewHeight = max(258, healthGoalList.count * 258) // 최소 높이 보장
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+            self.collectionView.snp.updateConstraints { make in
+                make.height.equalTo(collectionViewHeight)
+            }
+            self.view.layoutIfNeeded() // 레이아웃 업데이트
+        })
     }
     
     
@@ -92,16 +103,29 @@ class HealthGoalVC: UIViewController {
     
     
     //MARK: - API call
+    private func fetchUserProfile() {
+        MyPageManager.getProfile { result in
+            switch result {
+            case .success(let data):
+                DispatchQueue.main.async {
+                    self.makeGoalsView.userName = data.result?.name ?? "이용자"
+                    self.goalSeparatorView.userName = data.result?.name ?? "이용자"
+                }
+            case .failure(let error):
+                print("유저 프로필 조회 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+    
     private func fetchHealthGoalData() {
         HealthGoalManager.getHealthGoals { result in
             switch result {
             case .success(let data):
                 self.healthGoalList = data.result?.healthPlanList ?? []
                 DispatchQueue.main.async {
-                    self.makeGoalsView.userName = data.result?.healthPlanList[0].name
-                    self.goalSeparatorView.userName = data.result?.healthPlanList[0].name
                     self.goalSeparatorView.goalCount = data.result?.healthPlanList.count
                     self.collectionView.reloadData()
+                    self.updateCollectionViewHeight() // 높이 업데이트
                 }
             case .failure(let error):
                 print("건강목표 조회 실패: \(error.localizedDescription)")
@@ -110,7 +134,6 @@ class HealthGoalVC: UIViewController {
     }
     
     private func saveHealthGoalData(goal: HealthGoalRequest) {
-        
         HealthGoalManager.postHealthGoal(goal) { isSuccess, response in
             if isSuccess {
                 print("건강목표 저장 성공: \(response)")
@@ -155,18 +178,25 @@ class HealthGoalVC: UIViewController {
 
 extension HealthGoalVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return healthGoalList.count
+        return healthGoalList.isEmpty ? 1 : healthGoalList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HealthGoalCell.identifier, for: indexPath) as! HealthGoalCell
-        let data = healthGoalList[indexPath.row]
-        cell.goalCountLabel.text = "목표\(indexPath.row + 1)"
-        let duration = TimeUnit(rawValue: data.duration) ?? .none
-        cell.periodTextLabel?.text = duration.inKorean
-        cell.countTextLabel?.text = "\(data.goalNumber)회"
-        cell.goalTextLabel?.text = data.goal
-        return cell
+        print("healthgoalList: \(healthGoalList)")
+        if healthGoalList.isEmpty {
+            print("no cell 표시")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NoHealthGoalCell.identifier, for: indexPath) as! NoHealthGoalCell
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HealthGoalCell.identifier, for: indexPath) as! HealthGoalCell
+            let data = healthGoalList[indexPath.row]
+            cell.goalCountLabel.text = "목표\(indexPath.row + 1)"
+            let duration = TimeUnit(rawValue: data.duration) ?? .none
+            cell.periodTextLabel?.text = duration.inKorean
+            cell.countTextLabel?.text = "\(data.goalNumber)회"
+            cell.goalTextLabel?.text = data.goal
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

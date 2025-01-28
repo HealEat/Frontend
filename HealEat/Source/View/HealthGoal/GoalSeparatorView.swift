@@ -3,11 +3,7 @@
 import UIKit
 
 class GoalSeparatorView: UIView {
-    var userName: String? {
-        didSet {
-            updateUI()
-        }
-    }
+    var userName: String? 
     var goalCount: Int? {
         didSet {
             updateUI()
