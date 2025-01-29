@@ -1,6 +1,7 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
+import SwiftyToaster
 
 class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
     
@@ -10,8 +11,9 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
         }
     }
     var duration : String?
-    var number : String?
-    //var healthGoal = HealthGoalRequest(duration: "", number: 0, goal: "")
+    var count : String?
+    
+    weak var vc: HealthGoalVC?
     
     private let dateDataSource = DropDownDataSource(items: ["하루", "일주일", "열흘", "한달"])
     private let countDataSource = DropDownDataSource(items: ["1회", "2회", "3회", "4회", "5회", "6회", "7회", "8회", "9회", "10회"])
@@ -191,7 +193,7 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
             self.duration = item  // ✅ 날짜 선택
             dateButton.label.text = item
         case 1:
-            self.number = item  // ✅ 횟수 선택
+            self.count = item  // ✅ 횟수 선택
             countButton.label.text = item
         default:
             break
@@ -200,9 +202,45 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         // 여기서 Post method 구현하기
-        print("입력 완료 \(textField.text ?? "")")
+        guard let duration = duration else {
+            Toaster.shared.makeToast("기간을 입력해주세요.")
+            return false
+        }
+        guard let durationEnum = extractEnum(from: duration) else {
+            Toaster.shared.makeToast("기간을 입력해주세요.")
+            return false
+        }
+        guard let count = count else {
+            Toaster.shared.makeToast("횟수를 입력해주세요.")
+            return false
+        }
+        
+        guard let countInNum = extractNum(from: count) else {
+            Toaster.shared.makeToast("횟수를 입력해주세요.")
+            return false
+        }
+        
+        guard let goal = textField.text else {
+            Toaster.shared.makeToast("작성된 목표가 없습니다.")
+            return false
+        }
+        vc?.healthGoalRequest = HealthGoalRequest(duration: durationEnum, number: countInNum, goal: goal)
         textField.resignFirstResponder() // 키보드 닫기
         return true
+    }
+    
+    private func extractEnum(from korean: String) -> String? {
+        let timeUnit = TimeUnit.allCases.first { $0.inKorean == korean }
+        return timeUnit?.rawValue
+    }
+    
+    func timeUnit(from korean: String) -> TimeUnit? {
+        return TimeUnit.allCases.first { $0.inKorean == korean }
+    }
+    
+    private func extractNum(from text: String) -> Int? {
+        let numberString = text.filter { $0.isNumber }  // 숫자만 남기기
+        return Int(numberString)  // Int로 변환
     }
  
     

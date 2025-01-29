@@ -6,6 +6,12 @@ import Then
 class HealthGoalVC: UIViewController {
     var userName: String?
     var healthGoalList: [HealthPlan] = []
+    var healthGoalRequest: HealthGoalRequest? {
+        didSet {
+            guard let goal = healthGoalRequest else { return }
+            saveHealthGoalData(goal: goal)
+        }
+    }
     
     // MARK: - UI Properties
     private let makeGoalsView = MakeGoalsView()
@@ -65,6 +71,7 @@ class HealthGoalVC: UIViewController {
         [makeGoalsView, goalSeparatorView, collectionView].forEach {
             scrollView.addSubview($0)
         }
+        makeGoalsView.vc = self
         scrollView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
@@ -137,10 +144,11 @@ class HealthGoalVC: UIViewController {
         HealthGoalManager.postHealthGoal(goal) { isSuccess, response in
             if isSuccess {
                 print("건강목표 저장 성공: \(response)")
+                self.fetchHealthGoalData()
             } else {
                 if let data = response?.data,
                    let errorMessage = String(data: data, encoding: .utf8) {
-                    print("서버 에러 메시지: \(errorMessage)")
+                    print("건강목표 저장 서버 에러 메시지: \(errorMessage)")
                 }
             }
         }
@@ -153,7 +161,7 @@ class HealthGoalVC: UIViewController {
             } else {
                 if let data = response?.data,
                    let errorMessage = String(data: data, encoding: .utf8) {
-                    print("서버 에러 메시지: \(errorMessage)")
+                    print("건강목표 삭제 서버 에러 메시지: \(errorMessage)")
                 }
             }
         }
