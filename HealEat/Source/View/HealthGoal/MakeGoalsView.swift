@@ -2,12 +2,19 @@
 
 import UIKit
 
-class MakeGoalsView: UIView {
+class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
+    
     var userName: String? {
         didSet {
             updateUI()
         }
     }
+    var duration : String?
+    var number : String?
+    //var healthGoal = HealthGoalRequest(duration: "", number: 0, goal: "")
+    
+    private let dateDataSource = DropDownDataSource(items: ["하루", "일주일", "열흘", "한달"])
+    private let countDataSource = DropDownDataSource(items: ["1회", "2회", "3회", "4회", "5회", "6회", "7회", "8회", "9회", "10회"])
     
     // MARK: - UI Properties
     
@@ -61,6 +68,21 @@ class MakeGoalsView: UIView {
         $0.layer.borderColor = UIColor(hex: "#B5B5B5")?.cgColor
         $0.layer.borderWidth = 1
         $0.addLeftPadding()
+        $0.textColor = UIColor(hex: "#797979")
+        $0.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        $0.textAlignment = .left
+    }
+    
+    private lazy var dateDropDownTableView = DropDownTableView().then {
+        $0.delegate = dateDataSource
+        $0.dataSource = dateDataSource
+        $0.tag = 0
+    }
+    
+    private lazy var countDropDownTableView = DropDownTableView().then {
+        $0.delegate = countDataSource
+        $0.dataSource = countDataSource
+        $0.tag = 1
     }
     
     
@@ -69,6 +91,8 @@ class MakeGoalsView: UIView {
         super.init(frame: frame)
         backgroundColor = .white
         setUpConstraints()
+        addTargets()
+        goalTextField.delegate = self
     }
         
     required init?(coder: NSCoder) {
@@ -82,6 +106,12 @@ class MakeGoalsView: UIView {
         [dateButton, countButton, goalTextField].forEach(backgroundStack.addArrangedSubview(_:))
         addSubview(goalStackView)
         goalBackground.addSubview(backgroundStack)
+        addSubview(dateDropDownTableView)
+        addSubview(countDropDownTableView)
+        dateDropDownTableView.isHidden = true
+        countDropDownTableView.isHidden = true
+        dateDataSource.delegate = self
+        countDataSource.delegate = self
         
         
         goalStackView.snp.makeConstraints { make in
@@ -106,8 +136,20 @@ class MakeGoalsView: UIView {
         backgroundStack.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
+        dateDropDownTableView.snp.makeConstraints { make in
+            make.top.equalTo(dateButton.snp.bottom)
+            make.leading.equalTo(dateButton.snp.leading)
+            make.width.equalTo(dateButton.snp.width)
+            make.height.equalTo(100)  // 고정 높이
+        }
+        countDropDownTableView.snp.makeConstraints { make in
+            make.top.equalTo(countButton.snp.bottom)
+            make.leading.equalTo(countButton.snp.leading)
+            make.width.equalTo(countButton.snp.width)
+            make.height.equalTo(100)  // 고정 높이
+        }
     }
-    
+
     private func updateUI() {
         let fullText = "\(userName ?? "이용자") 님만의 건강 관리 목표를 세워보세요!"
         let attributedString = NSMutableAttributedString(string: fullText)
@@ -117,6 +159,52 @@ class MakeGoalsView: UIView {
         
         goalLabel.attributedText = attributedString
     }
+    
+    // MARK: - Action Methods
+    private func addTargets() {
+        dateButton.addTarget(self, action: #selector(dateBtnClicked), for: .touchUpInside)
+        countButton.addTarget(self, action: #selector(countBtnClicked), for: .touchUpInside)
+    }
+    
+    @objc private func dateBtnClicked() {
+        let isHidden = dateDropDownTableView.isHidden
+
+        UIView.animate(withDuration: 0.3) {
+            self.dateDropDownTableView.isHidden = !isHidden
+            self.layoutIfNeeded()
+        }
+    }
+    
+    @objc private func countBtnClicked() {
+        let isHidden = countDropDownTableView.isHidden
+
+        UIView.animate(withDuration: 0.3) {
+            self.countDropDownTableView.isHidden = !isHidden
+            self.layoutIfNeeded()
+        }
+    }
+
+    // ✅ delegate 메서드 구현 → healthGoal에 값 저장
+    func dropDownDidSelect(item: String, from tag: Int) {
+        switch tag {
+        case 0:
+            self.duration = item  // ✅ 날짜 선택
+            dateButton.label.text = item
+        case 1:
+            self.number = item  // ✅ 횟수 선택
+            countButton.label.text = item
+        default:
+            break
+        }
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        // 여기서 Post method 구현하기
+        print("입력 완료 \(textField.text ?? "")")
+        textField.resignFirstResponder() // 키보드 닫기
+        return true
+    }
+ 
     
 
 }
