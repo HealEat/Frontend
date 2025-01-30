@@ -3,7 +3,8 @@
 import UIKit
 import Then
 
-class HealthGoalVC: UIViewController {
+class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDelegate {
+    
     var userName: String?
     var healthGoalList: [HealthPlan] = []
     var healthGoalRequest: HealthGoalRequest? {
@@ -47,11 +48,6 @@ class HealthGoalVC: UIViewController {
         view.backgroundColor = .white
         setUpConstraints()
         
-        let healthGoal = HealthGoalRequest(duration: "DAY", number: 3, goal: "물 마시기")
-        let changeData = HealthGoalRequest(duration: "DAY", number: 4, goal: "일찍 자기")
-        //saveHealthGoalData(goal: healthGoal)
-        //deleteHealthGoalData(planId: 1)
-        //changeHealthGoalData(planId: 2, goal: changeData)
         navigationController?.navigationBar.isHidden = true
         fetchUserProfile()
     }
@@ -106,7 +102,27 @@ class HealthGoalVC: UIViewController {
     
     
     //MARK: - Setup Actions
+    func didTapButton(in cell: HealthGoalCell) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        
+        let bottomSheet = HGBottomSheetVC()
+        bottomSheet.goalNum = indexPath.row + 1
+        bottomSheet.planId = healthGoalList[indexPath.row].id
+        bottomSheet.delegate = self
+        if let sheet = bottomSheet.sheetPresentationController {
+            sheet.detents = [.custom(resolver: { context in
+                return context.maximumDetentValue * 0.3 // ✅ 화면 높이의 30% 크기로 설정
+            })]
+            sheet.prefersGrabberVisible = true
+        }
+        present(bottomSheet, animated: true)
+    }
     
+    func didUpdateHealthGoal() {
+        fetchHealthGoalData()
+    }
+    
+
     
     
     //MARK: - API call
@@ -153,32 +169,6 @@ class HealthGoalVC: UIViewController {
             }
         }
     }
-    
-    private func deleteHealthGoalData(planId: Int) {
-        HealthGoalManager.deleteHealthGoal(planId) { isSuccess, response in
-            if isSuccess {
-                print("건강목표 삭제 성공: \(response)")
-            } else {
-                if let data = response?.data,
-                   let errorMessage = String(data: data, encoding: .utf8) {
-                    print("건강목표 삭제 서버 에러 메시지: \(errorMessage)")
-                }
-            }
-        }
-    }
-    
-    private func changeHealthGoalData(planId: Int, goal: HealthGoalRequest) {
-        HealthGoalManager.changeHealthGoal(goal, planId: planId) { isSuccess, response in
-            if isSuccess {
-                print("건강목표 수정 성공: \(response)")
-            } else {
-                if let data = response?.data,
-                   let errorMessage = String(data: data, encoding: .utf8) {
-                    
-                }
-            }
-        }
-    }
 
 
 }
@@ -197,6 +187,7 @@ extension HealthGoalVC: UICollectionViewDelegate, UICollectionViewDataSource, UI
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HealthGoalCell.identifier, for: indexPath) as! HealthGoalCell
+            cell.delegate = self
             let data = healthGoalList[indexPath.row]
             cell.goalCountLabel.text = "목표\(indexPath.row + 1)"
             let duration = TimeUnit(rawValue: data.duration) ?? .none

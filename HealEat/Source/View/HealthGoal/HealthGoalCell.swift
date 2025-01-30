@@ -7,7 +7,7 @@ import SDWebImage
 class HealthGoalCell: UICollectionViewCell {
      
     static let identifier = "HealthGoalCell"
-    
+    weak var delegate: HealthGoalCellDelegate?
     
     // MARK: - UI Properties
     private lazy var goalBackgroundStack = UIStackView().then {
@@ -88,10 +88,11 @@ class HealthGoalCell: UICollectionViewCell {
         $0.layer.borderWidth = 1
     }
     
-    private lazy var buttonImage = UIImageView().then {
-        $0.image = UIImage(systemName: "gearshape")
+    private lazy var settingButton = UIButton().then {
+        $0.setImage(UIImage(systemName: "gearshape"), for: .normal)
         $0.tintColor = UIColor.black.withAlphaComponent(0.5)
     }
+    
     
     private lazy var goalCountStack = UIStackView().then {
         $0.axis = .vertical
@@ -156,6 +157,7 @@ class HealthGoalCell: UICollectionViewCell {
         super.init(frame: frame)
         backgroundColor = .white
         setUpConstraints()
+        
     }
             
     required init?(coder: NSCoder) {
@@ -163,15 +165,13 @@ class HealthGoalCell: UICollectionViewCell {
     }
     
     
-    /// ViewController에서 만든 버튼을 셀에 추가
-    func configure(with button: UIButton) {
-    }
+
     
     
     
     // MARK: - UI Methods
     private func setUpConstraints() {
-        [goalCountLabel, periodLabel, countLabel,goalLabel, buttonImage ].forEach(goalBackgroundStack.addArrangedSubview(_:))
+        [goalCountLabel, periodLabel, countLabel,goalLabel, settingButton ].forEach(goalBackgroundStack.addArrangedSubview(_:))
         [memoImage, memoLabel].forEach(memoStack.addArrangedSubview(_:))
         
         goalBackground.addSubview(goalBackgroundStack)
@@ -182,6 +182,7 @@ class HealthGoalCell: UICollectionViewCell {
             addSubview($0)
         }
         addSubview(goalBackground)
+        settingButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
         
         goalBackground.snp.makeConstraints { make in
             make.height.equalTo(46)
@@ -203,7 +204,7 @@ class HealthGoalCell: UICollectionViewCell {
             make.width.equalTo(146)
             make.height.equalTo(28)
         }
-        buttonImage.snp.makeConstraints { make in
+        settingButton.snp.makeConstraints { make in
             make.width.height.equalTo(15)
         }
         
@@ -266,5 +267,13 @@ class HealthGoalCell: UICollectionViewCell {
         let numOfToDos = 6
         
     }
+    
+    @objc private func buttonTapped() {
+        delegate?.didTapButton(in: self)  // ✅ Delegate 호출하여 ViewController로 이벤트 전달
+    }
 }
 
+
+protocol HealthGoalCellDelegate: AnyObject {
+    func didTapButton(in cell: HealthGoalCell)
+}

@@ -19,7 +19,6 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
     private let countDataSource = DropDownDataSource(items: ["1회", "2회", "3회", "4회", "5회", "6회", "7회", "8회", "9회", "10회"])
     
     // MARK: - UI Properties
-    
     private lazy var goalStackView = UIStackView().then {
         $0.axis = .vertical
         $0.alignment = .center
@@ -201,21 +200,22 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        // 여기서 Post method 구현하기
+        // 여기서 Post method 구현
         guard let duration = duration else {
             Toaster.shared.makeToast("기간을 입력해주세요.")
             return false
         }
-        guard let durationEnum = extractEnum(from: duration) else {
+        guard let durationEnum = TimeUnit.rawValue(fromKorean: duration) else {
             Toaster.shared.makeToast("기간을 입력해주세요.")
             return false
         }
+        
         guard let count = count else {
             Toaster.shared.makeToast("횟수를 입력해주세요.")
             return false
         }
         
-        guard let countInNum = extractNum(from: count) else {
+        guard let countInNum = count.extractNumber else {
             Toaster.shared.makeToast("횟수를 입력해주세요.")
             return false
         }
@@ -229,29 +229,9 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
         return true
     }
     
-    private func extractEnum(from korean: String) -> String? {
-        let timeUnit = TimeUnit.allCases.first { $0.inKorean == korean }
-        return timeUnit?.rawValue
-    }
     
-    func timeUnit(from korean: String) -> TimeUnit? {
-        return TimeUnit.allCases.first { $0.inKorean == korean }
-    }
-    
-    private func extractNum(from text: String) -> Int? {
-        let numberString = text.filter { $0.isNumber }  // 숫자만 남기기
-        return Int(numberString)  // Int로 변환
-    }
+
  
     
 
-}
-
-extension UITextField {
-    func addLeftPadding() {
-        // width값에 원하는 padding 값을 넣어줍니다.
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: self.frame.height))
-        self.leftView = paddingView
-        self.leftViewMode = ViewMode.always
-    }
 }

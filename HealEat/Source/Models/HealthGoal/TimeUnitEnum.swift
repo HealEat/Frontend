@@ -18,4 +18,14 @@ enum TimeUnit: String, CaseIterable {
         case .none: return ""
         }
     }
+    
+    /// 한국어 값을 받아서 `TimeUnit`으로 변환
+       static func fromKorean(_ korean: String) -> TimeUnit? {
+           return self.allCases.first { $0.inKorean == korean }
+       }
+
+       /// 한국어 값을 받아서 `rawValue` (ENUM 문자열)로 변환
+       static func rawValue(fromKorean korean: String) -> String? {
+           return self.fromKorean(korean)?.rawValue
+       }
 }
