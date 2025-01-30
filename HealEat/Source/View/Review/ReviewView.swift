@@ -1,13 +1,84 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
-//  HealthGoalView.swift
+//  ReviewView.swift
 //  HealEat
 //
-//  Created by 김호성 on 2025.01.08.
+//  Created by tokkislove on 1/14/25.
 //
 
 import UIKit
 
-class HealthGoalView: UIView {
+class ReviewView: UIView {
 
     /*
     // Only override draw() if you perform custom drawing.
