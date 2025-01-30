@@ -176,8 +176,8 @@ class MarketHomeView: UIView {
     }()
     
     lazy var reviewStarsView: StarsView = {
-        let starView = StarsView(accentColor: UIColor(red: 255/255, green: 207/255, blue: 48/255, alpha: 1), baseColor: UIColor(red: 184/255, green: 184/255, blue: 184/255, alpha: 1))
-        return starView
+        let starsView = StarsView(accentColor: UIColor(red: 255/255, green: 207/255, blue: 48/255, alpha: 1), baseColor: UIColor(red: 184/255, green: 184/255, blue: 184/255, alpha: 1))
+        return starsView
     }()
     
     lazy var reviewMoreButton: UIButton = {

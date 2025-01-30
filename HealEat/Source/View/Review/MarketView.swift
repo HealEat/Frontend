@@ -72,6 +72,7 @@ class MarketView: UIView {
     
     lazy var bookmarkButton: UIButton = {
         let button = UIButton()
+        button.contentMode = .scaleAspectFit
         button.setImage(UIImage(systemName: "bookmark"), for: .normal)
         button.setImage(UIImage(systemName: "bookmark.fill"), for: .selected)
         button.tintColor = .healeatBlack
@@ -84,8 +85,8 @@ class MarketView: UIView {
     }()
     
     lazy var ratingStarView: StarsView = {
-        let starView = StarsView(accentColor: .healeatYellow, baseColor: UIColor(red: 184/255, green: 184/255, blue: 184/255, alpha: 1))
-        return starView
+        let starsView = StarsView(accentColor: .healeatYellow, baseColor: .healeatGray4)
+        return starsView
     }()
     
     lazy var ratingLabel: UILabel = {

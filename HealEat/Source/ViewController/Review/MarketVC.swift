@@ -37,6 +37,8 @@ class MarketVC: UIViewController {
         URL(string: "https://lv2-cdn.azureedge.net/jypark/9726350cf1224be19c2d8c7d64710d32-JYP_Groove%20Missing_%ED%8B%B0%EC%A0%80%ED%81%B4%EB%A6%B0%EB%B3%B8_01.jpg")!,
     ])
     
+    private let reviewTableViewHandler = ReviewTableViewHandler()
+    
     private let marketHomeVC: MarketHomeVC = {
         let viewController = MarketHomeVC()
         viewController.marketHomeView.locationLabel.text = "서울 마포구 홍익로 10 106호"
@@ -55,6 +57,7 @@ class MarketVC: UIViewController {
     
     private let marketReviewVC: MarketReviewVC = {
         let viewController = MarketReviewVC()
+        viewController.marketReviewView.reviewTableView.isUserInteractionEnabled = false
         return viewController
     }()
     
@@ -62,6 +65,8 @@ class MarketVC: UIViewController {
         super.viewDidLoad()
         
         self.view = marketView
+        self.navigationController?.navigationBar.isHidden = true
+        
         marketHomeVC.onGesture = panGestureHandler(recognizer:)
         marketHomeVC.changePageTo = { [weak self] index in
             guard let button = self?.marketView.topTabBar.tabBarStackView.arrangedSubviews[index] as? UIButton else { return }
@@ -73,6 +78,14 @@ class MarketVC: UIViewController {
         marketImageVC.onGesture = panGestureHandler(recognizer:)
         marketImageVC.marketImageView.imageCollectionView.dataSource = imageCollectionViewHandler
         marketImageVC.marketImageView.imageCollectionView.delegate = imageCollectionViewHandler
+        
+        marketReviewVC.onGesture = panGestureHandler(recognizer:)
+        reviewTableViewHandler.pushWriteReviewVC = { [weak self] in
+            let viewController = WriteReviewVC()
+            self?.navigationController?.pushViewController(viewController, animated: true)
+        }
+        marketReviewVC.marketReviewView.reviewTableView.dataSource = reviewTableViewHandler
+        marketReviewVC.marketReviewView.reviewTableView.delegate = reviewTableViewHandler
     }
     
     private lazy var marketView: MarketView = {
@@ -123,11 +136,13 @@ class MarketVC: UIViewController {
                 marketView.expanded = false
                 marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = true
                 marketImageVC.marketImageView.imageCollectionView.isUserInteractionEnabled = true
+                marketReviewVC.marketReviewView.reviewTableView.isUserInteractionEnabled = true
             } else {
                 height = marketView.expandableView.frame.height
                 marketView.expanded = true
                 marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = false
                 marketImageVC.marketImageView.imageCollectionView.isUserInteractionEnabled = false
+                marketReviewVC.marketReviewView.reviewTableView.isUserInteractionEnabled = false
             }
             
             UIView.animate(withDuration: 0.2) { [weak self] in
@@ -147,6 +162,8 @@ extension MarketVC: TabBarSegmentedControlDelegate {
         marketView.menuPageViewController.setViewControllers([marketView.pageViewControllers[index]], direction: direction, animated: true, completion: nil)
         marketView.expanded = false
         marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = true
+        marketImageVC.marketImageView.imageCollectionView.isUserInteractionEnabled = true
+        marketReviewVC.marketReviewView.reviewTableView.isUserInteractionEnabled = true
         UIView.animate(withDuration: 0.2) { [weak self] in
             guard let self = self else { return }
             self.marketView.navigationTitleLabel.alpha = 1

@@ -51,8 +51,8 @@ class DetailRatingCollectionViewCell: UICollectionViewCell {
     }()
     
     private func addComponents() {
-        self.addSubview(titleLabel)
-        self.addSubview(ratingStackView)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(ratingStackView)
         ratingStackView.addArrangedSubview(starImageView)
         ratingStackView.addArrangedSubview(ratingLabel)
         ratingStackView.addArrangedSubview(ratingCountLabel)

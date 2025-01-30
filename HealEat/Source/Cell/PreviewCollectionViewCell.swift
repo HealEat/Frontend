@@ -23,7 +23,7 @@ class PreviewCollectionViewCell: UICollectionViewCell {
     }()
     
     private func addComponents() {
-        self.addSubview(previewImageView)
+        contentView.addSubview(previewImageView)
         setConstraints()
     }
     

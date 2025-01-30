@@ -29,7 +29,7 @@ class TypeCollectionViewCell: UICollectionViewCell {
     }()
     
     private func addComponents() {
-        self.addSubview(baseView)
+        contentView.addSubview(baseView)
         baseView.addSubview(titleLabel)
         setConstraints()
     }
