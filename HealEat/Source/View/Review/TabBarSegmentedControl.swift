@@ -12,18 +12,24 @@ class TabBarSegmentedControl: UIView {
     init(menus: [String]) {
         self.menus = menus
         super.init(frame: .zero)
-        
-        for i in 0..<menus.count {
-            let button = UIButton()
-            button.tag = i
-            button.addTarget(self, action: #selector(onClickMenu(_:)), for: .touchUpInside)
-            button.setAttributedTitle(NSAttributedString(string: menus[i], attributes: [.foregroundColor: UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)]), for: .normal)
-            button.setAttributedTitle(NSAttributedString(string: menus[i], attributes: [.foregroundColor: UIColor(red: 0, green: 0, blue: 0, alpha: 1)]), for: .selected)
-            
-            tabBarStackView.addArrangedSubview(button)
-        }
+        addButtons()
         addComponents()
         setupUI(selected: 0)
+    }
+    
+    private func addButtons() {
+        var configuration = UIButton.Configuration.plain()
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 15, trailing: 0)
+        configuration.baseBackgroundColor = .clear
+        for i in 0..<menus.count {
+            let button = UIButton()
+            button.configuration = configuration
+            button.tag = i
+            button.addTarget(self, action: #selector(onClickMenu(_:)), for: .touchUpInside)
+            button.setAttributedTitle(NSAttributedString(string: menus[i], attributes: [.foregroundColor: UIColor(red: 161/255, green: 161/255, blue: 161/255, alpha: 1), .font: UIFont.systemFont(ofSize: 16)]), for: .normal)
+            button.setAttributedTitle(NSAttributedString(string: menus[i], attributes: [.foregroundColor: UIColor.label, .font: UIFont.systemFont(ofSize: 16, weight: .medium)]), for: .selected)
+            tabBarStackView.addArrangedSubview(button)
+        }
     }
     
     private func setupUI(selected: Int) {
@@ -54,20 +60,20 @@ class TabBarSegmentedControl: UIView {
     lazy var tabBarStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.distribution = .fillProportionally
+        stackView.distribution = .fillEqually
         stackView.alignment = .fill
         return stackView
     }()
     
     lazy var selectedArea: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
+        view.backgroundColor = UIColor(red: 161/255, green: 161/255, blue: 161/255, alpha: 1)
         return view
     }()
     
     lazy var selectedBar: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
+        view.backgroundColor = UIColor.label
         return view
     }()
     
@@ -100,7 +106,7 @@ class TabBarSegmentedControl: UIView {
         guard let past = getSelectedIndex() else { return }
         let now = sender.tag
         if past == now {
-            return
+            delegate?.didSelectMenu(direction: .forward, index: sender.tag)
         } else if past < now {
             delegate?.didSelectMenu(direction: .forward, index: sender.tag)
         } else {

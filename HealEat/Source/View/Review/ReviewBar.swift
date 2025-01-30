@@ -6,16 +6,40 @@ class ReviewBar: UIView {
     
     private var process: CGFloat = 0
     
-    private let myBackgroundColor: UIColor = .systemBackground
-    private let foregroundColor: UIColor = UIColor(red: 90/255, green: 237/255, blue: 76/255, alpha: 1)
+    private let field: ReviewFieldEnum
+    
+    private let baseColor: UIColor = .healeatLightGreen3
+    private let accentColor: UIColor = .healeatGreen2
+    private let borderColor: UIColor = .healeatGreen1
+    
+    private var expression: String {
+        get {
+            switch field {
+            case .taste:
+                if process < 0.5 {
+                    return "맛없어요"
+                }
+                return "맛있어요"
+            case .clean:
+                return "깨끗해요"
+            case .fresh:
+                return "신선해요"
+            case .nutrition:
+                return "영양성분이 고르게 갖춰져 있어요"
+            }
+        }
+    }
     
     var valueChanged: ((CGFloat) -> Void)?
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        self.layer.cornerRadius = 5
+    init(field: ReviewFieldEnum) {
+        self.field = field
+        
+        super.init(frame: .zero)
+        
+        self.layer.cornerRadius = 12
         self.layer.borderWidth = 1
-        self.layer.borderColor = UIColor.lightGray.cgColor
+        self.layer.borderColor = borderColor.cgColor
         self.layer.masksToBounds = true
     }
     
@@ -30,18 +54,49 @@ class ReviewBar: UIView {
     }
     
     override func draw(_ rect: CGRect) {
-        let width = rect.width
+        let defaultValue: CGFloat = 14
+        
+        let width = rect.width - defaultValue
         let height = rect.height
         
-        let backgroundRect = CGRect(x: 0, y: 0, width: width, height: height)
+        let backgroundRect = CGRect(x: 0, y: 0, width: defaultValue + width, height: height)
         let backgroundPath = UIBezierPath(rect: backgroundRect)
-        myBackgroundColor.setFill()
+        baseColor.setFill()
         backgroundPath.fill()
         
-        let processRect = CGRect(x: 0, y: 0, width: process*width, height: height)
-        let processPath = UIBezierPath(rect: processRect)
-        foregroundColor.setFill()
+        let processRect = CGRect(x: -width + process*width, y: 0, width: defaultValue + width, height: height)
+        let processPath = UIBezierPath(roundedRect: processRect, cornerRadius: 12)
+        accentColor.setFill()
         processPath.fill()
+        
+        borderColor.setStroke()
+        processPath.lineWidth = 0.5
+        processPath.stroke()
+        
+        let arrow = UIBezierPath()
+        let startPoint = CGPoint(x: defaultValue + process*width - 8, y: rect.midY - 4)
+        let middlePoint = CGPoint(x: defaultValue + process*width - 5, y: rect.midY)
+        let endPoint = CGPoint(x: defaultValue + process*width - 8, y: rect.midY + 4)
+        
+        arrow.move(to: startPoint)
+        arrow.addLine(to: middlePoint)
+        arrow.addLine(to: endPoint)
+        
+        borderColor.setStroke()
+        arrow.lineWidth = 1
+        arrow.stroke()
+        
+        let expressionStyle = NSMutableParagraphStyle()
+        expressionStyle.alignment = .right
+        let whiteAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 6, weight: .semibold),
+            .paragraphStyle: expressionStyle,
+            .foregroundColor: borderColor
+        ]
+        let expressionSize = expression.size(withAttributes: whiteAttributes)
+        
+        let expressionRect = CGRect(x: defaultValue + process*width - 12 - expressionSize.width, y: (height - expressionSize.height) / 2, width: expressionSize.width, height: expressionSize.height)
+        expression.draw(in: expressionRect, withAttributes: whiteAttributes)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

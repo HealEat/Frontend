@@ -3,5 +3,5 @@
 import Foundation
 
 class GlobalConst {
-    static let marketScrolledAreaHeightConstraint: CGFloat = 300
+    static let maxRating: Int = 5
 }

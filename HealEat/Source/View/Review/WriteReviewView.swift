@@ -16,7 +16,7 @@ class WriteReviewView: UIView {
     }
     
     lazy var reviewBar: ReviewBar = {
-        let view = ReviewBar()
+        let view = ReviewBar(field: .taste)
         view.valueChanged = { [weak self] value in
             self?.reviewLabel.text = "\(String(format: "%.1f", value * 5))"
         }
@@ -36,7 +36,7 @@ class WriteReviewView: UIView {
     func setConstraints() {
         reviewBar.snp.makeConstraints({ make in
             make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(40)
+            make.height.equalTo(22)
             make.centerY.equalToSuperview()
         })
         reviewLabel.snp.makeConstraints({ make in
