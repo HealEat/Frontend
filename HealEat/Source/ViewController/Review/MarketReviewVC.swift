@@ -1,85 +1,8 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//  ReviewVC.swift
-//  HealEat
-//
-//  Created by tokkislove on 1/14/25.
-//
-
+// Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
 
-class ReviewVC: UIViewController {
+class MarketReviewVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
