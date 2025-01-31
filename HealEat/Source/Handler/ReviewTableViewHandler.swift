@@ -69,8 +69,23 @@ class ReviewTableViewHandler: NSObject, UITableViewDataSource, UITableViewDelega
             cell.ratingReviewView.nutritionReviewView.reviewBar.drawProcess(process: 2.6 / CGFloat(GlobalConst.maxRating))
             return cell
         case .userReview:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: UserReviewTableViewCell.self), for: indexPath) as? UserReviewTableViewCell else { return UITableViewCell() }
+            if false {
+                
+            }
             
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: UserReviewTableViewCell.self), for: indexPath) as? UserReviewTableViewCell else { return UITableViewCell() }
+            cell.profileImageView.kf.setImage(with: URL(string: "https://lv2-cdn.azureedge.net/jypark/f8ba911ed379439fbe831212be8701f9-231103%206PM%20%EB%B0%95%EC%A7%84%EC%98%81%20Conceptphoto03(Clean).jpg")!)
+            cell.profileNameLabel.text = "사무엘"
+            cell.profilePurposeLabel.text = "과민성 대장 증후군"
+            cell.reviewStarsView.star = 3.5
+            cell.reviewDateLabel.text = "2024.12.25"
+            cell.reviewLabel.text = "배 아프면 꼭 죽집을 찾게 되는데 집 근처에 괜찮은 죽집이 있어서 좋아요. 또 방문하려고요."
+            cell.photoStackView.clearSubViews()
+            
+            if indexPath.row % 2 == 0 {
+                cell.addImage(url: URL(string: "https://lv2-cdn.azureedge.net/jypark/0.jpg")!)
+                cell.addImage(url: URL(string: "https://lv2-cdn.azureedge.net/jypark/gallery_150125165011.jpg")!)
+            }
             return cell
         }
     }
