@@ -12,20 +12,21 @@ class StoreRepository {
     
     private let provider = APIManager.StoreProvider
     
-    func saveStore(saveStoreRequest: SaveStoreRequest) -> AnyPublisher<DefaultResponse<SaveStoreResponseModel>, MoyaError> {
+    func saveStore(saveStoreRequest: SaveStoreRequest) -> AnyPublisher<SaveStoreResponseModel, HealEatError> {
         return provider.requestPublisher(.saveStore(param: saveStoreRequest))
-            .map(DefaultResponse<SaveStoreResponseEntity>.self)
-            .map({ responseEntity in
-                return DefaultResponse<SaveStoreResponseModel>(
-                    isSuccess: responseEntity.isSuccess,
-                    code: responseEntity.code,
-                    message: responseEntity.message,
-                    result: SaveStoreResponseModel(saveStoreResponseEntity: responseEntity.result)
-                )
-            })
+            .HEmap(SaveStoreResponseEntity.self)
+            .map({ SaveStoreResponseModel(saveStoreResponseEntity: $0) })
             .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
     
+    func getStoreDetail(storeId: Int) -> AnyPublisher<StoreDetailResponseModel, HealEatError> {
+        return provider.requestPublisher(.getStoreDetail(storeId: storeId))
+            .HEmap(StoreDetailResponseEntity.self)
+            .map({ StoreDetailResponseModel(storeDetailResponseEntity: $0) })
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
 }

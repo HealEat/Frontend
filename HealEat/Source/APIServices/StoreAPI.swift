@@ -4,7 +4,7 @@ import Foundation
 import Moya
 
 enum StoreAPI {
-//    case getStore(storeId: Int)
+    case getStoreDetail(storeId: Int)
     case saveStore(param: SaveStoreRequest)
 //    case getReview(storeId: Int)
 //    case postBookmark(storeId: Int)
@@ -21,13 +21,19 @@ extension StoreAPI: TargetType {
 
     var path: String {
         switch self {
+        case .getStoreDetail(let storeId):
+            return "/stores/\(storeId)"
         case .saveStore(let param):
             return "/stores/\(param.placeId)"
+//        case .postBookmark(let storeId):
+//            return "/stores/\(storeId)/bookmarks"
         }
     }
 
     var method: Moya.Method {
         switch self {
+        case .getStoreDetail:
+            return .get
         case .saveStore:
             return . post
         }
@@ -35,6 +41,8 @@ extension StoreAPI: TargetType {
 
     var task: Moya.Task {
         switch self {
+        case .getStoreDetail:
+            return .requestPlain
         case .saveStore(let param):
             return .requestJSONEncodable(param)
         }

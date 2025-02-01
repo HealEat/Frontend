@@ -1,6 +1,7 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
+import Combine
 
 class MarketVC: UIViewController {
     
@@ -43,6 +44,8 @@ class MarketVC: UIViewController {
     
     var param: Param!
     
+    private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
+    
     private var typeCollectionViewHandler: TypeCollectionViewHandler?
     private var detailRatingCollectionViewHandler: DetailRatingCollectionViewHandler?
     private var previewCollectionViewHandler: PreviewCollectionViewHandler?
@@ -81,9 +84,7 @@ class MarketVC: UIViewController {
         initializeGestures()
         initializeHandlers()
         
-        if !param.isInDB {
-            saveStore()
-        }
+        param.isInDB ? getStoreDetail() : saveStore()
     }
     
     private func initializeGestures() {
@@ -205,15 +206,32 @@ class MarketVC: UIViewController {
             daumImgUrlList: param.imageUrls.map({ $0.absoluteString })
         )
         StoreRepository.shared.saveStore(saveStoreRequest: saveStoreRequest)
-            .sink(receiveCompletion: { error in
-                print(error)
-            }, receiveValue: { result in
-                if !result.isSuccess {
-                    print("FAIL: Save Store")
-                    print(result)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    print(error.description)
                 }
+            }, receiveValue: { result in
                 print(result)
             })
+            .store(in: &cancellable)
+    }
+    
+    private func getStoreDetail() {
+        StoreRepository.shared.getStoreDetail(storeId: param.placeId)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    print(error.description)
+                }
+            }, receiveValue: { result in
+                print(result)
+            })
+            .store(in: &cancellable)
     }
 }
 
