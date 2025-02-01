@@ -6,7 +6,7 @@ struct DefaultResponse<T: Codable>: Codable {
     let isSuccess: Bool
     let code: String
     let message: String
-    let result: T
+    let result: T?
 }
 //필요 없을지도
 struct DefaultMultiResponse<T: Codable>: Codable {
