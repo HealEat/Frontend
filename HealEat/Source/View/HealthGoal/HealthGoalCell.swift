@@ -123,17 +123,35 @@ class HealthGoalCell: UICollectionViewCell {
     }
     private lazy var memoLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = UIFont.systemFont(ofSize: 7, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 10, weight: .regular)
         $0.numberOfLines = 0
         $0.textAlignment = .left
         $0.text = "옆에는 사진, 여기에 이렇게 메모한 내용이 들어갑니다. \n사진과 텍스트는 따로 이루어지고 자세한 디자인은 디자이너님과 소통해보겠습니다."
+        // 텍스트에 줄 간격을 추가해서 상단에 붙도록 만들기
+        let style = NSMutableParagraphStyle()
+        style.minimumLineHeight = 10  // 줄 간격을 키워서 위로 올리기
+        style.alignment = .left
+
+        let attributedString = NSAttributedString(
+            string: $0.text ?? "",
+            attributes: [
+                .paragraphStyle: style
+            ]
+        )
+
+        $0.attributedText = attributedString
+
+        // 최소 크기로 조정하여 텍스트가 상단에 붙도록 유도
+        $0.setContentHuggingPriority(.required, for: .vertical)
+        $0.setContentCompressionResistancePriority(.required, for: .vertical)
     }
+
     
     private lazy var memoStack = UIStackView().then {
         $0.axis = .horizontal
-        $0.alignment = .center
+        $0.alignment = .leading
         $0.distribution = .fill
-        $0.spacing = 5
+        $0.spacing = 15
     }
     
     private lazy var toDoRow = UIStackView().then {
@@ -209,7 +227,7 @@ class HealthGoalCell: UICollectionViewCell {
         }
         
         memoView.snp.makeConstraints { make in
-            make.top.equalTo(goalBackground.snp.bottom).offset(70)
+            make.top.equalTo(goalBackground.snp.bottom).offset(15)
             make.bottom.equalToSuperview().inset(15)
             make.horizontalEdges.equalToSuperview().inset(16)
         }
@@ -222,10 +240,14 @@ class HealthGoalCell: UICollectionViewCell {
             make.horizontalEdges.bottom.equalToSuperview().inset(10)
             make.bottom.equalToSuperview().inset(10)
         }
-        /*memoImage.snp.makeConstraints { make in
-            make.width.equalTo(82)
-            make.height.equalTo(74)
-        }*/
+        memoImage.snp.makeConstraints { make in
+            make.top.equalTo(memoDescription.snp.bottom).offset(15)
+            make.height.equalTo(120)
+            make.width.equalTo(150)
+        }
+        memoLabel.snp.makeConstraints { make in
+            make.top.equalTo(memoImage.snp.top)
+        }
     }
     
     func addToDoList(count: Int) -> UIStackView {

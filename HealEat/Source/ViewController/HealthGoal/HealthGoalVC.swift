@@ -180,9 +180,7 @@ extension HealthGoalVC: UICollectionViewDelegate, UICollectionViewDataSource, UI
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        print("healthgoalList: \(healthGoalList)")
         if healthGoalList.isEmpty {
-            print("no cell 표시")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NoHealthGoalCell.identifier, for: indexPath) as! NoHealthGoalCell
             return cell
         } else {

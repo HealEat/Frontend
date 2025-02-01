@@ -1,8 +1,8 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
-import Foundation
 import Moya
 import SwiftyToaster
+import UIKit
 
 class HealthGoalManager {
     static func getHealthGoals(completion: @escaping (Result<DefaultResponse<HealthGoalResponse> , Error>) -> Void) {
@@ -69,6 +69,21 @@ class HealthGoalManager {
             case .failure(let error):
                 Toaster.shared.makeToast("건강 목표 수정 중 에러가 발생했습니다.")
                 completion(false, error.response)
+            }
+        }
+    }
+    
+    static func uploadImage(planId: Int, image: UIImage) {
+        APIManager.HealthGoalProvider.request(.uploadImage(planId: planId, image: image, imageType: "profile", imageExtension: "jpg")) { result in
+            switch result {
+            case .success(let response):
+                if let json = try? response.mapJSON() {
+                    print("✅ 업로드 성공: \(json)")
+                } else {
+                    print("❌ JSON 파싱 실패")
+                }
+            case .failure(let error):
+                print("❌ 업로드 실패: \(error.localizedDescription)")
             }
         }
     }

@@ -57,7 +57,7 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
     }
     
     private lazy var goalTextField = UITextField().then {
-        let fullText = "         목표 (직접 작성)"
+        let fullText = "목표 (직접 작성)"
         let attributedString = NSMutableAttributedString(string: fullText, attributes: [.foregroundColor: UIColor(hex: "#797979") ?? UIColor.gray, .font: UIFont.systemFont(ofSize: 10, weight: .medium)])
         let range = (fullText as NSString).range(of: "(직접 작성)")
         attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 7, weight: .medium), range: range)
