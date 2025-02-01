@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		132D39452D37D49400E1458B /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 132D39442D37D49400E1458B /* KakaoMapsSDK-SPM */; };
 		13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13C6A6632D3CEC470098B394 /* CoreLocation.framework */; };
-		132D36F22D36529C00E1458B /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 132D36F12D36529C00E1458B /* KakaoMapsSDK-SPM */; };
+		13C6AA342D4E8D8D0098B394 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13C6AA332D4E8D8D0098B394 /* Kingfisher */; };
 		96DB35E82D2E4C2A001FE074 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 96DB35E72D2E4C2A001FE074 /* CombineMoya */; };
 		96DB35EA2D2E4C2A001FE074 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 96DB35E92D2E4C2A001FE074 /* Moya */; };
 		96DB35EC2D2E4C2A001FE074 /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 96DB35EB2D2E4C2A001FE074 /* ReactiveMoya */; };
@@ -52,15 +52,14 @@
 				96DB35F12D2E4C36001FE074 /* Then in Frameworks */,
 				96DB35EA2D2E4C2A001FE074 /* Moya in Frameworks */,
 				96DB35E82D2E4C2A001FE074 /* CombineMoya in Frameworks */,
+				13C6AA342D4E8D8D0098B394 /* Kingfisher in Frameworks */,
 				96DB35F42D2E4C40001FE074 /* SnapKit in Frameworks */,
 				13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */,
 				96DB35EE2D2E4C2A001FE074 /* RxMoya in Frameworks */,
 				96DB35EC2D2E4C2A001FE074 /* ReactiveMoya in Frameworks */,
-
+                
 				132D39452D37D49400E1458B /* KakaoMapsSDK-SPM in Frameworks */,
-
-				132D36F22D36529C00E1458B /* KakaoMapsSDK-SPM in Frameworks */,
-
+                
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,8 +118,7 @@
 				96DB35F02D2E4C36001FE074 /* Then */,
 				96DB35F32D2E4C40001FE074 /* SnapKit */,
 				132D39442D37D49400E1458B /* KakaoMapsSDK-SPM */,
-				132D36F12D36529C00E1458B /* KakaoMapsSDK-SPM */,
-
+				13C6AA332D4E8D8D0098B394 /* Kingfisher */,
 			);
 			productName = HealEat;
 			productReference = 96DB35792D2E4B83001FE074 /* HealEat.app */;
@@ -155,8 +153,8 @@
 				96DB35EF2D2E4C36001FE074 /* XCRemoteSwiftPackageReference "Then" */,
 				96DB35F22D2E4C40001FE074 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
-				132D36F02D36529C00E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
 
+				13C6AA322D4E8D8D0098B394 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 96DB357A2D2E4B83001FE074 /* Products */;
@@ -387,12 +385,20 @@
 
 /* Begin XCRemoteSwiftPackageReference section */
 		132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
-		132D36F02D36529C00E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
+
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.12.4;
+			};
+		};
+		13C6AA322D4E8D8D0098B394 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.1.4;
 			};
 		};
 		96DB35E62D2E4C2A001FE074 /* XCRemoteSwiftPackageReference "Moya" */ = {
@@ -427,10 +433,10 @@
 			package = 132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
 			productName = "KakaoMapsSDK-SPM";
 		};
-		132D36F12D36529C00E1458B /* KakaoMapsSDK-SPM */ = {
+		13C6AA332D4E8D8D0098B394 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 132D36F02D36529C00E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
-			productName = "KakaoMapsSDK-SPM";
+			package = 13C6AA322D4E8D8D0098B394 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 		96DB35E72D2E4C2A001FE074 /* CombineMoya */ = {
 			isa = XCSwiftPackageProductDependency;

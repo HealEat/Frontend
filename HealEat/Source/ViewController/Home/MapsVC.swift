@@ -8,9 +8,11 @@
 import UIKit
 import KakaoMapsSDK
 import CoreLocation
+import Moya
 
 class MapsVC: UIViewController, MapControllerDelegate {
     
+    var onLocationUpdate: ((Double, Double) -> Void)? // (latitude, longitude)
     var locationManager : CLLocationManager!
     var la : Double!
     var lo : Double!
@@ -275,6 +277,8 @@ class MapsVC: UIViewController, MapControllerDelegate {
         }
     }
     
+   
+    
     @objc func willResignActive(){
         mapController?.pauseEngine()  //뷰가 inactive 상태로 전환되는 경우 렌더링 중인 경우 렌더링을 중단.
     }
@@ -347,8 +351,7 @@ extension MapsVC:CLLocationManagerDelegate {
         
         moveCameraToCurrentLocation(currentLocation.coordinate)
         startTracking()
-        
-        
+        onLocationUpdate?(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude)
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -373,4 +376,6 @@ extension MapsVC:CLLocationManagerDelegate {
         currentHeading = newHeading.trueHeading * Double.pi / 180.0
         currentDirectionArrow?.rotateAt(currentHeading, duration: 100)
     }
+    
+    
 }

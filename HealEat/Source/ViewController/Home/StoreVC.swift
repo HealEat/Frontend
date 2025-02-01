@@ -7,38 +7,67 @@
 
 import UIKit
 import Then
+import SnapKit
+
+protocol StoreVCDelegate: AnyObject {
+    func didTapHealthSetting()
+}
 
 class StoreVC: UIViewController {
-    
-    let data = dummyStoreModel.storeDatas
-    
-    private lazy var storeview = StoreView().then {
-        $0.backgroundColor = .white
-        $0.storeTableView.backgroundColor = .white
-        $0.storeTableView.dataSource = self
-        $0.storeTableView.delegate = self
-        
-    }
-    
+    weak var delegate: StoreVCDelegate?
+    private var storeData: [dummyModel] = dummyModel.storedummy()
+    public let storeview = StoreView()
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
         self.view = storeview
-        self.storeview.storeTableView.reloadData()
+        setupCollectionView()
+        storeview.healthsettingButton.addTarget(self, action: #selector(healthsettingTapped), for: .touchUpInside)
+                                                
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.reloadCollectionView()
+        }
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        reloadCollectionView()
+    }
+
+    private func setupCollectionView() {
+        storeview.storeCollectionView.dataSource = self
+        storeview.storeCollectionView.delegate = self
+        storeview.storeCollectionView.bounces = false
+        storeview.storeCollectionView.contentInsetAdjustmentBehavior = .never
+        storeview.storeCollectionView.reloadData()
+    }
+
+    public func reloadCollectionView() {
+        storeview.storeCollectionView.reloadData()
+        storeview.updateCollectionViewHeight()
+    }
+                                                
+    @objc private func healthsettingTapped() {
+        delegate?.didTapHealthSetting() //HomeVC에 버튼 클릭 이벤트 전달
     }
 }
 
-extension StoreVC: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        data.count
+extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print("📌 컬렉션 뷰 데이터 개수: \(storeData.count)")
+        return storeData.count
     }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = storeview.storeTableView.dequeueReusableCell(withIdentifier: StoreTableViewCell.identifier, for: indexPath) as? StoreTableViewCell else {
-            return UITableViewCell()
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: StoreCollectionViewCell.identifier, for: indexPath) as? StoreCollectionViewCell else {
+            return UICollectionViewCell()
         }
-        
-        cell.configure(model: data[indexPath.row])
-        
+
+        let model = storeData[indexPath.row]
+        cell.storeconfigure(model: model)
+
         return cell
     }
 }
+
