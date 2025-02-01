@@ -1,8 +1,4 @@
-//  CustomSearchBar.swift
-//  HealEat
-//
-//  Created by tokkislove on 1/15/25.
-//
+// Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
 import SnapKit
@@ -81,4 +77,3 @@ class CustomSearchBar: UIView {
         }
     }
 }
-

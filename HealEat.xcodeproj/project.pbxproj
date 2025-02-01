@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7CA784752D4108B700041779 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 7CA784742D4108B700041779 /* SDWebImage */; };
+		7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */ = {isa = PBXBuildFile; productRef = 7CA7848C2D41296700041779 /* SwiftyToaster */; };
+		968AF0382D4BD1E900F0221B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 968AF0372D4BD1E900F0221B /* Kingfisher */; };
+		968AF03B2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 968AF03A2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout */; };
 		96DB35E82D2E4C2A001FE074 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 96DB35E72D2E4C2A001FE074 /* CombineMoya */; };
 		96DB35EA2D2E4C2A001FE074 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 96DB35E92D2E4C2A001FE074 /* Moya */; };
 		96DB35EC2D2E4C2A001FE074 /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 96DB35EB2D2E4C2A001FE074 /* ReactiveMoya */; };
@@ -48,7 +52,11 @@
 				96DB35F12D2E4C36001FE074 /* Then in Frameworks */,
 				96DB35EA2D2E4C2A001FE074 /* Moya in Frameworks */,
 				96DB35E82D2E4C2A001FE074 /* CombineMoya in Frameworks */,
+				968AF0382D4BD1E900F0221B /* Kingfisher in Frameworks */,
+				7CA784752D4108B700041779 /* SDWebImage in Frameworks */,
 				96DB35F42D2E4C40001FE074 /* SnapKit in Frameworks */,
+				968AF03B2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout in Frameworks */,
+				7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */,
 				96DB35EE2D2E4C2A001FE074 /* RxMoya in Frameworks */,
 				96DB35EC2D2E4C2A001FE074 /* ReactiveMoya in Frameworks */,
 			);
@@ -83,6 +91,7 @@
 				96DB35752D2E4B83001FE074 /* Sources */,
 				96DB35762D2E4B83001FE074 /* Frameworks */,
 				96DB35772D2E4B83001FE074 /* Resources */,
+				7C2E03332D3931D5002F2FEC /* Add File Header */,
 			);
 			buildRules = (
 			);
@@ -99,6 +108,10 @@
 				96DB35ED2D2E4C2A001FE074 /* RxMoya */,
 				96DB35F02D2E4C36001FE074 /* Then */,
 				96DB35F32D2E4C40001FE074 /* SnapKit */,
+				7CA784742D4108B700041779 /* SDWebImage */,
+				7CA7848C2D41296700041779 /* SwiftyToaster */,
+				968AF0372D4BD1E900F0221B /* Kingfisher */,
+				968AF03A2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout */,
 			);
 			productName = HealEat;
 			productReference = 96DB35792D2E4B83001FE074 /* HealEat.app */;
@@ -132,6 +145,10 @@
 				96DB35E62D2E4C2A001FE074 /* XCRemoteSwiftPackageReference "Moya" */,
 				96DB35EF2D2E4C36001FE074 /* XCRemoteSwiftPackageReference "Then" */,
 				96DB35F22D2E4C40001FE074 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				7CA784732D4108B700041779 /* XCRemoteSwiftPackageReference "SDWebImage" */,
+				7CA7848B2D41296700041779 /* XCRemoteSwiftPackageReference "SwiftyToaster" */,
+				968AF0362D4BD1E900F0221B /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				968AF0392D4BD1F800F0221B /* XCRemoteSwiftPackageReference "CHTCollectionViewWaterfallLayout" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 96DB357A2D2E4B83001FE074 /* Products */;
@@ -153,6 +170,27 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		7C2E03332D3931D5002F2FEC /* Add File Header */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Add File Header";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "HEADER_FILE=\"${SRCROOT}/HEADER.txt\"\n\n# HEADER.txt 파일이 있는지 확인\nif [ -f \"$HEADER_FILE\" ]; then\n    # 프로젝트 내 모든 .swift 파일을 찾고 주석이 없는 경우 추가\n    find \"${SRCROOT}\" -name \"*.swift\" -exec sh -c '\n    for file; do\n        # 이미 Copyright 주석이 포함된 파일은 건너뜀\n        if ! grep -q \"Copyright\" \"$file\"; then\n            echo \"$(cat $HEADER_FILE)\n$(cat $file)\" > $file\n        fi\n    done' sh {} +\nfi\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		96DB35752D2E4B83001FE074 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -171,7 +209,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = JU27F4BHH8;
+				DEVELOPMENT_TEAM = CACTN7F6PL;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealEat/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -198,7 +237,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = JU27F4BHH8;
+				DEVELOPMENT_TEAM = CACTN7F6PL;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealEat/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -361,6 +401,38 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		7CA784732D4108B700041779 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.20.0;
+			};
+		};
+		7CA7848B2D41296700041779 /* XCRemoteSwiftPackageReference "SwiftyToaster" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/noeyiz/SwiftyToaster.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.2;
+			};
+		};
+		968AF0362D4BD1E900F0221B /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.1.4;
+			};
+		};
+		968AF0392D4BD1F800F0221B /* XCRemoteSwiftPackageReference "CHTCollectionViewWaterfallLayout" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/chiahsien/CHTCollectionViewWaterfallLayout";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.10;
+			};
+		};
 		96DB35E62D2E4C2A001FE074 /* XCRemoteSwiftPackageReference "Moya" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Moya/Moya/";
@@ -388,6 +460,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		7CA784742D4108B700041779 /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7CA784732D4108B700041779 /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		7CA7848C2D41296700041779 /* SwiftyToaster */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7CA7848B2D41296700041779 /* XCRemoteSwiftPackageReference "SwiftyToaster" */;
+			productName = SwiftyToaster;
+		};
+		968AF0372D4BD1E900F0221B /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 968AF0362D4BD1E900F0221B /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		968AF03A2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 968AF0392D4BD1F800F0221B /* XCRemoteSwiftPackageReference "CHTCollectionViewWaterfallLayout" */;
+			productName = CHTCollectionViewWaterfallLayout;
+		};
 		96DB35E72D2E4C2A001FE074 /* CombineMoya */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 96DB35E62D2E4C2A001FE074 /* XCRemoteSwiftPackageReference "Moya" */;

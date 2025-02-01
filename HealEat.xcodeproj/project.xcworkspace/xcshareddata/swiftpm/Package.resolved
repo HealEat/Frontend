@@ -1,5 +1,5 @@
 {
-  "originHash" : "05c7e9948f10cc284c43be19c3c2fb692afc86dbb01eb57f2b6859b58a08b9b1",
+  "originHash" : "9a1f695b4c55a0a8e2f27413c8c21a27f94746139de06ad045e6a0096fb98741",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -8,6 +8,24 @@
       "state" : {
         "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
         "version" : "5.10.2"
+      }
+    },
+    {
+      "identity" : "chtcollectionviewwaterfalllayout",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/chiahsien/CHTCollectionViewWaterfallLayout",
+      "state" : {
+        "revision" : "1fe42247efc8aea1ad03332d2b44f2d7fb1644bc",
+        "version" : "0.9.10"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher",
+      "state" : {
+        "revision" : "fa3609d1975791c0a6e6f75a56dc20a957967769",
+        "version" : "8.1.4"
       }
     },
     {
@@ -38,12 +56,30 @@
       }
     },
     {
+      "identity" : "sdwebimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImage.git",
+      "state" : {
+        "revision" : "10d06f6a33bafae8c164fbfd1f03391f6d4692b3",
+        "version" : "5.20.0"
+      }
+    },
+    {
       "identity" : "snapkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SnapKit/SnapKit",
       "state" : {
         "revision" : "2842e6e84e82eb9a8dac0100ca90d9444b0307f4",
         "version" : "5.7.1"
+      }
+    },
+    {
+      "identity" : "swiftytoaster",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/noeyiz/SwiftyToaster.git",
+      "state" : {
+        "revision" : "4ed905fdecf7426e3e7a7af03b09674980f9c1a7",
+        "version" : "1.0.2"
       }
     },
     {
