@@ -3,6 +3,7 @@
 //
 //  Created by 김호성 on 2025.01.08.
 //
+// Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
 import SnapKit

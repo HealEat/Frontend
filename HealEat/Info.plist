@@ -23,6 +23,19 @@
 	<string>앱을 사용하는 동안 위치 정보 허용</string>
 	<key>KAKAO_APP_KEY</key>
 	<string>826dcfc24d65718bf46f1655ed2a283d</string>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>13.124.70.231</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+            </dict>
+        </dict>
+    </dict>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
