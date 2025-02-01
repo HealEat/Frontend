@@ -29,6 +29,10 @@ class ProfileVC: UIViewController, UIImagePickerControllerDelegate, UINavigation
     // MARK: - Action Handlers
     @objc private func nextButtonTapped() {
         print("다음 버튼 눌림")
+        let purposeVC = PurposeVC()
+        purposeVC.modalPresentationStyle = .fullScreen
+        purposeVC.modalTransitionStyle = .crossDissolve
+        present(purposeVC, animated: true, completion: nil)
     }
 
     @objc private func profileImageTapped() {
