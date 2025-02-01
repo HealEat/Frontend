@@ -8,5 +8,5 @@ class APIManager {
     static let HomeProvider = MoyaProvider<HomeAPI>(plugins: [NetworkLoggerPlugin()])
     static let InfoProvider = MoyaProvider<InfoAPI>(plugins: [NetworkLoggerPlugin()])
     static let MyPageProvider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin()])
-    static let ReviewProvider = MoyaProvider<ReviewAPI>(plugins: [NetworkLoggerPlugin()])
+    static let StoreProvider = MoyaProvider<StoreAPI>(plugins: [NetworkLoggerPlugin()])
 }
