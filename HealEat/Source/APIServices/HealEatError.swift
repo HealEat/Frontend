@@ -6,6 +6,7 @@ import Moya
 public enum HealEatError: Error {
     case moyaError(error: MoyaError)
     case healeatError(statusCode: String, message: String)
+    case resultNil(statusCode: String, message: String)
     
     var description: String {
         switch self {
@@ -13,6 +14,8 @@ public enum HealEatError: Error {
             return "Moya Error - \(error)"
         case .healeatError(let statusCode, let message):
             return "HealEat Error - Status Code: \(statusCode), Message: \(message)"
+        case .resultNil(let statusCode, let message):
+            return "Result Nil Error - Status Code: \(statusCode), Message: \(message)"
         }
     }
 }
