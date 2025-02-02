@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		132D39452D37D49400E1458B /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 132D39442D37D49400E1458B /* KakaoMapsSDK-SPM */; };
+		13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13C6A6632D3CEC470098B394 /* CoreLocation.framework */; };
+		13C6AA342D4E8D8D0098B394 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13C6AA332D4E8D8D0098B394 /* Kingfisher */; };
 		7CA784752D4108B700041779 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 7CA784742D4108B700041779 /* SDWebImage */; };
 		7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */ = {isa = PBXBuildFile; productRef = 7CA7848C2D41296700041779 /* SwiftyToaster */; };
 		968AF0382D4BD1E900F0221B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 968AF0372D4BD1E900F0221B /* Kingfisher */; };
@@ -20,6 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		13C6A6632D3CEC470098B394 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		96DB35792D2E4B83001FE074 /* HealEat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealEat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -52,6 +56,9 @@
 				96DB35F12D2E4C36001FE074 /* Then in Frameworks */,
 				96DB35EA2D2E4C2A001FE074 /* Moya in Frameworks */,
 				96DB35E82D2E4C2A001FE074 /* CombineMoya in Frameworks */,
+				13C6AA342D4E8D8D0098B394 /* Kingfisher in Frameworks */,
+				96DB35F42D2E4C40001FE074 /* SnapKit in Frameworks */,
+				13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */,
 				968AF0382D4BD1E900F0221B /* Kingfisher in Frameworks */,
 				7CA784752D4108B700041779 /* SDWebImage in Frameworks */,
 				96DB35F42D2E4C40001FE074 /* SnapKit in Frameworks */,
@@ -59,16 +66,26 @@
 				7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */,
 				96DB35EE2D2E4C2A001FE074 /* RxMoya in Frameworks */,
 				96DB35EC2D2E4C2A001FE074 /* ReactiveMoya in Frameworks */,
+				132D39452D37D49400E1458B /* KakaoMapsSDK-SPM in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		13C6A6622D3CEC470098B394 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				13C6A6632D3CEC470098B394 /* CoreLocation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		96DB35702D2E4B83001FE074 = {
 			isa = PBXGroup;
 			children = (
 				96DB357B2D2E4B83001FE074 /* HealEat */,
+				13C6A6622D3CEC470098B394 /* Frameworks */,
 				96DB357A2D2E4B83001FE074 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -108,6 +125,8 @@
 				96DB35ED2D2E4C2A001FE074 /* RxMoya */,
 				96DB35F02D2E4C36001FE074 /* Then */,
 				96DB35F32D2E4C40001FE074 /* SnapKit */,
+				132D39442D37D49400E1458B /* KakaoMapsSDK-SPM */,
+				13C6AA332D4E8D8D0098B394 /* Kingfisher */,
 				7CA784742D4108B700041779 /* SDWebImage */,
 				7CA7848C2D41296700041779 /* SwiftyToaster */,
 				968AF0372D4BD1E900F0221B /* Kingfisher */,
@@ -145,6 +164,7 @@
 				96DB35E62D2E4C2A001FE074 /* XCRemoteSwiftPackageReference "Moya" */,
 				96DB35EF2D2E4C36001FE074 /* XCRemoteSwiftPackageReference "Then" */,
 				96DB35F22D2E4C40001FE074 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
 				7CA784732D4108B700041779 /* XCRemoteSwiftPackageReference "SDWebImage" */,
 				7CA7848B2D41296700041779 /* XCRemoteSwiftPackageReference "SwiftyToaster" */,
 				968AF0362D4BD1E900F0221B /* XCRemoteSwiftPackageReference "Kingfisher" */,
@@ -401,6 +421,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.12.4;
+			};
+		};
 		7CA784732D4108B700041779 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
@@ -460,6 +488,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		132D39442D37D49400E1458B /* KakaoMapsSDK-SPM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
+			productName = "KakaoMapsSDK-SPM";
+		};
+		13C6AA332D4E8D8D0098B394 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Kingfisher;
+		};
 		7CA784742D4108B700041779 /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 7CA784732D4108B700041779 /* XCRemoteSwiftPackageReference "SDWebImage" */;

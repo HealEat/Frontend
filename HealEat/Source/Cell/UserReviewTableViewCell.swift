@@ -17,7 +17,7 @@ class UserReviewTableViewCell: UITableViewCell {
     lazy var mainStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.alignment = .fill
+        stackView.alignment = .leading
         stackView.distribution = .equalSpacing
         stackView.spacing = 6
         return stackView
@@ -84,7 +84,7 @@ class UserReviewTableViewCell: UITableViewCell {
     
     lazy var photoStackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.axis = .vertical
+        stackView.axis = .horizontal
         stackView.alignment = .fill
         stackView.distribution = .equalSpacing
         stackView.spacing = 6
@@ -98,6 +98,10 @@ class UserReviewTableViewCell: UITableViewCell {
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 6
         imageView.kf.setImage(with: url)
+        
+        imageView.snp.makeConstraints({ make in
+            make.width.height.equalTo(50)
+        })
         
         photoStackView.addArrangedSubview(imageView)
     }
@@ -146,9 +150,6 @@ class UserReviewTableViewCell: UITableViewCell {
             make.centerY.equalToSuperview()
             make.leading.equalTo(reviewStarsView.snp.trailing).offset(4)
         })
-//        photoScrollView.snp.makeConstraints({ make in
-//            
-//        })
         photoStackView.snp.makeConstraints({ make in
             make.edges.equalToSuperview()
             make.width.height.equalToSuperview()

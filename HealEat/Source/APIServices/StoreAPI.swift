@@ -3,15 +3,15 @@
 import Foundation
 import Moya
 
-enum ReviewAPI {
-    case getReview(storeId: Int)
-    case postReview(storeId: Int)
-    case getReviewImage(storeId: Int)
+enum StoreAPI {
+    case getStoreDetail(storeId: Int)
+    case saveStore(param: SaveStoreRequest)
+//    case getReview(storeId: Int)
+//    case postBookmark(storeId: Int)
+//    case deleteBookmark(storeId: Int)
 }
 
-
-
-extension ReviewAPI: TargetType {
+extension StoreAPI: TargetType {
     var baseURL: URL {
         guard let url = URL(string: Constants.NetworkManager.baseURL) else {
             fatalError("fatal error - invalid url")
@@ -21,28 +21,29 @@ extension ReviewAPI: TargetType {
 
     var path: String {
         switch self {
-        case .getReview(let storeId): return "stores/\(storeId)/reviews"
-            
-        case .postReview(let storeId): return "stores/\(storeId)/reviews"
-            
-        case .getReviewImage(let storeId): return "stores/\(storeId)"
+        case .getStoreDetail(let storeId):
+            return "/stores/\(storeId)"
+        case .saveStore(let param):
+            return "/stores/\(param.placeId)"
+//        case .postBookmark(let storeId):
+//            return "/stores/\(storeId)/bookmarks"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .getReview, .getReviewImage:
+        case .getStoreDetail:
             return .get
-        case .postReview:
-            return .post
+        case .saveStore:
+            return . post
         }
     }
 
     var task: Moya.Task {
         switch self {
-        case .getReview, .getReviewImage:
+        case .getStoreDetail:
             return .requestPlain
-        case .postReview(let param) : // storeId도 동시에 같이 보내도록 수정해야 합니다
+        case .saveStore(let param):
             return .requestJSONEncodable(param)
         }
     }
