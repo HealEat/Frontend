@@ -73,20 +73,43 @@ class HealthGoalManager {
         }
     }
     
-    static func uploadImage(planId: Int, image: UIImage) {
-        APIManager.HealthGoalProvider.request(.uploadImage(planId: planId, image: image, imageType: "profile", imageExtension: "jpg")) { result in
+
+    
+    static func uploadImage(planId: Int, images: [UIImage], completion: @escaping (Bool) -> Void) {
+        var multipartData = [MultipartFormData]()
+        let jsonData = UploadHGImages(imageType: "health-plans", imageExtension: "jpg")
+        if let infoData = MultipartForm.createJSONMultipartData(data: jsonData, fieldName: "info") {
+            multipartData.append(infoData)
+        }
+        if let imageData = MultipartForm.createMultiImageMultipartData(images: images, fieldName: "image") {
+            multipartData.append(imageData)
+        }
+        
+        APIManager.HealthGoalProvider.request(.uploadImage(planId: planId, param: multipartData)) { result in
             switch result {
             case .success(let response):
-                if let json = try? response.mapJSON() {
-                    print("✅ 업로드 성공: \(json)")
+                print(response)
+                if response.statusCode == 200 {
+                    //                    Toaster.shared.makeToast("회원가입이 성공적으로 완료되었습니다.")
+                    completion(true)
                 } else {
-                    print("❌ JSON 파싱 실패")
+                    //                    Toaster.shared.makeToast("데이터를 불러오는 데 실패했습니다.")
+                    completion(false)
                 }
             case .failure(let error):
-                print("❌ 업로드 실패: \(error.localizedDescription)")
+                print("Error: \(error.localizedDescription)")
+                if let responseData = error.response?.data,
+                   let jsonString = String(data: responseData, encoding: .utf8) {
+                    print("서버 응답 메시지: \(jsonString)")
+                }
+                Toaster.shared.makeToast("이미지 업로드 요청 중 오류가 발생했습니다.")
+                completion(false)
             }
         }
     }
+    
+
+    
     
     
 }

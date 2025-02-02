@@ -12,7 +12,6 @@ class BaseVC: UITabBarController {
     }
     
     func setTabBar() {
-        //TODO:여기서 월드 부분 뭐시기 컨트롤러? 뭐 그런걸로 해야 스유랑 연결됨
         let vc1 = UINavigationController(rootViewController: HomeVC())
         vc1.tabBarItem = UITabBarItem(title: "홈", image: UIImage(named: "Home"), tag: 1)
         let vc2 = UINavigationController(rootViewController: SearchVC())

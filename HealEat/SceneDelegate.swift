@@ -18,7 +18,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // SplashVC를 초기화면으로 설정
         let splashVC = SplashVC() // SplashViewController -> SplashVC로 변경
-        window?.rootViewController = splashVC
+        //window?.rootViewController = splashVC
+        let baseVC = BaseVC()
+        window?.rootViewController = baseVC
         window?.makeKeyAndVisible()
     }
 
