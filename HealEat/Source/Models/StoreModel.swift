@@ -1,9 +1,4 @@
-//
-//  StoreModel.swift
-//  HealEat
-//
-//  Created by 이태림 on 1/23/25.
-//
+// Copyright © 2025 HealEat. All rights reserved.
 
 import Foundation
 

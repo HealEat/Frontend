@@ -1,9 +1,4 @@
-//
-//  StoreCollectionViewCell.swift
-//  HealEat
-//
-//  Created by 이태림 on 1/31/25.
-//
+// Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
 import SnapKit
@@ -151,4 +146,3 @@ class StoreCollectionViewCell: UICollectionViewCell {
     }
         
 }
-

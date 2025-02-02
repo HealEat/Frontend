@@ -1,9 +1,4 @@
-//
-//  StorePreView.swift
-//  HealEat
-//
-//  Created by 이태림 on 1/29/25.
-//
+// Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
 
