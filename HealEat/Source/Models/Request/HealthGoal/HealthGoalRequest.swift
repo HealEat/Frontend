@@ -8,3 +8,5 @@ struct HealthGoalRequest: Codable {
     let number: Int
     let goal: String
 }
+
+
