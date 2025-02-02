@@ -75,36 +75,35 @@ class HealthGoalManager {
     
 
     
-    static func uploadImage(planId: Int, images: [UIImage], completion: @escaping (Bool) -> Void) {
+    static func uploadImage(planId: Int, images: [UIImage], completion: @escaping (Bool, String?) -> Void) {
         var multipartData = [MultipartFormData]()
+        let files = MultipartForm.createMultiImageMultipartData(images: images, fieldName: "files")
+        multipartData.append(contentsOf: files)
+        
         let jsonData = UploadHGImages(imageType: "health-plans", imageExtension: "jpg")
-        if let infoData = MultipartForm.createJSONMultipartData(data: jsonData, fieldName: "info") {
-            multipartData.append(infoData)
-        }
-        if let imageData = MultipartForm.createMultiImageMultipartData(images: images, fieldName: "image") {
-            multipartData.append(imageData)
+        if let requests = MultipartForm.createJSONMultipartData(data: jsonData, fieldName: "requests") {
+            multipartData.append(requests)
         }
         
         APIManager.HealthGoalProvider.request(.uploadImage(planId: planId, param: multipartData)) { result in
-            switch result {
-            case .success(let response):
-                print(response)
-                if response.statusCode == 200 {
-                    //                    Toaster.shared.makeToast("회원가입이 성공적으로 완료되었습니다.")
-                    completion(true)
-                } else {
-                    //                    Toaster.shared.makeToast("데이터를 불러오는 데 실패했습니다.")
-                    completion(false)
+            APIManager.HealthGoalProvider.request(.uploadImage(planId: planId, param: multipartData)) { result in
+                switch result {
+                case .success(let response):
+                    let responseData = response.data
+                    let responseString = String(data: responseData, encoding: .utf8) ?? "응답 데이터 없음"
+                    print("🔴 서버 응답 메시지: \(responseString)")  // ✅ 서버에서 준 에러 메시지 확인
+
+                    if response.statusCode == 200 {
+                        completion(true, nil)
+                    } else {
+                        print("🎨 이미지 업로드 코드 200이 아님")
+                        completion(false, responseString)  // ✅ 오류 메시지를 클라이언트에서도 확인
+                    }
+                case .failure(let error):
+                    print("🔴 이미지 업로드 실패: \(error.localizedDescription)")
                 }
-            case .failure(let error):
-                print("Error: \(error.localizedDescription)")
-                if let responseData = error.response?.data,
-                   let jsonString = String(data: responseData, encoding: .utf8) {
-                    print("서버 응답 메시지: \(jsonString)")
-                }
-                Toaster.shared.makeToast("이미지 업로드 요청 중 오류가 발생했습니다.")
-                completion(false)
             }
+
         }
     }
     

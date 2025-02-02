@@ -178,12 +178,12 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
     }
     
     private func uploadImages(planId: Int, images: [UIImage]) {
-        HealthGoalManager.uploadImage(planId: planId, images: images) { isSuccess in
+        HealthGoalManager.uploadImage(planId: planId, images: images) { isSuccess, response in
             if isSuccess {
                 print("이미지 업로드 성공")
                 self.fetchHealthGoalData()
             } else {
-                print("이미지 업로드 서버 에러")
+                print("🎨 이미지 업로드 서버 에러: \(response ?? "response 없음")")
             
             }
         }

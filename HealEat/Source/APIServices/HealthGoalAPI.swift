@@ -33,7 +33,7 @@ extension HealthGoalAPI: TargetType {
         case .deleteHealthGoal(let planId): return "plans/\(planId)"
         case .changeHealthGoal(let planId, let param): return "plans/\(planId)"
             
-        case .uploadImage(let planId): return "plans/\(planId)/upload-images"
+        case .uploadImage(let planId, _): return "plans/\(planId)/upload-images"
         }
     }
     
@@ -65,7 +65,7 @@ extension HealthGoalAPI: TargetType {
             return .requestJSONEncodable(param)
             
             
-        case .uploadImage(let planId, let param):
+        case .uploadImage(_, let param):
             return .uploadMultipart(param)
         }
         
