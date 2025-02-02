@@ -66,9 +66,7 @@
 				7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */,
 				96DB35EE2D2E4C2A001FE074 /* RxMoya in Frameworks */,
 				96DB35EC2D2E4C2A001FE074 /* ReactiveMoya in Frameworks */,
-                
 				132D39452D37D49400E1458B /* KakaoMapsSDK-SPM in Frameworks */,
-                
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -167,8 +165,6 @@
 				96DB35EF2D2E4C36001FE074 /* XCRemoteSwiftPackageReference "Then" */,
 				96DB35F22D2E4C40001FE074 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
-
-				13C6AA322D4E8D8D0098B394 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				7CA784732D4108B700041779 /* XCRemoteSwiftPackageReference "SDWebImage" */,
 				7CA7848B2D41296700041779 /* XCRemoteSwiftPackageReference "SwiftyToaster" */,
 				968AF0362D4BD1E900F0221B /* XCRemoteSwiftPackageReference "Kingfisher" */,
@@ -233,7 +229,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y4WKL32C5C;
 				DEVELOPMENT_TEAM = CACTN7F6PL;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -262,7 +257,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y4WKL32C5C;
 				DEVELOPMENT_TEAM = CACTN7F6PL;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -428,7 +422,6 @@
 
 /* Begin XCRemoteSwiftPackageReference section */
 		132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
-
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git";
 			requirement = {
@@ -436,7 +429,6 @@
 				minimumVersion = 2.12.4;
 			};
 		};
-		13C6AA322D4E8D8D0098B394 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 		7CA784732D4108B700041779 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
@@ -503,7 +495,6 @@
 		};
 		13C6AA332D4E8D8D0098B394 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 13C6AA322D4E8D8D0098B394 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
 		};
 		7CA784742D4108B700041779 /* SDWebImage */ = {

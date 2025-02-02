@@ -1,5 +1,4 @@
 {
-  "originHash" : "4aa291ef259a6eef6f3437c4d0a7cd048ea632312dcec6a967abbf88beefe135",
   "originHash" : "9a1f695b4c55a0a8e2f27413c8c21a27f94746139de06ad045e6a0096fb98741",
   "pins" : [
     {
@@ -18,6 +17,9 @@
       "state" : {
         "revision" : "b617191ca9fd474278adce71f1c306486f1fe7c2",
         "version" : "2.12.4"
+      }
+    },
+    {
       "identity" : "chtcollectionviewwaterfalllayout",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/chiahsien/CHTCollectionViewWaterfallLayout",
