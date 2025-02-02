@@ -12,7 +12,10 @@ public extension AnyPublisher where Output == Response, Failure == MoyaError {
                 if !defaultResponse.isSuccess {
                     throw HealEatError.healeatError(statusCode: defaultResponse.code, message: defaultResponse.message)
                 }
-                return defaultResponse.result
+                guard let result = defaultResponse.result else {
+                    throw HealEatError.resultNil(statusCode: defaultResponse.code, message: defaultResponse.message)
+                }
+                return result
             })
             .mapError({ error in
                 if let error = error as? MoyaError {
