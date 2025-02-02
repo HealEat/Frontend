@@ -3,13 +3,6 @@
 import UIKit
 
 class DropDownButton: UIButton {
-    private let stackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.alignment = .center
-        $0.distribution = .fill
-        $0.isUserInteractionEnabled = false
-        $0.spacing = 6
-    }
     
     private let myImageView = UIImageView().then {
         $0.isUserInteractionEnabled = false
@@ -38,16 +31,19 @@ class DropDownButton: UIButton {
         layer.borderColor = UIColor(hex: "#B5B5B5")?.cgColor
         layer.borderWidth = 1
         
-        addSubview(stackView)
-        [label, myImageView].forEach(stackView.addArrangedSubview(_:))
+        [label, myImageView].forEach(addSubview(_:))
         
-        stackView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+        label.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.leading.equalToSuperview().offset(15)
         }
+        
         
         myImageView.snp.makeConstraints { make in
             make.width.equalTo(5.97)
             make.height.equalTo(3)
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-10)
         }
     }
 }
