@@ -177,6 +177,7 @@ class MarketHomeView: UIView {
     
     lazy var reviewStarsView: StarsView = {
         let starsView = StarsView(accentColor: UIColor(red: 255/255, green: 207/255, blue: 48/255, alpha: 1), baseColor: UIColor(red: 184/255, green: 184/255, blue: 184/255, alpha: 1))
+        starsView.isUserInteractionEnabled = false
         return starsView
     }()
     

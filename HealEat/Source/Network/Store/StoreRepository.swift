@@ -14,7 +14,7 @@ class StoreRepository {
     
     func saveStore(saveStoreRequest: SaveStoreRequest) -> AnyPublisher<SaveStoreResponseModel, HealEatError> {
         return provider.requestPublisher(.saveStore(param: saveStoreRequest))
-            .HEmap(SaveStoreResponseEntity.self)
+            .extractResult(SaveStoreResponseEntity.self)
             .map({ SaveStoreResponseModel(saveStoreResponseEntity: $0) })
             .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)
@@ -23,7 +23,7 @@ class StoreRepository {
     
     func getStoreDetail(storeId: Int) -> AnyPublisher<StoreDetailResponseModel, HealEatError> {
         return provider.requestPublisher(.getStoreDetail(storeId: storeId))
-            .HEmap(StoreDetailResponseEntity.self)
+            .extractResult(StoreDetailResponseEntity.self)
             .map({ StoreDetailResponseModel(storeDetailResponseEntity: $0) })
             .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)

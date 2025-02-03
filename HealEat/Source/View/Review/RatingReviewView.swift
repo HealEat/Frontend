@@ -40,8 +40,9 @@ class RatingReviewView: UIView {
     }()
     
     lazy var reviewStarsView: StarsView = {
-        let starView = StarsView(accentColor: .healeatGreen2, baseColor: .healeatGray4)
-        return starView
+        let starsView = StarsView(accentColor: .healeatGreen2, baseColor: .healeatGray4)
+        starsView.isUserInteractionEnabled = false
+        return starsView
     }()
     
     lazy var reviewLabel: UILabel = {
@@ -79,6 +80,15 @@ class RatingReviewView: UIView {
         let fieldReviewView = FieldReviewView(field: .nutrition)
         return fieldReviewView
     }()
+    
+    func initializeView(totalScore: Float, totalCount: Int, tasteScore: Float, cleanScore: Float, freshScore: Float, nutritionScore: Float) {
+        reviewStarsView.star = totalScore
+        reviewLabel.text = "\(totalScore) (\(totalCount))"
+        tasteReviewView.reviewBar.drawProcess(process: CGFloat(tasteScore) / CGFloat(GlobalConst.maxRating))
+        cleanReviewView.reviewBar.drawProcess(process: CGFloat(cleanScore) / CGFloat(GlobalConst.maxRating))
+        freshReviewView.reviewBar.drawProcess(process: CGFloat(freshScore) / CGFloat(GlobalConst.maxRating))
+        nutritionReviewView.reviewBar.drawProcess(process: CGFloat(nutritionScore) / CGFloat(GlobalConst.maxRating))
+    }
     
     private func addComponents() {
         self.addSubview(totalReviewView)

@@ -38,6 +38,7 @@ class WriteReviewTableViewCell: UITableViewCell {
     
     lazy var reviewStarsView: StarsView = {
         let starsView = StarsView(accentColor: .healeatYellow, baseColor: .healeatGray4)
+        starsView.isUserInteractionEnabled = false
         return starsView
     }()
     

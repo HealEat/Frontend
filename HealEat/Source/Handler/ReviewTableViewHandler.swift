@@ -61,12 +61,7 @@ class ReviewTableViewHandler: NSObject, UITableViewDataSource, UITableViewDelega
         case .ratingReview:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: RatingReviewTableViewCell.self), for: indexPath) as? RatingReviewTableViewCell else { return UITableViewCell() }
             cell.ratingReviewView.isUserInteractionEnabled = false
-            cell.ratingReviewView.reviewStarsView.star = 3.6
-            cell.ratingReviewView.reviewLabel.text = "3.6 (23)"
-            cell.ratingReviewView.tasteReviewView.reviewBar.drawProcess(process: 1.6 / CGFloat(GlobalConst.maxRating))
-            cell.ratingReviewView.cleanReviewView.reviewBar.drawProcess(process: 4.2 / CGFloat(GlobalConst.maxRating))
-            cell.ratingReviewView.freshReviewView.reviewBar.drawProcess(process: 3.5 / CGFloat(GlobalConst.maxRating))
-            cell.ratingReviewView.nutritionReviewView.reviewBar.drawProcess(process: 2.6 / CGFloat(GlobalConst.maxRating))
+            cell.ratingReviewView.initializeView(totalScore: 3.6, totalCount: 23, tasteScore: 1.6, cleanScore: 4.2, freshScore: 3.5, nutritionScore: 2.6)
             return cell
         case .userReview:
             if false {

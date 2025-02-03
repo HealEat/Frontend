@@ -38,12 +38,19 @@ class StarsView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    @objc private func onClickStar(_ gestureRecognizer: UITapGestureRecognizer) {
+        guard let star = gestureRecognizer.view?.tag else { return }
+        self.star = Float(star)
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         layoutIfNeeded()
-        for starView in starViews {
+        for (i, starView) in starViews.enumerated() {
             starView.maskImageView.frame = starView.bounds
             starView.mask = starView.maskImageView
+            starView.tag = i + 1
+            starView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onClickStar(_:))))
         }
     }
     

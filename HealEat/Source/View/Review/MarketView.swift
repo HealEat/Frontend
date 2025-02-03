@@ -86,6 +86,7 @@ class MarketView: UIView {
     
     lazy var ratingStarView: StarsView = {
         let starsView = StarsView(accentColor: .healeatYellow, baseColor: .healeatGray4)
+        starsView.isUserInteractionEnabled = false
         return starsView
     }()
     

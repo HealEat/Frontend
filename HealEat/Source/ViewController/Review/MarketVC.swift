@@ -82,9 +82,9 @@ class MarketVC: UIViewController {
         marketView.previewCollectionView.dataSource = previewCollectionViewHandler
         
         imageCollectionViewHandler = ImageCollectionViewHandler(urls: param.storeResponseModel.imageUrls)
-        imageCollectionViewHandler?.presentImageViewer = { [weak self] imageModel in
+        imageCollectionViewHandler?.presentImageViewer = { [weak self] imageModels, index in
             let imageViewerVC = ImageViewerVC()
-            imageViewerVC.param = ImageViewerVC.Param(imageModel: imageModel)
+            imageViewerVC.param = ImageViewerVC.Param(imageModels: imageModels, index: index)
             imageViewerVC.modalPresentationStyle = .overCurrentContext
             imageViewerVC.modalTransitionStyle = .crossDissolve
             self?.present(imageViewerVC, animated: true)
