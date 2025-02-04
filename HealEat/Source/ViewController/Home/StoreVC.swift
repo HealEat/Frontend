@@ -28,6 +28,28 @@ class StoreVC: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.reloadCollectionView()
         }
+        fetchStoreData()
+    }
+    
+    private func fetchStoreData() {
+        APIManager.HomeProvider.request(.getStores(lat: 37.5665, lon: 126.9780)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedData = try JSONDecoder().decode(HomeResponse.self, from: response.data)
+                    self.storeData = decodedData.storeList.map { store in
+                        StoreModel(storename: store.place_name, storeaddress: store.address_name)
+                    }
+                    DispatchQueue.main.async {
+                        self.reloadCollectionView()
+                    }
+                } catch {
+                    print("JSON 디코딩 오류:", error)
+                }
+            case .failure(let error):
+                print("API 요청 실패:", error)
+            }
+        }
     }
 
     override func viewDidLayoutSubviews() {
