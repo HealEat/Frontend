@@ -3,8 +3,12 @@
 import UIKit
 
 class GoalSeparatorView: UIView {
-    var userName: String?
-    var goalCount: Int?
+    var userName: String? 
+    var goalCount: Int? {
+        didSet {
+            updateUI()
+        }
+    }
     
     // MARK: - UI Properties
     private lazy var separator1 = UIView().then {
@@ -19,16 +23,6 @@ class GoalSeparatorView: UIView {
         $0.numberOfLines = 0
         $0.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         $0.textColor = UIColor.black
-        
-        let fullText = "\(userName ?? "이용자") 님의 건강 관리 목표 (\(goalCount ?? 0))"
-        let attributedString = NSMutableAttributedString(string: fullText)
-        let nameRange = (fullText as NSString).range(of: "\(userName ?? "이용자")")
-        attributedString.addAttribute(.foregroundColor, value: UIColor(hex: "#009459") ?? UIColor.green, range: nameRange)
-        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .medium), range: nameRange)
-        let countRange = (fullText as NSString).range(of: "(\(goalCount ?? 0))")
-        attributedString.addAttribute(.foregroundColor, value: UIColor(hex: "#888888") ?? UIColor.green, range: countRange)
-        
-        $0.attributedText = attributedString
     }
     
     
@@ -61,8 +55,20 @@ class GoalSeparatorView: UIView {
             make.height.equalTo(0.7)
         }
         label.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(25)
+            make.leading.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
         }
+    }
+    
+    private func updateUI() {
+        let fullText = "\(userName ?? "이용자") 님의 건강 관리 목표 (\(goalCount ?? 0))"
+        let attributedString = NSMutableAttributedString(string: fullText)
+        let nameRange = (fullText as NSString).range(of: "\(userName ?? "이용자")")
+        attributedString.addAttribute(.foregroundColor, value: UIColor(hex: "#009459") ?? UIColor.green, range: nameRange)
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .medium), range: nameRange)
+        let countRange = (fullText as NSString).range(of: "(\(goalCount ?? 0))")
+        attributedString.addAttribute(.foregroundColor, value: UIColor(hex: "#888888") ?? UIColor.green, range: countRange)
+        
+        label.attributedText = attributedString
     }
 }

@@ -4,10 +4,16 @@ import Foundation
 import Moya
 
 enum MyPageAPI {
-    case getMyPage
+    case getProfile
+    case changeProfile(param: MyProfileRequest)
+    
+    case changeAnswer(questionNum: Int, param: HealthInfoAnswerRequest)
+    case changeVegetarian(vegetarian: String)
+    case changeDiet(diet: String)
+    
     case getReview
     case getHealthInfo
-    case changeMyPage(param: HealthGoalRequest) // 수정 필요
+    
     case deleteReview(reviewId: Int)
 }
 
@@ -23,11 +29,16 @@ extension MyPageAPI: TargetType {
 
     var path: String {
         switch self {
-        case .getMyPage: return "my-page"
+        case .getProfile: return "my-page/profile"
+        case .changeProfile: return "my-page/profile"
+            
+        case .changeAnswer(let questionNum, _):
+            return "my-page/health-info\(questionNum)"
+        case .changeVegetarian: return "my-page/health-info/veget"
+        case .changeDiet: return "my-page/health-info/diet"
+            
         case .getReview: return "my-page/reviews"
         case .getHealthInfo: return "my-page/health-info"
-            
-        case .changeMyPage(let param): return "my-page"
             
         case .deleteReview(let reviewId): return "my-page/reviews/\(reviewId)"
         }
@@ -35,9 +46,9 @@ extension MyPageAPI: TargetType {
 
     var method: Moya.Method {
         switch self {
-        case .getMyPage, .getReview, .getHealthInfo:
+        case .getProfile, .getReview, .getHealthInfo:
             return .get
-        case .changeMyPage:
+        case .changeProfile, .changeAnswer, .changeVegetarian, .changeDiet:
             return .patch
         case .deleteReview:
             return .delete
@@ -46,10 +57,16 @@ extension MyPageAPI: TargetType {
 
     var task: Moya.Task {
         switch self {
-        case .getMyPage, .getReview, .getHealthInfo :
+        case .getProfile, .getReview, .getHealthInfo :
             return .requestPlain
-        case .changeMyPage(let param) :
+        case .changeProfile(let param) :
             return .requestJSONEncodable(param)
+        case .changeAnswer(_, let param) :
+            return .requestJSONEncodable(param)
+        case .changeVegetarian(let vegetarian) :
+            return .requestParameters(parameters: ["vegetarian": vegetarian], encoding: URLEncoding.queryString)
+        case .changeDiet(let diet) :
+            return .requestParameters(parameters: ["diet": diet], encoding: URLEncoding.queryString)
         case .deleteReview :
             return .requestPlain
         }

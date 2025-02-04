@@ -14,6 +14,8 @@ class ImageCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollecti
     
     private var imageModels: [ImageModel]
     
+    var presentImageViewer: ((ImageModel) -> Void)?
+    
     init(urls: [URL]) {
         self.imageModels = urls.map({ ImageModel(url: $0) })
         super.init()
@@ -48,5 +50,6 @@ class ImageCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollecti
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         print(indexPath.row)
+        self.presentImageViewer?(imageModels[indexPath.row])
     }
 }

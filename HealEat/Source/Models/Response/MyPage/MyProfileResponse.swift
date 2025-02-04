@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct MyProfile: Codable {
+struct MyProfileResponse: Codable {
     let name: String
-    let profileImageUrl: String
+    let profileImage: String
 }

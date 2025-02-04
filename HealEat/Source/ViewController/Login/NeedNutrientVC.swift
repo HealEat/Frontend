@@ -1,3 +1,5 @@
+// Copyright © 2025 HealEat. All rights reserved.
+
 import UIKit
 import SnapKit
 import Then
@@ -134,4 +136,3 @@ class NeedNutrientVC: UIViewController {
         present(nextVC, animated: true, completion: nil)
     }
 }
-

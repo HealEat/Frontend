@@ -7,7 +7,7 @@ import SDWebImage
 class HealthGoalCell: UICollectionViewCell {
      
     static let identifier = "HealthGoalCell"
-    
+    weak var delegate: HealthGoalCellDelegate?
     
     // MARK: - UI Properties
     private lazy var goalBackgroundStack = UIStackView().then {
@@ -26,34 +26,41 @@ class HealthGoalCell: UICollectionViewCell {
     }
     
     
-    private lazy var goalCountLabel = UILabel().then {
+    public lazy var goalCountLabel = UILabel().then {
         $0.text = "목표1"
         $0.textColor = UIColor(hex: "7D7D7D")
         $0.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
     }
+    // `UILabel`을 외부에서 사용할 수 있도록
+    public var periodTextLabel: UILabel?
+    public var countTextLabel: UILabel?
+    public var goalTextLabel: UILabel?
     
-    private lazy var periodLabel = UIView().then {
+    public lazy var periodLabel = UIView().then {
         let label = UILabel().then { label in
             label.text = "일주일"
             label.textColor = UIColor(hex: "#797979") ?? UIColor.gray
             label.font = UIFont.systemFont(ofSize: 10, weight: .medium)
         }
+        self.periodTextLabel = label // 외부에서 접근할 수 있도록 저장
         $0.addSubview(label)
         label.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
+        
         $0.layer.cornerRadius = 12
         $0.clipsToBounds = true
         $0.layer.borderColor = UIColor(hex: "#B5B5B5")?.cgColor
         $0.layer.borderWidth = 1
     }
     
-    private lazy var countLabel = UIView().then {
+    public lazy var countLabel = UIView().then {
         let label = UILabel().then { label in
             label.text = "3회"
             label.textColor = UIColor(hex: "#797979") ?? UIColor.gray
             label.font = UIFont.systemFont(ofSize: 10, weight: .medium)
         }
+        self.countTextLabel = label
         $0.addSubview(label)
         label.snp.makeConstraints { make in
             make.center.equalToSuperview()
@@ -64,12 +71,13 @@ class HealthGoalCell: UICollectionViewCell {
         $0.layer.borderWidth = 1
     }
     
-    private lazy var goalLabel = UIView().then {
+    public lazy var goalLabel = UIView().then {
         let label = UILabel().then { label in
             label.text = "저염식하기"
             label.textColor = UIColor(hex: "#797979") ?? UIColor.gray
             label.font = UIFont.systemFont(ofSize: 10, weight: .medium)
         }
+        self.goalTextLabel = label
         $0.addSubview(label)
         label.snp.makeConstraints { make in
             make.center.equalToSuperview()
@@ -80,10 +88,11 @@ class HealthGoalCell: UICollectionViewCell {
         $0.layer.borderWidth = 1
     }
     
-    private lazy var buttonImage = UIImageView().then {
-        $0.image = UIImage(systemName: "gearshape")
+    private lazy var settingButton = UIButton().then {
+        $0.setImage(UIImage(systemName: "gearshape"), for: .normal)
         $0.tintColor = UIColor.black.withAlphaComponent(0.5)
     }
+    
     
     private lazy var goalCountStack = UIStackView().then {
         $0.axis = .vertical
@@ -114,17 +123,35 @@ class HealthGoalCell: UICollectionViewCell {
     }
     private lazy var memoLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = UIFont.systemFont(ofSize: 7, weight: .regular)
+        $0.font = UIFont.systemFont(ofSize: 10, weight: .regular)
         $0.numberOfLines = 0
         $0.textAlignment = .left
         $0.text = "옆에는 사진, 여기에 이렇게 메모한 내용이 들어갑니다. \n사진과 텍스트는 따로 이루어지고 자세한 디자인은 디자이너님과 소통해보겠습니다."
+        // 텍스트에 줄 간격을 추가해서 상단에 붙도록 만들기
+        let style = NSMutableParagraphStyle()
+        style.minimumLineHeight = 10  // 줄 간격을 키워서 위로 올리기
+        style.alignment = .left
+
+        let attributedString = NSAttributedString(
+            string: $0.text ?? "",
+            attributes: [
+                .paragraphStyle: style
+            ]
+        )
+
+        $0.attributedText = attributedString
+
+        // 최소 크기로 조정하여 텍스트가 상단에 붙도록 유도
+        $0.setContentHuggingPriority(.required, for: .vertical)
+        $0.setContentCompressionResistancePriority(.required, for: .vertical)
     }
+
     
     private lazy var memoStack = UIStackView().then {
         $0.axis = .horizontal
-        $0.alignment = .center
+        $0.alignment = .leading
         $0.distribution = .fill
-        $0.spacing = 5
+        $0.spacing = 15
     }
     
     private lazy var toDoRow = UIStackView().then {
@@ -146,8 +173,9 @@ class HealthGoalCell: UICollectionViewCell {
     // MARK: - Init Methods
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .systemPink
+        backgroundColor = .white
         setUpConstraints()
+        
     }
             
     required init?(coder: NSCoder) {
@@ -155,15 +183,13 @@ class HealthGoalCell: UICollectionViewCell {
     }
     
     
-    /// ViewController에서 만든 버튼을 셀에 추가
-    func configure(with button: UIButton) {
-    }
+
     
     
     
     // MARK: - UI Methods
     private func setUpConstraints() {
-        [goalCountLabel, periodLabel, countLabel,goalLabel, buttonImage ].forEach(goalBackgroundStack.addArrangedSubview(_:))
+        [goalCountLabel, periodLabel, countLabel,goalLabel, settingButton ].forEach(goalBackgroundStack.addArrangedSubview(_:))
         [memoImage, memoLabel].forEach(memoStack.addArrangedSubview(_:))
         
         goalBackground.addSubview(goalBackgroundStack)
@@ -174,6 +200,7 @@ class HealthGoalCell: UICollectionViewCell {
             addSubview($0)
         }
         addSubview(goalBackground)
+        settingButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
         
         goalBackground.snp.makeConstraints { make in
             make.height.equalTo(46)
@@ -195,7 +222,7 @@ class HealthGoalCell: UICollectionViewCell {
             make.width.equalTo(146)
             make.height.equalTo(28)
         }
-        buttonImage.snp.makeConstraints { make in
+        settingButton.snp.makeConstraints { make in
             make.width.height.equalTo(15)
         }
         
@@ -213,10 +240,14 @@ class HealthGoalCell: UICollectionViewCell {
             make.horizontalEdges.bottom.equalToSuperview().inset(10)
             make.bottom.equalToSuperview().inset(10)
         }
-        /*memoImage.snp.makeConstraints { make in
-            make.width.equalTo(82)
-            make.height.equalTo(74)
-        }*/
+        memoImage.snp.makeConstraints { make in
+            make.top.equalTo(memoDescription.snp.bottom).offset(15)
+            make.height.equalTo(120)
+            make.width.equalTo(150)
+        }
+        memoLabel.snp.makeConstraints { make in
+            make.top.equalTo(memoImage.snp.top)
+        }
     }
     
     func addToDoList(count: Int) -> UIStackView {
@@ -258,5 +289,13 @@ class HealthGoalCell: UICollectionViewCell {
         let numOfToDos = 6
         
     }
+    
+    @objc private func buttonTapped() {
+        delegate?.didTapButton(in: self)  // ✅ Delegate 호출하여 ViewController로 이벤트 전달
+    }
 }
 
+
+protocol HealthGoalCellDelegate: AnyObject {
+    func didTapButton(in cell: HealthGoalCell)
+}
