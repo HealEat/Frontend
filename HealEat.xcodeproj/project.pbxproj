@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		132D39452D37D49400E1458B /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 132D39442D37D49400E1458B /* KakaoMapsSDK-SPM */; };
 		13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13C6A6632D3CEC470098B394 /* CoreLocation.framework */; };
-		13C6AA342D4E8D8D0098B394 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13C6AA332D4E8D8D0098B394 /* Kingfisher */; };
 		7CA784752D4108B700041779 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 7CA784742D4108B700041779 /* SDWebImage */; };
 		7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */ = {isa = PBXBuildFile; productRef = 7CA7848C2D41296700041779 /* SwiftyToaster */; };
 		968AF0382D4BD1E900F0221B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 968AF0372D4BD1E900F0221B /* Kingfisher */; };
@@ -56,7 +55,6 @@
 				96DB35F12D2E4C36001FE074 /* Then in Frameworks */,
 				96DB35EA2D2E4C2A001FE074 /* Moya in Frameworks */,
 				96DB35E82D2E4C2A001FE074 /* CombineMoya in Frameworks */,
-				13C6AA342D4E8D8D0098B394 /* Kingfisher in Frameworks */,
 				96DB35F42D2E4C40001FE074 /* SnapKit in Frameworks */,
 				13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */,
 				968AF0382D4BD1E900F0221B /* Kingfisher in Frameworks */,
@@ -126,7 +124,6 @@
 				96DB35F02D2E4C36001FE074 /* Then */,
 				96DB35F32D2E4C40001FE074 /* SnapKit */,
 				132D39442D37D49400E1458B /* KakaoMapsSDK-SPM */,
-				13C6AA332D4E8D8D0098B394 /* Kingfisher */,
 				7CA784742D4108B700041779 /* SDWebImage */,
 				7CA7848C2D41296700041779 /* SwiftyToaster */,
 				968AF0372D4BD1E900F0221B /* Kingfisher */,
@@ -492,10 +489,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
 			productName = "KakaoMapsSDK-SPM";
-		};
-		13C6AA332D4E8D8D0098B394 /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Kingfisher;
 		};
 		7CA784742D4108B700041779 /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
