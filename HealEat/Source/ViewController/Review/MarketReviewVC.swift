@@ -1,15 +1,20 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
 import UIKit
+import Combine
 
 class MarketReviewVC: UIViewController {
     
     var onGesture: ((UIPanGestureRecognizer) -> Void)?
     
+    private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.view = marketReviewView
+        
+        getReview(reviewGetRequest: ReviewGetRequest(storeId: 99, page: 0, sort: .defaultValue, sortOrder: .asc))
     }
     
     lazy var marketReviewView: MarketReviewView = {
@@ -27,6 +32,20 @@ class MarketReviewVC: UIViewController {
             recognizer.state = .ended
         }
         onGesture?(recognizer)
+    }
+    
+    private func getReview(reviewGetRequest: ReviewGetRequest) {
+        StoreRepository.shared.getReview(reviewGetRequest: reviewGetRequest)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .finished: break
+                case .failure(let error):
+                    print(error.description)
+                }
+            }, receiveValue: { result in
+                print(result)
+            })
+            .store(in: &cancellable)
     }
 }
 

@@ -5,8 +5,8 @@ import Moya
 
 enum StoreAPI {
     case getStoreDetail(storeId: Int)
-    case saveStore(param: SaveStoreRequest)
-//    case getReview(storeId: Int)
+    case saveStore(param: StoreSaveRequest)
+    case getReview(param: ReviewGetRequest)
 //    case postBookmark(storeId: Int)
 //    case deleteBookmark(storeId: Int)
 }
@@ -25,8 +25,8 @@ extension StoreAPI: TargetType {
             return "/stores/\(storeId)"
         case .saveStore(let param):
             return "/stores/\(param.placeId)"
-//        case .postBookmark(let storeId):
-//            return "/stores/\(storeId)/bookmarks"
+        case .getReview(let param):
+            return "/stores/\(param.storeId)/reviews"
         }
     }
 
@@ -36,6 +36,8 @@ extension StoreAPI: TargetType {
             return .get
         case .saveStore:
             return . post
+        case .getReview:
+            return .get
         }
     }
 
@@ -45,6 +47,12 @@ extension StoreAPI: TargetType {
             return .requestPlain
         case .saveStore(let param):
             return .requestJSONEncodable(param)
+        case .getReview(let param):
+            return .requestParameters(parameters: [
+                "page": param.page,
+                "sort": param.sort.rawValue,
+                "sortOrder": param.sortOrder.rawValue,
+            ], encoding: URLEncoding.queryString)
         }
     }
     

@@ -12,7 +12,7 @@ class StoreRepository {
     
     private let provider = APIManager.StoreProvider
     
-    func saveStore(saveStoreRequest: SaveStoreRequest) -> AnyPublisher<SaveStoreResponseModel, HealEatError> {
+    func saveStore(saveStoreRequest: StoreSaveRequest) -> AnyPublisher<SaveStoreResponseModel, HealEatError> {
         return provider.requestPublisher(.saveStore(param: saveStoreRequest))
             .extractResult(SaveStoreResponseEntity.self)
             .map({ SaveStoreResponseModel(saveStoreResponseEntity: $0) })
@@ -25,6 +25,15 @@ class StoreRepository {
         return provider.requestPublisher(.getStoreDetail(storeId: storeId))
             .extractResult(StoreDetailResponseEntity.self)
             .map({ StoreDetailResponseModel(storeDetailResponseEntity: $0) })
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+    
+    func getReview(reviewGetRequest: ReviewGetRequest) -> AnyPublisher<ReviewGetResponseModel, HealEatError> {
+        return provider.requestPublisher(.getReview(param: reviewGetRequest))
+            .extractResult(ReviewGetResponseEntity.self)
+            .map({ ReviewGetResponseModel(reviewGetResponseEntity: $0) })
             .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()

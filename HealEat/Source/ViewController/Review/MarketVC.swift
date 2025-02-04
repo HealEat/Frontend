@@ -174,7 +174,7 @@ class MarketVC: UIViewController {
     
     // MARK: - Network
     private func saveStore() {
-        let saveStoreRequest = SaveStoreRequest(
+        let saveStoreRequest = StoreSaveRequest(
             placeId: "\(param.storeResponseModel.placeId)",
             placeName: param.storeResponseModel.placeName,
             categoryName: param.storeResponseModel.categoryName,
