@@ -3,20 +3,46 @@
 import UIKit
 
 class MyHealthInfoVC: UIViewController {
+    
+    private let mypagevc = MyPageVC()
 
-    
-    // MARK: - UI Properties
-    
-    
-    
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setUp()
         
+        setupNavigationBar()
     }
     
-    
+    private func setupNavigationBar() {
+        
+        let backButton = UIButton(type: .system)
+
+           
+        let backImage = UIImage(named: "backimage")?.withRenderingMode(.alwaysOriginal)
+        backButton.setImage(backImage, for: .normal)
+        backButton.setTitle(" 마이페이지", for: .normal)
+        backButton.setTitleColor(.black, for: .normal)
+        backButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+
+        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
+
+            
+        backButton.sizeToFit()
+
+        let backBarButton = UIBarButtonItem(customView: backButton)
+        
+        // 환경설정 아이콘 (UIButton)
+        let settingButton = UIButton(type: .system)
+        settingButton.setImage(UIImage(named: "settingimage"), for: .normal)
+        settingButton.frame = CGRect(x: 0, y: 0, width: 16, height: 16)
+        
+        let settingBarButton = UIBarButtonItem(customView: settingButton)
+        
+        // 기존 백 버튼이 자동으로 설정되도록 leftBarButtonItem은 그대로 두고, 추가적으로 환경설정 아이콘만 넣기
+        navigationItem.leftBarButtonItems = [backBarButton, settingBarButton]
+    }
+   
     // MARK: - UI Methods
     private func setUp() {
         view.backgroundColor = .white
@@ -29,7 +55,9 @@ class MyHealthInfoVC: UIViewController {
     }
     
     //MARK: - Setup Actions
-
+    @objc private func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
+    }
 
     //MARK: - API call
     private func fetchProfile() {
