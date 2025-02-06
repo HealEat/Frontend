@@ -18,7 +18,7 @@ extension StoreAPI: TargetType {
         }
         return url
     }
-
+    
     var path: String {
         switch self {
         case .getStoreDetail(let storeId):
@@ -29,7 +29,7 @@ extension StoreAPI: TargetType {
             return "/stores/\(param.storeId)/reviews"
         }
     }
-
+    
     var method: Moya.Method {
         switch self {
         case .getStoreDetail:
@@ -40,7 +40,7 @@ extension StoreAPI: TargetType {
             return .get
         }
     }
-
+    
     var task: Moya.Task {
         switch self {
         case .getStoreDetail:
@@ -55,7 +55,6 @@ extension StoreAPI: TargetType {
             ], encoding: URLEncoding.queryString)
         }
     }
-    
     
     var headers: [String : String]? {
         return ["Content-Type": "application/json"]

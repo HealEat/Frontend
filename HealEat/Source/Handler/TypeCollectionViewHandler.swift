@@ -5,7 +5,7 @@ import UIKit
 
 class TypeCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollectionViewDataSource {
     
-    private let types: [String]
+    var types: [String]
     
     init(types: [String]) {
         self.types = types
