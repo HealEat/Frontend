@@ -12,7 +12,8 @@ class BaseVC: UITabBarController {
     }
     
     func setTabBar() {
-        let vc1 = UINavigationController(rootViewController: HomeVC())
+        //let vc1 = UINavigationController(rootViewController: HomeVC())
+        let vc1 = UINavigationController(rootViewController: SearchVC())
         vc1.tabBarItem = UITabBarItem(title: "홈", image: UIImage(named: "Home"), tag: 1)
         let vc2 = UINavigationController(rootViewController: SearchVC())
         vc2.tabBarItem = UITabBarItem(title: "검색", image: UIImage(named: "Search"), tag: 2)

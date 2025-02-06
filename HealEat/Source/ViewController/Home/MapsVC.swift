@@ -26,7 +26,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
             .foregroundColor: UIColor.black.withAlphaComponent(0.5),
             .font: UIFont.systemFont(ofSize: 12, weight: .regular)
         ]
-        $0.searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: "음식, 매장, 주소 검색", attributes: attributes)
+        $0.searchBar.attributedPlaceholder = NSAttributedString(string: "음식, 매장, 주소 검색", attributes: attributes)
     }
     
     required init?(coder aDecoder: NSCoder) {
