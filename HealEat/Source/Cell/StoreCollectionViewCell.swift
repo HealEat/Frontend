@@ -133,16 +133,16 @@ class StoreCollectionViewCell: UICollectionViewCell {
         
     }
         
-    public func storeconfigure(model: dummyModel) {
-        
-        self.loadImage(from : model.storeimage)
-        self.storenameLabel.text = model.storename
-        self.foodnameLabel.text = model.foodname
-        self.scrapButton.setImage(UIImage(named: model.scrapimage), for: .normal)
-        self.starImage.setImage(UIImage(named: model.starimage), for: .normal)
-        self.scoreLabel.text = model.totalscore
-        self.scorelist.setImage(UIImage(named: model.scorelist), for: .normal)
-        self.foodtag.setImage(UIImage(named: model.foodtag), for: .normal)
+    public func storeconfigure(model: StoreResponse) {
+        self.loadImage(from: model.imageUrlList.first ?? "")
+        self.storenameLabel.text = model.place_name
+        self.foodnameLabel.text = model.category_name
+        self.scrapButton.setImage(UIImage(systemName: "scrapimage"), for: .normal)
+        self.starImage.setImage(UIImage(systemName: "starimage"), for: .normal)
+        self.scoreLabel.text = "\(model.totalScore) (\(model.reviewCount))"
+        self.scorelist.setImage(UIImage(systemName: "starlist"), for: .normal)
+        self.foodtag.setImage(UIImage(systemName: "foodtag"), for: .normal)
     }
         
 }
+

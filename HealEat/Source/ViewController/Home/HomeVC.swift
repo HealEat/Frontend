@@ -13,21 +13,25 @@ import Then
 class HomeVC: UIViewController {
     private var mapsVC: MapsVC?
     private let storeview = StoreView()
+    private let notloginview = NotloginView()
     public var storeVC = StoreVC() // StoreVC 추가
     private var modalHeightConstraint: NSLayoutConstraint!
-    private var storeData: [StoreModel] = [] // API에서 가져온 데이터를 저장
-    private var storepreview: StorePreView?
     private var storePanGesture: UIPanGestureRecognizer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupMapsVC()
-        setupStoreView()
-        storeVC.delegate = self
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.storeVC.reloadCollectionView() // StoreVC에서 컬렉션 뷰 강제 리로드
+        if !storeVC.isloggedIn {
+            setupNotloginView()
+        }
+        else {
+            setupStoreView()
+            storeVC.delegate = self
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.storeVC.reloadCollectionView() // StoreVC에서 컬렉션 뷰 강제 리로드
+            }
         }
     }
     
@@ -65,7 +69,9 @@ class HomeVC: UIViewController {
         modalHeightConstraint = storeview.heightAnchor.constraint(equalToConstant: 370)
         modalHeightConstraint.isActive = true
             
-        addGrabber()
+        DispatchQueue.main.async {
+            self.addGrabber()
+        }
             
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
         storePanGesture = panGesture
@@ -82,16 +88,52 @@ class HomeVC: UIViewController {
         
         storeVC.storeview.storeCollectionView.isScrollEnabled = true
     }
+    
+    private func setupNotloginView() {
+        notloginview.backgroundColor = .white
+        notloginview.layer.cornerRadius = 16
+        notloginview.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        notloginview.clipsToBounds = true
+            
+        view.addSubview(notloginview)
+            
+        notloginview.snp.makeConstraints {
+            $0.leading.trailing.bottom.equalToSuperview()
+        }
         
+        _ = UIScreen.main.bounds.height - 130
+        modalHeightConstraint = notloginview.heightAnchor.constraint(equalToConstant: 370)
+        modalHeightConstraint.isActive = true
+            
+        DispatchQueue.main.async {
+            self.addGrabber()
+        }
+            
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        storePanGesture = panGesture
+        storePanGesture?.delegate = self
+        notloginview.addGestureRecognizer(panGesture)
+
+        //StoreVC 추가
+        addChild(storeVC)
+        notloginview.addSubview(storeVC.view)
+        storeVC.view.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        storeVC.didMove(toParent: self)
+    }
+    
     private func addGrabber() {
         let grabber = UIView()
         grabber.backgroundColor = .lightGray
         grabber.layer.cornerRadius = 3
-        storeview.addSubview(grabber)
-            
+        let parentView = storeVC.isloggedIn ? storeview : notloginview
+
+        parentView.addSubview(grabber)
+
         grabber.snp.makeConstraints {
-            $0.top.equalTo(storeview.snp.top).offset(8)
-            $0.centerX.equalTo(storeview.snp.centerX)
+            $0.top.equalTo(parentView.snp.top).offset(8)
+            $0.centerX.equalTo(parentView.snp.centerX)
             $0.width.equalTo(40)
             $0.height.equalTo(6)
         }

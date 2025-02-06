@@ -10,20 +10,29 @@ protocol StoreVCDelegate: AnyObject {
 
 class StoreVC: UIViewController {
     weak var delegate: StoreVCDelegate?
-    private var storeData: [dummyModel] = dummyModel.storedummy()
+    private var storeData: [StoreResponse] = []
     public let storeview = StoreView()
+    public let loginVC = LoginVC()
+    public var isloggedIn: Bool = false
+    public let notloginview = NotloginView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.view = storeview
-        setupCollectionView()
-        storeview.healthsettingButton.addTarget(self, action: #selector(healthsettingTapped), for: .touchUpInside)
-                                                
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.reloadCollectionView()
+        
+        if !isloggedIn {
+            self.view = notloginview
+            notloginview.gotologinButton.addTarget(self, action: #selector(gotologinTapped), for: .touchUpInside)
         }
-        fetchStoreData()
+        else {
+            self.view = storeview
+            setupCollectionView()
+            storeview.healthsettingButton.addTarget(self, action: #selector(healthsettingTapped), for: .touchUpInside)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.reloadCollectionView()
+            }
+            fetchStoreData()
+        }
     }
     
     private func fetchStoreData() {
@@ -32,9 +41,9 @@ class StoreVC: UIViewController {
             case .success(let response):
                 do {
                     let decodedData = try JSONDecoder().decode(HomeResponse.self, from: response.data)
-                    self.storeData = decodedData.storeList.map { store in
-                        StoreModel(storename: store.place_name, storeaddress: store.address_name)
-                    }
+                        
+                    self.storeData = decodedData.storeList
+                        
                     DispatchQueue.main.async {
                         self.reloadCollectionView()
                     }
@@ -67,6 +76,12 @@ class StoreVC: UIViewController {
                                                 
     @objc private func healthsettingTapped() {
         delegate?.didTapHealthSetting() //HomeVC에 버튼 클릭 이벤트 전달
+    }
+    
+    @objc private func gotologinTapped() {
+        guard presentedViewController == nil else { return }
+        loginVC.modalPresentationStyle = .fullScreen
+        present(loginVC, animated: true, completion: nil)
     }
 }
 
