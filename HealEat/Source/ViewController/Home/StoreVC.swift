@@ -21,7 +21,7 @@ class StoreVC: UIViewController {
     private var isFetchingData = false
     var currentPage = 1
     var isLastPage = false
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -32,6 +32,8 @@ class StoreVC: UIViewController {
         else {
             if !hasHealthInfo {
                 self.view = storeview
+                storeview.isUserInteractionEnabled = true // ✅ 이벤트 활성화
+                storeview.storeCollectionView.isUserInteractionEnabled = true
                 setupCollectionView()
                 storeview.healthsettingButton.addTarget(self, action: #selector(healthsettingTapped), for: .touchUpInside)
                 
@@ -99,12 +101,22 @@ class StoreVC: UIViewController {
         storeview.storeCollectionView.delegate = self
         storeview.storeCollectionView.bounces = false
         storeview.storeCollectionView.contentInsetAdjustmentBehavior = .never
+        storeview.storeCollectionView.isScrollEnabled = true
+        storeview.storeCollectionView.canCancelContentTouches = false
+        storeview.storeCollectionView.snp.makeConstraints {
+                $0.height.equalTo(700) 
+        }
+        
         storeview.storeCollectionView.reloadData()
+        
+        
     }
 
     public func reloadCollectionView() {
         DispatchQueue.main.async {
             self.storeview.storeCollectionView.reloadData()
+            self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
+            self.storeview.storeCollectionView.layoutIfNeeded()
             self.storeview.updateCollectionViewHeight()
         }
     }

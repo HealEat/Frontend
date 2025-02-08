@@ -25,6 +25,7 @@ class StoreCollectionViewCell: UICollectionViewCell {
         scoreLabel.text = nil
         features = []
         alltagView.collectionview.reloadData()
+        
     }
     
     required init?(coder: NSCoder) {
@@ -55,11 +56,11 @@ class StoreCollectionViewCell: UICollectionViewCell {
     }
     
     private lazy var scrapButton = UIButton().then {
-        $0.setImage(UIImage(systemName: "scrapimage"), for: .normal)
+        $0.setImage(UIImage(named: "scrapimage"), for: .normal)
     }
     
     private lazy var starImage = UIButton().then {
-        $0.setImage(UIImage(systemName: "starimage"), for: .normal)
+        $0.setImage(UIImage(named: "starimage"), for: .normal)
     }
     
     private lazy var scoreLabel = UILabel().then {
@@ -70,7 +71,7 @@ class StoreCollectionViewCell: UICollectionViewCell {
     }
     
     private lazy var scorelist = UIButton().then {
-        $0.setImage(UIImage(systemName: "별점 리스트"), for: .normal)
+        $0.setImage(UIImage(named: "별점 리스트"), for: .normal)
     }
     
     private lazy var alltagView = AllTagView().then {
@@ -124,27 +125,27 @@ class StoreCollectionViewCell: UICollectionViewCell {
         
         starImage.snp.makeConstraints {
             $0.top.equalTo(storenameLabel.snp.bottom).offset(18)
-            $0.leading.equalTo(storeImage.snp.trailing).offset(12)
-            $0.height.equalTo(11)
+            $0.leading.equalTo(storeImage.snp.trailing).offset(14)
+            $0.height.equalTo(15)
         }
         
         scoreLabel.snp.makeConstraints {
-            $0.top.equalTo(storenameLabel.snp.bottom).offset(8)
+            $0.top.equalTo(storenameLabel.snp.bottom).offset(17.5)
             $0.leading.equalTo(starImage.snp.trailing).offset(6)
-            $0.height.equalTo(12)
+            $0.height.equalTo(15)
         }
         
         scorelist.snp.makeConstraints {
             $0.top.equalTo(starImage.snp.bottom).offset(8)
             $0.leading.equalTo(storeImage.snp.trailing).offset(12)
-            $0.height.equalTo(13)
+            $0.height.equalTo(15)
         }
         
         alltagView.snp.makeConstraints {
-            $0.leading.equalTo(storeImage.snp.trailing).offset(8)
-            $0.bottom.equalToSuperview().offset(-12)
+            $0.leading.equalTo(storeImage.snp.trailing)
+            $0.top.equalTo(scorelist.snp.bottom).offset(8)
             $0.height.equalTo(50)
-            $0.trailing.equalToSuperview().offset(-16)
+            $0.trailing.equalToSuperview().offset(-5)
         }
     }
         
@@ -160,16 +161,18 @@ class StoreCollectionViewCell: UICollectionViewCell {
         }
         self.storenameLabel.text = model.place_name
         self.foodnameLabel.text = model.category_name
-        self.scrapButton.setImage(UIImage(systemName: "scrapimage"), for: .normal)
-        self.starImage.setImage(UIImage(systemName: "starimage"), for: .normal)
+        self.scrapButton.setImage(UIImage(named: "scrapimage"), for: .normal)
+        self.starImage.setImage(UIImage(named: "starimage"), for: .normal)
         self.scoreLabel.text = "\(model.totalScore) (\(model.reviewCount))"
-        self.scorelist.setImage(UIImage(systemName: "starlist"), for: .normal)
+        self.scorelist.setImage(UIImage(named: "starlist"), for: .normal)
         
         self.features = model.features
         DispatchQueue.main.async {
             self.storeImage.setNeedsLayout()
             self.storeImage.layoutIfNeeded()
             self.alltagView.collectionview.reloadData()
+            self.alltagView.collectionview.collectionViewLayout.invalidateLayout()
+            self.alltagView.collectionview.layoutIfNeeded()
         }
     }
         
@@ -188,3 +191,4 @@ extension StoreCollectionViewCell: UICollectionViewDataSource, UICollectionViewD
         return cell
     }
 }
+

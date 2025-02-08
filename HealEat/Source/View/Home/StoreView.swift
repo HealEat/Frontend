@@ -84,12 +84,11 @@ class StoreView: UIView {
         }
     }
     
-    public func updateCollectionViewHeight() {
-        DispatchQueue.main.async {
-            let collectionHeight = self.storeCollectionView.contentSize.height
+    func updateCollectionViewHeight() {
+        let newHeight = storeCollectionView.contentSize.height
 
-            self.storeCollectionViewHeightConstraint?.update(offset: collectionHeight)
-            self.layoutIfNeeded()
+        storeCollectionView.snp.updateConstraints {
+            $0.height.equalTo(newHeight)
         }
     }
     
