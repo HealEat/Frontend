@@ -56,6 +56,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         super.viewDidLoad()
         setupMapView()
         setupSearchBar()
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
         
     }
     
@@ -83,14 +84,15 @@ class MapsVC: UIViewController, MapControllerDelegate {
     }
     
     private func setupSearchBar() {
-            // 검색창 추가
-            view.addSubview(searchBar)
+        // 검색창 추가
+        view.addSubview(searchBar)
             
-            // 오토레이아웃 설정
-            searchBar.snp.makeConstraints { make in
-                make.horizontalEdges.equalToSuperview().inset(10) // 좌우 여백 10
-                make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            }
+        // 오토레이아웃 설정
+        searchBar.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(10) // 좌우 여백 10
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.height.equalTo(50)
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
