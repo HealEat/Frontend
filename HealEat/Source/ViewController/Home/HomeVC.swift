@@ -14,6 +14,7 @@ class HomeVC: UIViewController {
     private var mapsVC: MapsVC?
     private let storeview = StoreView()
     private let notloginview = NotloginView()
+    private let healthsettingview = HealthInfoSettingView()
     public var storeVC = StoreVC() // StoreVC 추가
     private var modalHeightConstraint: NSLayoutConstraint!
     private var storePanGesture: UIPanGestureRecognizer?
@@ -26,11 +27,16 @@ class HomeVC: UIViewController {
             setupNotloginView()
         }
         else {
-            setupStoreView()
-            storeVC.delegate = self
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.storeVC.reloadCollectionView() // StoreVC에서 컬렉션 뷰 강제 리로드
+            if !storeVC.hasHealthInfo {
+                setupStoreView()
+                storeVC.delegate = self
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.storeVC.reloadCollectionView() // StoreVC에서 컬렉션 뷰 강제 리로드
+                }
+            }
+            else {
+                setupHealthSettingView()
             }
         }
     }
@@ -87,6 +93,41 @@ class HomeVC: UIViewController {
         storeVC.didMove(toParent: self)
         
         storeVC.storeview.storeCollectionView.isScrollEnabled = true
+    }
+    
+    private func setupHealthSettingView() {
+        healthsettingview.backgroundColor = .white
+        healthsettingview.layer.cornerRadius = 16
+        healthsettingview.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        healthsettingview.clipsToBounds = true
+            
+        view.addSubview(healthsettingview)
+            
+        healthsettingview.snp.makeConstraints {
+            $0.leading.trailing.bottom.equalToSuperview()
+        }
+        
+        _ = UIScreen.main.bounds.height - 130
+        modalHeightConstraint = healthsettingview.heightAnchor.constraint(equalToConstant: 370)
+        modalHeightConstraint.isActive = true
+            
+        DispatchQueue.main.async {
+            self.addGrabber()
+        }
+            
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        storePanGesture = panGesture
+        storePanGesture?.delegate = self
+        healthsettingview.addGestureRecognizer(panGesture)
+
+        //StoreVC 추가
+        addChild(storeVC)
+        healthsettingview.addSubview(storeVC.view)
+        storeVC.view.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        storeVC.didMove(toParent: self)
+
     }
     
     private func setupNotloginView() {
@@ -232,7 +273,7 @@ class HomeVC: UIViewController {
         let screenHeight = UIScreen.main.bounds.height - 130
         let collectionView = storeVC.storeview.storeCollectionView
 
-            // ✅ 컬렉션뷰가 스크롤 중이면 StoreView 팬 제스처 비활성화
+            // 컬렉션뷰가 스크롤 중이면 StoreView 팬 제스처 비활성화
         if collectionView.contentOffset.y > 0 {
             return
         }
@@ -289,14 +330,14 @@ extension HomeVC: UIGestureRecognizerDelegate {
 
 extension HomeVC: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // ✅ 컬렉션뷰가 스크롤될 때 StoreView 팬 제스처 제거
+        // 컬렉션뷰가 스크롤될 때 StoreView 팬 제스처 제거
         if scrollView == storeVC.storeview.storeCollectionView && scrollView.contentOffset.y > 0 {
             storeview.removeGestureRecognizer(storePanGesture!)
         }
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        // ✅ 컬렉션뷰가 최상단에 도달하면 다시 팬 제스처 활성화
+        // 컬렉션뷰가 최상단에 도달하면 다시 팬 제스처 활성화
         if scrollView == storeVC.storeview.storeCollectionView && scrollView.contentOffset.y == 0 {
             if storeview.gestureRecognizers?.contains(storePanGesture!) == false {
                 storeview.addGestureRecognizer(storePanGesture!)

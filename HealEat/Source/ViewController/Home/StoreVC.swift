@@ -13,8 +13,14 @@ class StoreVC: UIViewController {
     private var storeData: [StoreResponse] = []
     public let storeview = StoreView()
     public let loginVC = LoginVC()
-    public var isloggedIn: Bool = false
+    public var isloggedIn: Bool = true
+    public var hasHealthInfo: Bool = false
     public let notloginview = NotloginView()
+    public let healthsettingview = HealthInfoSettingView()
+    public let purposevc = PurposeVC()
+    private var isFetchingData = false
+    var currentPage = 1
+    var isLastPage = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,34 +30,61 @@ class StoreVC: UIViewController {
             notloginview.gotologinButton.addTarget(self, action: #selector(gotologinTapped), for: .touchUpInside)
         }
         else {
-            self.view = storeview
-            setupCollectionView()
-            storeview.healthsettingButton.addTarget(self, action: #selector(healthsettingTapped), for: .touchUpInside)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.reloadCollectionView()
+            if !hasHealthInfo {
+                self.view = storeview
+                setupCollectionView()
+                storeview.healthsettingButton.addTarget(self, action: #selector(healthsettingTapped), for: .touchUpInside)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.reloadCollectionView()
+                }
+                fetchStoreData()
             }
-            fetchStoreData()
+            else {
+                self.view = healthsettingview
+                healthsettingview.healthsettingButton.addTarget(self, action: #selector(gotohealthsetting), for: .touchUpInside)
+            }
         }
     }
     
     private func fetchStoreData() {
-        APIManager.HomeProvider.request(.getStores(lat: 37.5665, lon: 126.9780)) { result in
+        guard !isLastPage else { return }
+        isFetchingData = true // API 호출 시작
+
+        APIManager.HomeProvider.request(.getStores(lat: 37.5665, lon: 126.978, radius: 1000, page: currentPage)) { result in
+            self.isFetchingData = false // API 응답 후 다시 API 요청 가능하게 변경
+
             switch result {
             case .success(let response):
                 do {
-                    let decodedData = try JSONDecoder().decode(HomeResponse.self, from: response.data)
+                    let decodedData = try JSONDecoder().decode(DefaultResponse<HomeResponse>.self, from: response.data)
                         
-                    self.storeData = decodedData.storeList
+                    if let memberName = decodedData.result?.searchInfo.memberName, !memberName.isEmpty {
+                        DispatchQueue.main.async {
+                            self.storeview.setUserRecommendLabel(name: memberName)
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.storeview.setUserRecommendLabel(name: "힐릿")
+                        }
+                    }
+                
+                    
+                    if let storeList = decodedData.result?.storeList {
+                        self.storeData.append(contentsOf: storeList) // 기존 데이터에 추가
+                        self.currentPage += 1
+                        self.isLastPage = decodedData.result?.isLast ?? false
                         
-                    DispatchQueue.main.async {
-                        self.reloadCollectionView()
+                        DispatchQueue.main.async {
+                            
+                            self.reloadCollectionView()
+                        }
                     }
                 } catch {
-                    print("JSON 디코딩 오류:", error)
+                    print("❌ JSON 디코딩 오류:", error)
                 }
             case .failure(let error):
-                print("API 요청 실패:", error)
+                print("❌ API 요청 실패:", error)
             }
         }
     }
@@ -70,8 +103,10 @@ class StoreVC: UIViewController {
     }
 
     public func reloadCollectionView() {
-        storeview.storeCollectionView.reloadData()
-        storeview.updateCollectionViewHeight()
+        DispatchQueue.main.async {
+            self.storeview.storeCollectionView.reloadData()
+            self.storeview.updateCollectionViewHeight()
+        }
     }
                                                 
     @objc private func healthsettingTapped() {
@@ -83,16 +118,22 @@ class StoreVC: UIViewController {
         loginVC.modalPresentationStyle = .fullScreen
         present(loginVC, animated: true, completion: nil)
     }
+    
+    @objc private func gotohealthsetting() {
+        purposevc.modalPresentationStyle = .fullScreen
+        present(purposevc, animated: true, completion: nil)
+    }
+    
 }
 
 extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print("📌 컬렉션 뷰 데이터 개수: \(storeData.count)")
         return storeData.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: StoreCollectionViewCell.identifier, for: indexPath) as? StoreCollectionViewCell else {
+        guard let cell = collectionView.dequeueReusableCell( withReuseIdentifier: StoreCollectionViewCell.identifier, for: indexPath) as? StoreCollectionViewCell
+        else {
             return UICollectionViewCell()
         }
 
@@ -100,5 +141,16 @@ extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
         cell.storeconfigure(model: model)
 
         return cell
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+
+        if offsetY > contentHeight - height * 2, !isFetchingData {
+            isFetchingData = true
+            fetchStoreData()
+        }
     }
 }

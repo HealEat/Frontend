@@ -21,7 +21,6 @@ class StoreView: UIView {
             self.storeCollectionView.layoutIfNeeded() // 강제 레이아웃 업데이트
             
             let height = self.storeCollectionView.contentSize.height
-            print("📌 [layoutSubviews] CollectionView contentSize.height:", height)
 
             self.storeCollectionViewHeightConstraint?.update(offset: height)
             self.layoutIfNeeded()
@@ -35,16 +34,10 @@ class StoreView: UIView {
     public lazy var userRecommendLabel = UILabel().then {
         $0.textColor = .black
         $0.font = .systemFont(ofSize: 10, weight: .semibold)
-        $0.text = "힐릿님 건강 맞춤 추천"
-        let fullText = $0.text ?? ""
-        let attribtuedString = NSMutableAttributedString(string: fullText)
-        let range = (fullText as NSString).range(of: "힐릿")
-        attribtuedString.addAttribute(.foregroundColor, value: UIColor(red: 0.00, green: 0.58, blue: 0.35, alpha: 1.00), range: range)
-        $0.attributedText = attribtuedString
     }
     
     public lazy var healthsettingButton = UIButton().then {
-        $0.layer.cornerRadius = 8
+        $0.layer.cornerRadius = 10
         $0.layer.borderWidth = 0.5
         $0.layer.borderColor = UIColor(red: 0.51, green: 0.51, blue: 0.51, alpha: 1.00).cgColor
         $0.backgroundColor = .clear
@@ -52,13 +45,6 @@ class StoreView: UIView {
         $0.setTitleColor(.black , for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 8, weight: .regular)
     }
-    /*
-    public lazy var exampleButton = UIButton().then {
-        $0.setTitle("매장 미리보기", for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .bold)
-        $0.setTitleColor(.black, for: .normal)
-    }
-    */
     
     public let storeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width - 32, height: 123)
@@ -73,7 +59,6 @@ class StoreView: UIView {
     private func setViews() {
         addSubview(userRecommendLabel)
         addSubview(healthsettingButton)
-     //   addSubview(exampleButton)
         addSubview(storeCollectionView)
     }
     
@@ -91,15 +76,6 @@ class StoreView: UIView {
             $0.height.equalTo(18)
             $0.width.equalTo(80)
         }
-        /*
-        
-        exampleButton.snp.makeConstraints {
-            $0.top.equalTo(healthsettingButton.snp.bottom).offset(30)
-            $0.centerX.equalToSuperview()
-            $0.width.equalTo(120)
-            $0.height.equalTo(120)
-        }
-        */
         
         storeCollectionView.snp.makeConstraints {
             $0.top.equalTo(userRecommendLabel.snp.bottom).offset(7)
@@ -111,12 +87,19 @@ class StoreView: UIView {
     public func updateCollectionViewHeight() {
         DispatchQueue.main.async {
             let collectionHeight = self.storeCollectionView.contentSize.height
-            print("📌 CollectionView contentSize.height:", collectionHeight)
 
-            self.storeCollectionViewHeightConstraint?.update(offset: collectionHeight) // CollectionView 높이만 업데이트
-
+            self.storeCollectionViewHeightConstraint?.update(offset: collectionHeight)
             self.layoutIfNeeded()
         }
+    }
+    
+    public func setUserRecommendLabel(name: String) {
+        let fullText = "\(name)님 건강 맞춤 추천"
+        let attributedString = NSMutableAttributedString(string: fullText)
+        
+        let range = (fullText as NSString).range(of: "\(name)")
+        attributedString.addAttribute(.foregroundColor, value: UIColor(red: 0.00, green: 0.58, blue: 0.35, alpha: 1.00), range: range)
+        userRecommendLabel.attributedText = attributedString
     }
 
 }

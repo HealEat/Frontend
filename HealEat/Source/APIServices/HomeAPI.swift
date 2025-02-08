@@ -10,7 +10,7 @@ import Foundation
 import Moya
 
 enum HomeAPI {
-    case getStores(lat: Double, lon: Double)
+    case getStores(lat: Double, lon: Double, radius: Int, page: Int)
 }
 
 extension HomeAPI: TargetType {
@@ -31,21 +31,33 @@ extension HomeAPI: TargetType {
     var method: Moya.Method {
         switch self {
         case .getStores:
-            return .get // GET 요청 사용
+            return .post
         }
     }
 
     var task: Moya.Task {
         switch self {
-        case .getStores(let lat, let lon):
-            return .requestParameters(
-                parameters: ["x": "\(lon)", "y": "\(lat)", "radius": 1000],
-                encoding: URLEncoding.queryString
+        case .getStores(let lat, let lon, let radius, let page):
+            let parameters: [String: Any] = [
+                "x": "\(lat)",
+                "y": "\(lon)",
+                "radius": 100
+            ]
+            let queryParameters: [String: Any] = ["page": page]
+            
+            return .requestCompositeParameters(
+                bodyParameters: parameters,
+                bodyEncoding: JSONEncoding.default,
+                urlParameters: queryParameters
             )
         }
     }
     
     var headers: [String : String]? {
-        return ["Content-Type": "application/json"]
+        return [
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        ]
+        
     }
 }

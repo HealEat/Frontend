@@ -13,16 +13,31 @@ class StoreCollectionViewCell: UICollectionViewCell {
         
         setViews()
         setConstaints()
+        
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        storeImage.image = nil
+        storenameLabel.text = nil
+        foodnameLabel.text = nil
+        scoreLabel.text = nil
+        features = []
+        alltagView.collectionview.reloadData()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
+    
     private lazy var storeImage = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 8
         $0.clipsToBounds = true
+        $0.backgroundColor = UIColor(hex: "CFCFCF")
     }
     
     private lazy var storenameLabel = UILabel().then {
@@ -58,9 +73,15 @@ class StoreCollectionViewCell: UICollectionViewCell {
         $0.setImage(UIImage(systemName: "별점 리스트"), for: .normal)
     }
     
-    private lazy var foodtag = UIButton().then {
-        $0.setImage(UIImage(systemName: "foodtag"), for: .normal)
+    private lazy var alltagView = AllTagView().then {
+        $0.backgroundColor = .white
+        $0.collectionview.delegate = self
+        $0.collectionview.dataSource = self
+        $0.collectionview.register(FoodTagCell.self, forCellWithReuseIdentifier: FoodTagCell.identifier)
+        $0.collectionview.isUserInteractionEnabled = true
     }
+
+    private var features: [String] = []
     
     private func setViews() {
         addSubview(storeImage)
@@ -70,79 +91,100 @@ class StoreCollectionViewCell: UICollectionViewCell {
         addSubview(starImage)
         addSubview(scoreLabel)
         addSubview(scorelist)
-        addSubview(foodtag)
-        
-    }
-    
-    public func loadImage(from url: String) {
-        if let imageURL = URL(string: url) {
-            storeImage.kf.setImage(with: imageURL)
-        }
+        addSubview(alltagView)
     }
     
     private func setConstaints() {
         
-        storeImage.snp.makeConstraints {
-            $0.width.height.equalTo(95)
-            $0.leading.equalToSuperview().offset(13)
-            $0.top.equalToSuperview().offset(14)
-        }
-        
         storenameLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(18)
-            $0.leading.equalTo(storeImage.snp.trailing).offset(12)
+            $0.top.equalToSuperview().offset(14)
+            $0.leading.equalToSuperview().offset(16)
             $0.height.equalTo(19)
         }
         
         foodnameLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(21)
+            $0.top.equalToSuperview().offset(17)
             $0.leading.equalTo(storenameLabel.snp.trailing).offset(6)
             $0.height.equalTo(16)
+            $0.width.lessThanOrEqualTo(80)
+        }
+        
+        storeImage.snp.makeConstraints {
+            $0.width.height.equalTo(95)
+            $0.leading.equalToSuperview().offset(16)
+            $0.top.equalTo(storenameLabel.snp.bottom).offset(12)
         }
         
         scrapButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(17)
-            $0.top.equalToSuperview().offset(21)
-            $0.width.equalTo(9)
+            $0.trailing.equalToSuperview().offset(-17)
+            $0.top.equalToSuperview().offset(17)
+            $0.width.equalTo(15)
             $0.height.equalTo(13)
         }
         
         starImage.snp.makeConstraints {
-            $0.top.equalTo(storenameLabel.snp.bottom).offset(8)
-            $0.leading.equalTo(storeImage.snp.trailing).offset(14)
+            $0.top.equalTo(storenameLabel.snp.bottom).offset(18)
+            $0.leading.equalTo(storeImage.snp.trailing).offset(12)
             $0.height.equalTo(11)
         }
         
         scoreLabel.snp.makeConstraints {
             $0.top.equalTo(storenameLabel.snp.bottom).offset(8)
             $0.leading.equalTo(starImage.snp.trailing).offset(6)
-            $0.height.equalTo(13)
+            $0.height.equalTo(12)
         }
         
         scorelist.snp.makeConstraints {
-            $0.top.equalTo(starImage.snp.bottom).offset(8.5)
+            $0.top.equalTo(starImage.snp.bottom).offset(8)
             $0.leading.equalTo(storeImage.snp.trailing).offset(12)
             $0.height.equalTo(13)
         }
         
-        foodtag.snp.makeConstraints {
-            $0.top.equalTo(scorelist.snp.bottom).offset(8)
-            $0.leading.equalTo(storeImage.snp.trailing).offset(12)
-            $0.height.equalTo(19)
+        alltagView.snp.makeConstraints {
+            $0.leading.equalTo(storeImage.snp.trailing).offset(8)
+            $0.bottom.equalToSuperview().offset(-12)
+            $0.height.equalTo(50)
+            $0.trailing.equalToSuperview().offset(-16)
         }
-        
     }
         
     public func storeconfigure(model: StoreResponse) {
-        self.loadImage(from: model.imageUrlList.first ?? "")
+        
+        self.features = []
+        alltagView.collectionview.reloadData()
+        
+        if let imageUrl = model.imageUrlList.first, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+            self.storeImage.kf.setImage(with: url, placeholder: UIImage(named: "placeholder"))
+        } else {
+            self.storeImage.image = UIImage(named: "placeholder") // 기본 이미지 설정
+        }
         self.storenameLabel.text = model.place_name
         self.foodnameLabel.text = model.category_name
         self.scrapButton.setImage(UIImage(systemName: "scrapimage"), for: .normal)
         self.starImage.setImage(UIImage(systemName: "starimage"), for: .normal)
         self.scoreLabel.text = "\(model.totalScore) (\(model.reviewCount))"
         self.scorelist.setImage(UIImage(systemName: "starlist"), for: .normal)
-        self.foodtag.setImage(UIImage(systemName: "foodtag"), for: .normal)
+        
+        self.features = model.features
+        DispatchQueue.main.async {
+            self.storeImage.setNeedsLayout()
+            self.storeImage.layoutIfNeeded()
+            self.alltagView.collectionview.reloadData()
+        }
     }
         
 }
 
+extension StoreCollectionViewCell: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return features.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FoodTagCell.identifier, for: indexPath) as? FoodTagCell else {
+            return UICollectionViewCell()
+        }
+        cell.label.text = features[indexPath.row]
+        return cell
+    }
+}
