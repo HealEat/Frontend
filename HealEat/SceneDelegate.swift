@@ -1,7 +1,7 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
 
-
+import NaverThirdPartyLogin
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
 
         // SplashVC를 초기화면으로 설정
-//        let splashVC = BaseVC() // SplashViewController -> SplashVC로 변경
+        let splashVC = SplashVC() // SplashViewController -> SplashVC로 변경
 //        let marketVC = MarketVC()
 //        marketVC.param = MarketVC.Param(storeResponseModel: StoreResponseModel(
 //            placeId: 99,
@@ -51,8 +51,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //            dietCount: 5,
 //            isBookMarked: false
 //        ))
-        let savedStoreVC = SavedStoresVC()
-        window?.rootViewController = UINavigationController(rootViewController: savedStoreVC)
+//        let savedStoreVC = SavedStoresVC()
+//        window?.rootViewController = UINavigationController(rootViewController: savedStoreVC)
+        window?.rootViewController = splashVC
         window?.makeKeyAndVisible()
     }
 
@@ -65,4 +66,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillEnterForeground(_ scene: UIScene) { }
 
     func sceneDidEnterBackground(_ scene: UIScene) { }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        NaverThirdPartyLoginConnection.getSharedInstance().receiveAccessToken(URLContexts.first?.url)
+    }
 }

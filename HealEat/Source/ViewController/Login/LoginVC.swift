@@ -1,7 +1,7 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
 
-
+import NaverThirdPartyLogin
 import UIKit
 
 class LoginVC: UIViewController {
@@ -28,7 +28,9 @@ class LoginVC: UIViewController {
 
     @objc private func naverLoginTapped() {
         print("네이버 로그인 버튼 눌림")
-        navigateToProfile()
+        NaverThirdPartyLoginConnection.getSharedInstance().delegate = self
+        NaverThirdPartyLoginConnection.getSharedInstance().requestThirdPartyLogin()
+        
     }
 
     @objc private func kakaoLoginTapped() {
@@ -75,4 +77,23 @@ class LoginVC: UIViewController {
         present(profileVC, animated: true, completion: nil)
     }
 
+}
+
+extension LoginVC: NaverThirdPartyLoginConnectionDelegate {
+    func oauth20ConnectionDidFinishRequestACTokenWithAuthCode() {
+        print("Naver Login Success")
+        print("\(NaverThirdPartyLoginConnection.getSharedInstance().tokenType) \(NaverThirdPartyLoginConnection.getSharedInstance().accessToken)")
+    }
+    
+    func oauth20ConnectionDidFinishRequestACTokenWithRefreshToken() {
+        print("Naver Token Refresh Success")
+    }
+    
+    func oauth20ConnectionDidFinishDeleteToken() {
+        print("Naver Delete Token Success")
+    }
+    
+    func oauth20Connection(_ oauthConnection: NaverThirdPartyLoginConnection!, didFailWithError error: (any Error)!) {
+        print("Error: \(error.localizedDescription)")
+    }
 }

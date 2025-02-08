@@ -1,5 +1,5 @@
 {
-  "originHash" : "9a1f695b4c55a0a8e2f27413c8c21a27f94746139de06ad045e6a0096fb98741",
+  "originHash" : "c7e4d6d56e7159b4354090385f6a54ed897d4df635592576d3a59d2feac538db",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -11,21 +11,21 @@
       }
     },
     {
-      "identity" : "kakaomapssdk-spm",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git",
-      "state" : {
-        "revision" : "b617191ca9fd474278adce71f1c306486f1fe7c2",
-        "version" : "2.12.4"
-      }
-    },
-    {
       "identity" : "chtcollectionviewwaterfalllayout",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/chiahsien/CHTCollectionViewWaterfallLayout",
       "state" : {
         "revision" : "1fe42247efc8aea1ad03332d2b44f2d7fb1644bc",
         "version" : "0.9.10"
+      }
+    },
+    {
+      "identity" : "kakaomapssdk-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git",
+      "state" : {
+        "revision" : "b617191ca9fd474278adce71f1c306486f1fe7c2",
+        "version" : "2.12.4"
       }
     },
     {
@@ -44,6 +44,15 @@
       "state" : {
         "revision" : "c263811c1f3dbf002be9bd83107f7cdc38992b26",
         "version" : "15.0.3"
+      }
+    },
+    {
+      "identity" : "naveridlogin-sdk-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/naver/naveridlogin-sdk-ios",
+      "state" : {
+        "revision" : "0d89660344926a625824387a130f7e38e0fad2d7",
+        "version" : "4.2.3"
       }
     },
     {

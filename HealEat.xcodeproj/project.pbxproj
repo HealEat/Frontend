@@ -11,6 +11,8 @@
 		13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13C6A6632D3CEC470098B394 /* CoreLocation.framework */; };
 		7CA784752D4108B700041779 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 7CA784742D4108B700041779 /* SDWebImage */; };
 		7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */ = {isa = PBXBuildFile; productRef = 7CA7848C2D41296700041779 /* SwiftyToaster */; };
+		968843A42D57153F004276BF /* NaverThirdPartyLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 968843A32D57153F004276BF /* NaverThirdPartyLogin */; };
+		968843A72D571741004276BF /* NaverThirdPartyLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 968843A62D571741004276BF /* NaverThirdPartyLogin */; };
 		968AF0382D4BD1E900F0221B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 968AF0372D4BD1E900F0221B /* Kingfisher */; };
 		968AF03B2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 968AF03A2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout */; };
 		96DB35E82D2E4C2A001FE074 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 96DB35E72D2E4C2A001FE074 /* CombineMoya */; };
@@ -54,6 +56,7 @@
 			files = (
 				96DB35F12D2E4C36001FE074 /* Then in Frameworks */,
 				96DB35EA2D2E4C2A001FE074 /* Moya in Frameworks */,
+				968843A42D57153F004276BF /* NaverThirdPartyLogin in Frameworks */,
 				96DB35E82D2E4C2A001FE074 /* CombineMoya in Frameworks */,
 				96DB35F42D2E4C40001FE074 /* SnapKit in Frameworks */,
 				13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */,
@@ -64,6 +67,7 @@
 				7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */,
 				96DB35EE2D2E4C2A001FE074 /* RxMoya in Frameworks */,
 				96DB35EC2D2E4C2A001FE074 /* ReactiveMoya in Frameworks */,
+				968843A72D571741004276BF /* NaverThirdPartyLogin in Frameworks */,
 				132D39452D37D49400E1458B /* KakaoMapsSDK-SPM in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -128,6 +132,8 @@
 				7CA7848C2D41296700041779 /* SwiftyToaster */,
 				968AF0372D4BD1E900F0221B /* Kingfisher */,
 				968AF03A2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout */,
+				968843A32D57153F004276BF /* NaverThirdPartyLogin */,
+				968843A62D571741004276BF /* NaverThirdPartyLogin */,
 			);
 			productName = HealEat;
 			productReference = 96DB35792D2E4B83001FE074 /* HealEat.app */;
@@ -166,6 +172,7 @@
 				7CA7848B2D41296700041779 /* XCRemoteSwiftPackageReference "SwiftyToaster" */,
 				968AF0362D4BD1E900F0221B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				968AF0392D4BD1F800F0221B /* XCRemoteSwiftPackageReference "CHTCollectionViewWaterfallLayout" */,
+				968843A52D571741004276BF /* XCRemoteSwiftPackageReference "naveridlogin-sdk-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 96DB357A2D2E4B83001FE074 /* Products */;
@@ -230,6 +237,9 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealEat/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "사용자의 위치를 기반으로 정보를 제공하기 위해 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "사용자의 위치를 기반으로 정보를 제공하기 위해 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "앱을 사용하는 동안 위치 정보 허용";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -239,7 +249,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.umc.HealEat;
+				PRODUCT_BUNDLE_IDENTIFIER = com.umc7.healeat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -258,6 +268,9 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealEat/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "사용자의 위치를 기반으로 정보를 제공하기 위해 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "사용자의 위치를 기반으로 정보를 제공하기 위해 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "앱을 사용하는 동안 위치 정보 허용";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -267,7 +280,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.umc.HealEat;
+				PRODUCT_BUNDLE_IDENTIFIER = com.umc7.healeat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -442,6 +455,14 @@
 				minimumVersion = 1.0.2;
 			};
 		};
+		968843A52D571741004276BF /* XCRemoteSwiftPackageReference "naveridlogin-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/naver/naveridlogin-sdk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.2.3;
+			};
+		};
 		968AF0362D4BD1E900F0221B /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
@@ -499,6 +520,15 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7CA7848B2D41296700041779 /* XCRemoteSwiftPackageReference "SwiftyToaster" */;
 			productName = SwiftyToaster;
+		};
+		968843A32D57153F004276BF /* NaverThirdPartyLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NaverThirdPartyLogin;
+		};
+		968843A62D571741004276BF /* NaverThirdPartyLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 968843A52D571741004276BF /* XCRemoteSwiftPackageReference "naveridlogin-sdk-ios" */;
+			productName = NaverThirdPartyLogin;
 		};
 		968AF0372D4BD1E900F0221B /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
