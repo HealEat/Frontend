@@ -15,33 +15,54 @@ class WriteReviewView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    lazy var reviewBar: ReviewBar = {
-        let view = ReviewBar(field: .taste)
-        view.valueChanged = { [weak self] value in
-            self?.reviewLabel.text = "\(String(format: "%.1f", value * 5))"
-        }
+    lazy var topReviewView: UIView = {
+        let view = UIView()
         return view
     }()
     
-    lazy var reviewLabel: UILabel = {
+    lazy var topStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 13
+        stackView.alignment = .center
+        stackView.distribution = .equalSpacing
+        return stackView
+    }()
+    
+    lazy var titleLabel: UILabel = {
         let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.numberOfLines = 0
+        label.textAlignment = .center
         return label
     }()
     
+    lazy var topStarsView: StarsView = {
+        let starsView = StarsView(accentColor: .healeatGreen2, baseColor: .healeatGray4)
+        return starsView
+    }()
+    
     private func addComponents() {
-        self.addSubview(reviewBar)
-        self.addSubview(reviewLabel)
+        self.addSubview(topReviewView)
+        
+        topReviewView.addSubview(topStackView)
+        
+        topStackView.addArrangedSubview(titleLabel)
+        topStackView.addArrangedSubview(topStarsView)
+        
         setConstraints()
     }
-    func setConstraints() {
-        reviewBar.snp.makeConstraints({ make in
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(22)
-            make.centerY.equalToSuperview()
+    
+    private func setConstraints() {
+        topReviewView.snp.makeConstraints({ make in
+            make.top.leading.trailing.equalToSuperview()
         })
-        reviewLabel.snp.makeConstraints({ make in
+        topStackView.snp.makeConstraints({ make in
+            make.top.bottom.equalToSuperview().inset(32)
             make.centerX.equalToSuperview()
-            make.top.equalTo(reviewBar.snp.bottom).offset(32)
+        })
+        topStarsView.snp.makeConstraints({ make in
+            make.height.equalTo(13)
         })
     }
 }
