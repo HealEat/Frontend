@@ -21,12 +21,12 @@ class MapsVC: UIViewController, MapControllerDelegate {
     var _auth: Bool
     var _appear: Bool
     
-    public lazy var searchBar = CustomSearchBar().then {
+    public lazy var searchBar = MapSearchBar().then {
         let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.black.withAlphaComponent(0.5),
-            .font: UIFont.systemFont(ofSize: 12, weight: .regular)
+            .foregroundColor: UIColor.healeatGray5,
+            .font: UIFont.systemFont(ofSize: 16, weight: .regular)
         ]
-        $0.searchBar.attributedPlaceholder = NSAttributedString(string: "음식, 매장, 주소 검색", attributes: attributes)
+        $0.searchBar.attributedPlaceholder = NSAttributedString(string: "검색", attributes: attributes)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -55,7 +55,6 @@ class MapsVC: UIViewController, MapControllerDelegate {
         
         super.viewDidLoad()
         setupMapView()
-        setupSearchBar()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         
     }
@@ -81,18 +80,6 @@ class MapsVC: UIViewController, MapControllerDelegate {
             setupLocationManager()
             // 지도 추가
             addViews()
-    }
-    
-    private func setupSearchBar() {
-        // 검색창 추가
-        view.addSubview(searchBar)
-            
-        // 오토레이아웃 설정
-        searchBar.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(10) // 좌우 여백 10
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.height.equalTo(50)
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -269,7 +256,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     private func setupConstraints() {
         searchBar.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(10)
+            make.horizontalEdges.equalToSuperview().inset(15)
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
     }

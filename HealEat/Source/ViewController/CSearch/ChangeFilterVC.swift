@@ -3,7 +3,7 @@
 
 import UIKit
 
-class SearchVC: UIViewController {
+class ChangeFilterVC: UIViewController {
     let foodTypeList = FoodCategory.allItems
     let nutritionList = NutritionCategory.allItems
     let recentSearches = [
@@ -15,17 +15,16 @@ class SearchVC: UIViewController {
         
     
     // MARK: - UI Components
-    private lazy var searchBar = CustomSearchBar().then {
-        let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.healeatGray5,
-            .font: UIFont.systemFont(ofSize: 16, weight: .regular)
-        ]
-        $0.searchBar.attributedPlaceholder = NSAttributedString(string: "음식, 매장, 주소 검색", attributes: attributes)
+    private lazy var vcLabel = UILabel().then {
+        $0.textColor = UIColor.healeatGray5
+        $0.text = "필터"
+        $0.font = UIFont.systemFont(ofSize: 14, weight: .medium)
     }
     
     private lazy var keywordBackground = KeywordChipsView().then {
         $0.backgroundColor = .white
         $0.allKeywordButton.addTarget(self, action: #selector(showKeywords), for: .touchUpInside)
+        $0.label.textColor = .black
     }
     
     private lazy var foodTypeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then({
@@ -70,18 +69,66 @@ class SearchVC: UIViewController {
         $0.backgroundColor = .healeatLightGreen
         $0.layer.cornerRadius = 12
         $0.layer.masksToBounds = true
-        $0.addTarget(self, action: #selector(goToFilteredSearch), for: .touchUpInside)
     }
-    private lazy var tableview = UITableView().then {
-        $0.dataSource = self
-        $0.delegate = self
-        $0.backgroundColor = .white
-        $0.separatorColor = UIColor(hex: "EBEBEB")
-        $0.separatorInset = .zero
-        $0.separatorStyle = .singleLine
-        $0.register(UITableViewCell.self, forCellReuseIdentifier: "headerCell") // ✅ 기본 셀 등록
-        $0.register(RecentSearchCell.self, forCellReuseIdentifier: RecentSearchCell.identifier)
+    
+    private lazy var openHoursLabel = UILabel().then {
+        $0.text = "영업 시간"
+        $0.textColor = .black
+        $0.font = UIFont.systemFont(ofSize: 14, weight: .medium)
     }
+    private lazy var leastRatingLabel = UILabel().then {
+        $0.text = "최소 별점"
+        $0.textColor = .black
+        $0.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+    }
+    private lazy var openNowButton = FilterButton(title: "영업 중")
+    private lazy var open24HoursButton = FilterButton(title: "24시간 영업")
+    private lazy var over3P5Button = FilterButton(title: "3.5 이상")
+    private lazy var over4Button = FilterButton(title: "4.0 이상")
+    private lazy var over4P5Button = FilterButton(title: "4.5 이상")
+    
+    private lazy var openHoursStack = UIStackView(arrangedSubviews: [openNowButton, open24HoursButton]).then {
+        $0.axis = .horizontal
+        $0.distribution = .fill
+        $0.spacing = 10
+    }
+    private lazy var leastRatingStack = UIStackView(arrangedSubviews: [over3P5Button, over4Button, over4P5Button]).then {
+        $0.axis = .horizontal
+        $0.distribution = .fill
+        $0.spacing = 10
+    }
+    private lazy var resetButton = UIButton().then {
+        let string = NSAttributedString(string: "초기화", attributes: [
+            .font: UIFont.systemFont(ofSize: 14, weight: .medium),
+            .foregroundColor: UIColor.healeatGray5
+        ])
+        $0.setAttributedTitle(string, for: .normal)
+        $0.layer.masksToBounds = true
+        $0.layer.cornerRadius = 14
+        $0.layer.borderColor = UIColor.healeatGray5.cgColor
+        $0.layer.borderWidth = 1
+        $0.backgroundColor = .healeatGray2
+    }
+    private lazy var applyFilterButton = UIButton().then {
+        let string = NSAttributedString(string: "적용", attributes: [
+            .font: UIFont.systemFont(ofSize: 14, weight: .medium),
+            .foregroundColor: UIColor.healeatGreen1
+        ])
+        $0.setAttributedTitle(string, for: .normal)
+        $0.layer.masksToBounds = true
+        $0.layer.cornerRadius = 14
+        $0.layer.borderColor = UIColor.healeatGreen1.cgColor
+        $0.layer.borderWidth = 1
+        $0.backgroundColor = .healeatLightGreen
+    }
+    private lazy var bottomButtonStack = UIStackView(arrangedSubviews: [resetButton, applyFilterButton]).then {
+        $0.axis = .horizontal
+        $0.distribution = .fillEqually
+        $0.spacing = 15
+        
+    }
+    
+
         
 
     // MARK: - Life Cycle
@@ -96,26 +143,26 @@ class SearchVC: UIViewController {
 
     // MARK: - UI Methods
     private func setupUI() {
-        view.addSubview(searchBar)
-        view.addSubview(keywordBackground)
-        keywordBackground.addSubview(foodTypeCollectionView)
-        keywordBackground.addSubview(nutritionCollectionView)
-        keywordBackground.addSubview(foodTypeButton)
-        keywordBackground.addSubview(nutritionButton)
-        view.addSubview(tableview)
+        view.backgroundColor = .white
+        
+        [vcLabel, keywordBackground, openHoursLabel, openHoursStack, leastRatingLabel, leastRatingStack, bottomButtonStack].forEach {
+            view.addSubview($0)
+        }
+        [foodTypeCollectionView, nutritionCollectionView, foodTypeButton, nutritionButton].forEach {
+            keywordBackground.addSubview($0)
+        }
         
         setupConstraints()
     }
     
     private func setupConstraints() {
-        searchBar.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(10)
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(5)
-            make.height.equalTo(50)
+        vcLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(15)
+            make.leading.equalToSuperview().offset(15)
         }
         keywordBackground.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
-            make.top.equalTo(searchBar.snp.bottom).offset(10)
+            make.top.equalTo(vcLabel.snp.bottom).offset(10)
             make.height.equalTo(150)
         }
         foodTypeCollectionView.snp.makeConstraints { make in
@@ -142,10 +189,26 @@ class SearchVC: UIViewController {
             make.height.equalTo(24)
             make.centerY.equalTo(nutritionCollectionView.snp.centerY)
         }
-        tableview.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview()
-            make.top.equalTo(keywordBackground.snp.bottom)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+        openHoursLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(15)
+            make.top.equalTo(keywordBackground.snp.bottom).offset(15)
+        }
+        openHoursStack.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(15)
+            make.top.equalTo(openHoursLabel.snp.bottom).offset(15)
+        }
+        leastRatingLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(15)
+            make.top.equalTo(openHoursStack.snp.bottom).offset(15)
+        }
+        leastRatingStack.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(15)
+            make.top.equalTo(leastRatingLabel.snp.bottom).offset(15)
+        }
+        bottomButtonStack.snp.makeConstraints { make in
+            make.top.equalTo(leastRatingStack.snp.bottom).offset(20)
+            make.horizontalEdges.equalToSuperview().inset(15)
+            make.height.equalTo(42)
         }
         
     }
@@ -156,18 +219,12 @@ class SearchVC: UIViewController {
         navigationController?.pushViewController(keywordVC, animated: true)
     }
     
-    @objc private func goToFilteredSearch() {
-        let filteredSearchVC = FilteredSearchVC()
-        filteredSearchVC.hidesBottomBarWhenPushed = true // 탭바 숨겨주기
-        navigationController?.pushViewController(filteredSearchVC, animated: true)
-    }
-    
     //MARK: API call
 
 }
 
 
-extension SearchVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension ChangeFilterVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch collectionView.tag {
         case 0:
@@ -213,45 +270,6 @@ extension SearchVC: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
         return CGSize(width: size.width + 13, height: size.height + 7)
     }
     
-    
 }
 
-extension SearchVC: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return recentSearches.count + 1
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.row == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "headerCell", for: indexPath)
-            cell.textLabel?.text = "최근 검색"
-            cell.textLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-            cell.textLabel?.textColor = UIColor.healeatGray5
-            return cell
-        } else {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: RecentSearchCell.identifier, for: indexPath) as? RecentSearchCell else { return UITableViewCell() }
-            let searchData = recentSearches[indexPath.row - 1]
-            cell.cellLabel.text = searchData.nameData
-            
-            switch searchData.type {
-            case "place":
-                cell.typeImage.image = UIImage(named: "place")
-            case "keyword":
-                cell.typeImage.image = UIImage(named: "keyword")
-            default:
-                cell.typeImage.image = UIImage(systemName: "xmark")
-            }
-            return cell
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.row == 0 {
-            return 45
-        } else {
-            return 35
-        }
-    }
-    
-    
-}
+
