@@ -10,6 +10,16 @@ struct HomeResponse: Codable {
     let isFirst: Bool
     let isLast: Bool
     let searchInfo: SearchInfo?
+    
+    enum CodingKeys: String, CodingKey {
+        case storeList
+        case listSize
+        case totalPage
+        case totalElements
+        case isFirst
+        case isLast
+        case searchInfo = "searchInfoDto"
+    }
 }
 
 

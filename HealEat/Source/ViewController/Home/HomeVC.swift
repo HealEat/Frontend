@@ -326,13 +326,4 @@ extension HomeVC: UIGestureRecognizerDelegate {
     }
 }
 
-extension HomeVC: UIScrollViewDelegate {
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        // 컬렉션뷰가 최상단에 도달하면 다시 팬 제스처 활성화
-        if scrollView == storeVC.storeview.storeCollectionView && scrollView.contentOffset.y == 0 {
-            if storeview.gestureRecognizers?.contains(storePanGesture!) == false {
-                storeview.addGestureRecognizer(storePanGesture!)
-            }
-        }
-    }
-}
+

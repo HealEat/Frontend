@@ -15,13 +15,6 @@ class StoreView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        DispatchQueue.main.async {
-            let height = self.storeCollectionView.contentSize.height
-            print("📢 업데이트할 CollectionView 높이: \(height)")
-            self.layoutIfNeeded() // ✅ 레이아웃 업데이트 반영
-            }
-        
     }
     
     override var intrinsicContentSize: CGSize {
@@ -82,14 +75,14 @@ class StoreView: UIView {
         storeCollectionView.snp.makeConstraints {
             $0.top.equalTo(userRecommendLabel.snp.bottom).offset(7)
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalToSuperview().priority(.low) //낮은 우선순위로 `bottom` 설정
+            $0.bottom.equalToSuperview().priority(.low) //  낮은 우선순위로 `bottom` 설정
             $0.height.greaterThanOrEqualTo(200)
         }
     }
     
     func updateCollectionViewHeight() {
         let newHeight = storeCollectionView.contentSize.height
-       
+        print("📢 업데이트할 CollectionView 높이: \(newHeight)")
         if newHeight > 0, storeCollectionView.frame.height != newHeight {
                 storeCollectionView.snp.updateConstraints {
                     $0.height.equalTo(newHeight)

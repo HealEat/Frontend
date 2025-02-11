@@ -73,6 +73,7 @@ class StoreVC: UIViewController {
                         self.isLastPage = decodedData.result?.isLast ?? false
                         
                         DispatchQueue.main.async {
+                            
                             self.reloadCollectionView()
                         }
                     }
