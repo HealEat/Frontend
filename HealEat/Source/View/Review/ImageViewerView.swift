@@ -58,11 +58,15 @@ class ImageViewerView: UIView {
         return label
     }()
     
-    lazy var purposeLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .light)
-        label.textColor = .healeatGray1
-        return label
+    lazy var purposeButton: UIButton = {
+        let button = UIButton()
+        
+        var configuration = UIButton.Configuration.plain()
+        configuration.titlePadding = .zero
+        configuration.contentInsets = .zero
+        
+        button.configuration = configuration
+        return button
     }()
     
     private func addComponents() {
@@ -74,7 +78,7 @@ class ImageViewerView: UIView {
         
         profileView.addSubview(profileImageView)
         profileView.addSubview(nameLabel)
-        profileView.addSubview(purposeLabel)
+        profileView.addSubview(purposeButton)
         
         setConstraints()
     }
@@ -104,13 +108,15 @@ class ImageViewerView: UIView {
         })
         profileImageView.snp.makeConstraints({ make in
             make.width.height.equalTo(30)
-            make.top.bottom.leading.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.leading.equalToSuperview()
         })
         nameLabel.snp.makeConstraints({ make in
             make.top.equalToSuperview()
             make.leading.equalTo(profileImageView.snp.trailing).offset(5)
         })
-        purposeLabel.snp.makeConstraints({ make in
+        purposeButton.snp.makeConstraints({ make in
+            make.top.equalTo(nameLabel.snp.bottom).offset(3)
             make.bottom.equalToSuperview()
             make.leading.equalTo(profileImageView.snp.trailing).offset(5)
         })

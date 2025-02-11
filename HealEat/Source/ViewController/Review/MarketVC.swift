@@ -5,9 +5,11 @@ import Combine
 
 class MarketVC: UIViewController {
     
+    private var expanded: Bool = true
+    
     // MARK: - Init Param
     struct Param {
-        let storeResponseModel: StoreResponseModel
+        let placeId: Int
     }
     var param: Param!
     
@@ -15,26 +17,35 @@ class MarketVC: UIViewController {
     private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
     
     // MARK: - Delegate DataSource Handlers
-    private var typeCollectionViewHandler: TypeCollectionViewHandler?
-    private var detailRatingCollectionViewHandler: DetailRatingCollectionViewHandler?
-    private var previewCollectionViewHandler: PreviewCollectionViewHandler?
-    private var imageCollectionViewHandler: ImageCollectionViewHandler?
-    private var reviewTableViewHandler: ReviewTableViewHandler?
+    private var featureCollectionViewHandler = FeatureCollectionViewHandler()
+    private var detailRatingCollectionViewHandler = DetailRatingCollectionViewHandler()
+    private var previewCollectionViewHandler = PreviewCollectionViewHandler()
+    
+    private var marketHomeTableViewHandler = MarketHomeTableViewHandler()
+    private var imageCollectionViewHandler = ImageCollectionViewHandler()
+    private var marketReviewTableViewHandler = MarketReviewTableViewHandler()
+    
+    // MARK: - API
+    private var storeDetailResponseModel: StoreDetailResponseModel?
+    private var imageModels: [ImageModel] = []
+    
+    private var page: Int = 1
+    private var isLast: Bool = false
     
     // MARK: - PageViewControllers
     private let marketHomeVC: MarketHomeVC = {
         let viewController = MarketHomeVC()
-        viewController.marketHomeView.mainScrollView.isUserInteractionEnabled = false
-        return viewController
-    }()
-    private let marketImageVC: MarketImageVC = {
-        let viewController = MarketImageVC()
-        viewController.marketImageView.imageCollectionView.isUserInteractionEnabled = false
+        viewController.marketHomeView.mainTableView.isScrollEnabled = false
         return viewController
     }()
     private let marketReviewVC: MarketReviewVC = {
         let viewController = MarketReviewVC()
-        viewController.marketReviewView.reviewTableView.isUserInteractionEnabled = false
+        viewController.marketReviewView.reviewTableView.isScrollEnabled = false
+        return viewController
+    }()
+    private let marketImageVC: MarketImageVC = {
+        let viewController = MarketImageVC()
+        viewController.marketImageView.imageCollectionView.isScrollEnabled = false
         return viewController
     }()
     
@@ -45,186 +56,233 @@ class MarketVC: UIViewController {
         self.view = marketView
         self.navigationController?.navigationBar.isHidden = true
         
-        marketHomeVC.changePageTo = { [weak self] index in
-            guard let button = self?.marketView.topTabBar.tabBarStackView.arrangedSubviews[index] as? UIButton else { return }
-            self?.marketView.topTabBar.onClickMenu(button)
-        }
-        initializeView()
         initializeGestures()
         initializeHandlers()
         
-        param.storeResponseModel.isInDB ? getStoreDetail() : saveStore()
+        getStoreDetail()
+        getReviewImgs()
     }
     
-    // MARK: - Init Func
+    // MARK: - Func
     private func initializeGestures() {
         marketHomeVC.onGesture = panGestureHandler(recognizer:)
         marketImageVC.onGesture = panGestureHandler(recognizer:)
         marketReviewVC.onGesture = panGestureHandler(recognizer:)
     }
     
-    // MARK: - Func
     private func initializeHandlers() {
-        typeCollectionViewHandler = TypeCollectionViewHandler(types: param.storeResponseModel.features)
-        marketView.typeCollectionView.delegate = typeCollectionViewHandler
-        marketView.typeCollectionView.dataSource = typeCollectionViewHandler
+        marketView.featureCollectionView.delegate = featureCollectionViewHandler
+        marketView.featureCollectionView.dataSource = featureCollectionViewHandler
         
-        detailRatingCollectionViewHandler = DetailRatingCollectionViewHandler(detailRatings: [
-            ("질병 관리", param.storeResponseModel.sickScore, param.storeResponseModel.sickCount),
-            ("베지테리언", param.storeResponseModel.vegetScore, param.storeResponseModel.vegetCount),
-            ("다이어트", param.storeResponseModel.dietScore, param.storeResponseModel.dietCount),
-        ])
         marketView.detailRatingCollectionView.delegate = detailRatingCollectionViewHandler
         marketView.detailRatingCollectionView.dataSource = detailRatingCollectionViewHandler
         
-        previewCollectionViewHandler = PreviewCollectionViewHandler(urls: param.storeResponseModel.imageUrls)
         marketView.previewCollectionView.delegate = previewCollectionViewHandler
         marketView.previewCollectionView.dataSource = previewCollectionViewHandler
         
-        imageCollectionViewHandler = ImageCollectionViewHandler(urls: param.storeResponseModel.imageUrls)
-        imageCollectionViewHandler?.presentImageViewer = { [weak self] imageModels, index in
+        imageCollectionViewHandler.presentImageViewer = { [weak self] imageModels, index in
             let imageViewerVC = ImageViewerVC()
             imageViewerVC.param = ImageViewerVC.Param(imageModels: imageModels, index: index)
             imageViewerVC.modalPresentationStyle = .overCurrentContext
             imageViewerVC.modalTransitionStyle = .crossDissolve
             self?.present(imageViewerVC, animated: true)
         }
-        marketHomeVC.marketHomeView.imageCollectionView.dataSource = imageCollectionViewHandler
-        marketHomeVC.marketHomeView.imageCollectionView.delegate = imageCollectionViewHandler
-        marketImageVC.marketImageView.imageCollectionView.dataSource = imageCollectionViewHandler
-        marketImageVC.marketImageView.imageCollectionView.delegate = imageCollectionViewHandler
         
-        reviewTableViewHandler = ReviewTableViewHandler()
-        reviewTableViewHandler?.pushWriteReviewVC = { [weak self] in
+        marketHomeTableViewHandler.imageCollectionViewHandler = imageCollectionViewHandler
+        marketHomeTableViewHandler.changePageTo = { [weak self] index in
+            guard let button = self?.marketView.topTabBar.tabBarStackView.arrangedSubviews[index] as? UIButton else { return }
+            self?.marketView.topTabBar.onClickMenu(button)
+        }
+        marketHomeVC.marketHomeView.mainTableView.delegate = marketHomeTableViewHandler
+        marketHomeVC.marketHomeView.mainTableView.dataSource = marketHomeTableViewHandler
+        
+        marketImageVC.marketImageView.imageCollectionView.delegate = imageCollectionViewHandler
+        marketImageVC.marketImageView.imageCollectionView.dataSource = imageCollectionViewHandler
+        
+        
+        marketReviewTableViewHandler.pushWriteReviewVC = { [weak self] in
             let viewController = WriteReviewVC()
             self?.navigationController?.pushViewController(viewController, animated: true)
         }
-        marketReviewVC.marketReviewView.reviewTableView.dataSource = reviewTableViewHandler
-        marketReviewVC.marketReviewView.reviewTableView.delegate = reviewTableViewHandler
+        marketReviewVC.marketReviewView.reviewTableView.delegate = marketReviewTableViewHandler
+        marketReviewVC.marketReviewView.reviewTableView.dataSource = marketReviewTableViewHandler
     }
     
-    private func initializeView() {
-        marketView.navigationTitleLabel.text = param.storeResponseModel.placeName
-        marketView.titleLabel.text = param.storeResponseModel.placeName
-        marketView.subtitleLabel.text = param.storeResponseModel.categoryName
-        marketView.ratingStarView.star = param.storeResponseModel.totalScore
-        marketView.ratingLabel.text = "\(param.storeResponseModel.totalScore) (\(param.storeResponseModel.reviewCount))"
+    private func setStoreToHandlers(storeDetailResponseModel: StoreDetailResponseModel) {
+        featureCollectionViewHandler.features = storeDetailResponseModel.storeInfoDto.features
+        detailRatingCollectionViewHandler.detailRatings = [
+            ("질병 관리", storeDetailResponseModel.isInDBDto.sickScore, storeDetailResponseModel.isInDBDto.sickCount),
+            ("베지테리언", storeDetailResponseModel.isInDBDto.vegetScore, storeDetailResponseModel.isInDBDto.vegetCount),
+            ("다이어트", storeDetailResponseModel.isInDBDto.dietScore, storeDetailResponseModel.isInDBDto.dietCount),
+        ]
+        marketHomeTableViewHandler.storeDetailResponseModel = storeDetailResponseModel
+        
+        marketView.featureCollectionView.reloadData()
+        marketView.detailRatingCollectionView.reloadData()
+        marketHomeVC.marketHomeView.mainTableView.reloadData()
+    }
+    
+    private func setImagesToHandlers() {
+        previewCollectionViewHandler.imageModels = imageModels
+        imageCollectionViewHandler.imageModels = imageModels
+        
+        marketView.previewCollectionView.reloadData()
+        marketHomeVC.marketHomeView.mainTableView.reloadData()
+        marketImageVC.marketImageView.imageCollectionView.reloadData()
+    }
+    
+    private func initializeView(storeDetailResponseModel: StoreDetailResponseModel) {
+        marketView.navigationTitleLabel.text = storeDetailResponseModel.storeInfoDto.placeName
+        marketView.titleLabel.text = storeDetailResponseModel.storeInfoDto.placeName
+        marketView.subtitleLabel.text = storeDetailResponseModel.storeInfoDto.categoryName
+        marketView.ratingStarView.star = storeDetailResponseModel.isInDBDto.totalScore
+        marketView.ratingLabel.text = "\(storeDetailResponseModel.isInDBDto.totalScore) (\(storeDetailResponseModel.isInDBDto.reviewCount))"
         marketView.openLabel.text = "영업 중"
         marketView.openHourLabel.text = "9:30 - 20:30"
-        
-        marketHomeVC.marketHomeView.locationLabel.text = param.storeResponseModel.addressName
-        marketHomeVC.marketHomeView.openLabel.text = "영업 중"
-        marketHomeVC.marketHomeView.openHourLabel.text = "9:30 - 20:30"
-        marketHomeVC.marketHomeView.reviewTitleLabel.text = "'\(param.storeResponseModel.placeName)'의\n건강 평점을 남겨주세요!"
     }
     
     // MARK: - View
     private lazy var marketView: MarketView = {
         let view = MarketView()
         
+        view.topTabBar.delegate = self
         view.pageViewControllers = [
             marketHomeVC,
-            marketImageVC,
             marketReviewVC,
+            marketImageVC,
         ]
-        view.topTabBar.delegate = self
-        
-        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panGestureHandler(recognizer: )))
-        view.addGestureRecognizer(panGestureRecognizer)
         addChild(view.menuPageViewController)
         view.menuPageViewController.didMove(toParent: self)
         if let pageVC = view.pageViewControllers.first {
             view.menuPageViewController.setViewControllers([pageVC], direction: .forward, animated: false)
         }
+        
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panGestureHandler(recognizer: )))
+        view.addGestureRecognizer(panGestureRecognizer)
+        
+        view.navigationBackButton.addTarget(self, action: #selector(onClickNavBack), for: .touchUpInside)
+        view.navigationNaverButton.addTarget(self, action: #selector(onClickNaver), for: .touchUpInside)
+        view.bookmarkButton.addTarget(self, action: #selector(onClickBookmark), for: .touchUpInside)
+        
         return view
     }()
+    
+    @objc private func onClickNavBack() {
+        
+    }
+    
+    @objc private func onClickNaver() {
+        guard let url = storeDetailResponseModel?.storeInfoDto.placeUrl else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+    }
+    
+    @objc private func onClickBookmark() {
+        marketView.bookmarkButton.isSelected.toggle()
+        
+    }
     
     // MARK: - PanGesture
     @objc private func panGestureHandler(recognizer: UIPanGestureRecognizer) {
         let translation = recognizer.translation(in: marketView)
-        var height = marketView.expanded ? marketView.expandableView.frame.height : 0
+        var height = expanded ? marketView.expandableView.frame.height : 0
         height += translation.y
+        
         marketView.updateExpandableAreaView(height: height)
+        marketView.navigationNaverButton.alpha = 1 - height / self.marketView.expandableView.frame.height
         marketView.navigationTitleLabel.alpha = 1 - height / marketView.expandableView.frame.height
+        
+        // Touch Ended: Magnetic Effect
         if recognizer.state == .ended {
-            if height < marketView.expandableView.frame.height/2 {
-                height = 0
-                marketView.expanded = false
-                marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = true
-                marketImageVC.marketImageView.imageCollectionView.isUserInteractionEnabled = true
-                marketReviewVC.marketReviewView.reviewTableView.isUserInteractionEnabled = true
-            } else {
-                height = marketView.expandableView.frame.height
-                marketView.expanded = true
-                marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = false
-                marketImageVC.marketImageView.imageCollectionView.isUserInteractionEnabled = false
-                marketReviewVC.marketReviewView.reviewTableView.isUserInteractionEnabled = false
-            }
+            expanded = height > marketView.expandableView.frame.height/2
+            height = expanded ? marketView.expandableView.frame.height : 0
+            marketHomeVC.marketHomeView.mainTableView.isScrollEnabled = !expanded
+            marketReviewVC.marketReviewView.reviewTableView.isScrollEnabled = !expanded
+            marketImageVC.marketImageView.imageCollectionView.isScrollEnabled = !expanded
             
             UIView.animate(withDuration: 0.2) { [weak self] in
                 guard let self = self else { return }
                 self.marketView.navigationTitleLabel.alpha = 1 - height / self.marketView.expandableView.frame.height
+                self.marketView.navigationNaverButton.alpha = 1 - height / self.marketView.expandableView.frame.height
                 self.marketView.updateExpandableAreaView(height: height)
                 self.marketView.layoutIfNeeded()
             }
             return
         }
-        marketView.updateExpandableAreaView(height: height)
     }
     
     // MARK: - Network
-    private func saveStore() {
-        let saveStoreRequest = StoreSaveRequest(
-            placeId: "\(param.storeResponseModel.placeId)",
-            placeName: param.storeResponseModel.placeName,
-            categoryName: param.storeResponseModel.categoryName,
-            phone: param.storeResponseModel.phone,
-            addressName: param.storeResponseModel.addressName,
-            roadAddressName: param.storeResponseModel.roadAddressName,
-            x: param.storeResponseModel.x,
-            y: param.storeResponseModel.y,
-            placeUrl: param.storeResponseModel.placeUrl.absoluteString,
-            daumImgUrlList: param.storeResponseModel.imageUrls.map({ $0.absoluteString })
-        )
-        StoreRepository.shared.saveStore(saveStoreRequest: saveStoreRequest)
+    private func getStoreDetail() {
+        StoreRepository.shared.getStoreDetail(placeId: param.placeId)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .finished: break
                 case .failure(let error):
                     print(error.description)
                 }
-            }, receiveValue: { result in
-                print(result)
+            }, receiveValue: { [weak self] storeDetailResponseModel in
+                print(storeDetailResponseModel)
+                self?.storeDetailResponseModel = storeDetailResponseModel
+                self?.initializeView(storeDetailResponseModel: storeDetailResponseModel)
+                self?.setStoreToHandlers(storeDetailResponseModel: storeDetailResponseModel)
             })
             .store(in: &cancellable)
     }
     
-    private func getStoreDetail() {
-        StoreRepository.shared.getStoreDetail(storeId: param.storeResponseModel.placeId)
+    private func getReviewImgs() {
+        StoreRepository.shared.getReviewImgs(placeId: param.placeId, page: page)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .finished: break
                 case .failure(let error):
                     print(error.description)
                 }
-            }, receiveValue: { result in
-                print(result)
+            }, receiveValue: { [weak self] reviewImagesResponseModel in
+                print(reviewImagesResponseModel)
+                reviewImagesResponseModel.reviewImageDtoList.forEach({
+                    self?.imageModels.append(ImageModel(reviewImage: $0))
+                })
+                self?.isLast = reviewImagesResponseModel.isLast
+                self?.page += 1
+                if reviewImagesResponseModel.totalElements < 10 {
+                    self?.getDaumImgs()
+                }
+                self?.setImagesToHandlers()
             })
             .store(in: &cancellable)
     }
+    
+    private func getDaumImgs() {
+        StoreRepository.shared.getDaumImgs(placeId: param.placeId)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .finished: break
+                case .failure(let error):
+                    print(error.description)
+                }
+            }, receiveValue: { [weak self] daumImageResponseModels in
+                print(daumImageResponseModels)
+                daumImageResponseModels.forEach({
+                    self?.imageModels.append(ImageModel(daumImage: $0))
+                })
+                self?.setImagesToHandlers()
+            })
+            .store(in: &cancellable)
+    }
+    
 }
 
 // MARK: - Delegate
 extension MarketVC: TabBarSegmentedControlDelegate {
     func didSelectMenu(direction: UIPageViewController.NavigationDirection, index: Int) {
         marketView.menuPageViewController.setViewControllers([marketView.pageViewControllers[index]], direction: direction, animated: true, completion: nil)
-        marketView.expanded = false
-        marketHomeVC.marketHomeView.mainScrollView.isUserInteractionEnabled = true
-        marketImageVC.marketImageView.imageCollectionView.isUserInteractionEnabled = true
-        marketReviewVC.marketReviewView.reviewTableView.isUserInteractionEnabled = true
+        expanded = false
+        marketHomeVC.marketHomeView.mainTableView.isScrollEnabled = true
+        marketReviewVC.marketReviewView.reviewTableView.isScrollEnabled = true
+        marketImageVC.marketImageView.imageCollectionView.isScrollEnabled = true
         UIView.animate(withDuration: 0.2) { [weak self] in
             guard let self = self else { return }
             self.marketView.navigationTitleLabel.alpha = 1
+            self.marketView.navigationNaverButton.alpha = 1
             self.marketView.updateExpandableAreaView(height: 0)
             self.marketView.layoutIfNeeded()
         }

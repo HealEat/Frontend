@@ -106,7 +106,7 @@ class StarBackgroundView: UIView {
     lazy var maskImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
-        imageView.image = UIImage(systemName: "star.fill")
+        imageView.image = UIImage(resource: .star)
         imageView.frame = bounds
         
         return imageView

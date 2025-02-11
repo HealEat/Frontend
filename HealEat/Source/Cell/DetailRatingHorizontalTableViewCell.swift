@@ -19,7 +19,7 @@ class DetailRatingHorizontalCollectionViewCell: UICollectionViewCell {
     }
     
     lazy var starImageView = UIImageView().then {
-        $0.image = UIImage(systemName: "star.fill")?.withTintColor(.healeatGreen2, renderingMode: .alwaysOriginal)
+        $0.image = UIImage(resource: .star).withTintColor(.healeatGreen2, renderingMode: .alwaysOriginal)
     }
     
     lazy var scoreLabel = UILabel().then {

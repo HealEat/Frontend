@@ -2,7 +2,6 @@
 
 import UIKit
 import KakaoMapsSDK
-import NaverThirdPartyLogin
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,14 +13,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         SDKInitializer.InitSDK(appKey: "826dcfc24d65718bf46f1655ed2a283d")
         
-        NaverThirdPartyLoginConnection.getSharedInstance().isNaverAppOauthEnable = true
-        NaverThirdPartyLoginConnection.getSharedInstance().isInAppOauthEnable = true
-        NaverThirdPartyLoginConnection.getSharedInstance().setOnlyPortraitSupportInIphone(true)
-        
-        NaverThirdPartyLoginConnection.getSharedInstance().serviceUrlScheme = Bundle.main.bundleIdentifier
-        NaverThirdPartyLoginConnection.getSharedInstance().consumerKey = Bundle.main.naverConsumerKey
-        NaverThirdPartyLoginConnection.getSharedInstance().consumerSecret = Bundle.main.naverConsumerSecret
-        NaverThirdPartyLoginConnection.getSharedInstance().appName = "HealEat"
         
         return true
     }
@@ -41,6 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        NaverThirdPartyLoginConnection.getSharedInstance().application(app, open: url, options: options)
+        print(url)
+        return true
     }
 }

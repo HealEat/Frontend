@@ -195,7 +195,7 @@ extension SavedStoresVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let vc = MarketVC()
-        vc.param = MarketVC.Param(storeResponseModel: storeResponseModels[indexPath.row])
+        vc.param = MarketVC.Param(placeId: storeResponseModels[indexPath.row].placeId)
         navigationController?.pushViewController(vc, animated: true)
     }
 }

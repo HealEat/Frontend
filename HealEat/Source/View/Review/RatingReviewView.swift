@@ -47,7 +47,7 @@ class RatingReviewView: UIView {
     
     lazy var reviewLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 11)
+        label.font = .systemFont(ofSize: 14)
         label.textColor = .healeatGray5
         return label
     }()
@@ -108,11 +108,11 @@ class RatingReviewView: UIView {
     private func setConstraints() {
         totalReviewView.snp.makeConstraints({ make in
             make.top.leading.trailing.equalToSuperview()
-            make.height.equalTo(24)
+            make.height.equalTo(27)
         })
         reviewStarsView.snp.makeConstraints({ make in
             make.leading.equalToSuperview().inset(16)
-            make.top.bottom.equalToSuperview().inset(5)
+            make.top.bottom.equalToSuperview().inset(6)
         })
         reviewLabel.snp.makeConstraints({ make in
             make.centerY.equalToSuperview()

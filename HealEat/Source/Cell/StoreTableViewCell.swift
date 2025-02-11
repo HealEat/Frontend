@@ -4,15 +4,15 @@ import UIKit
 
 class StoreTableViewCell: UITableViewCell {
     
-    private var typeCollectionViewHandler: TypeCollectionViewHandler = TypeCollectionViewHandler(types: [])
+    private var featureCollectionViewHandler: FeatureCollectionViewHandler = FeatureCollectionViewHandler()
     private var detailRatingHorizontalCollectionViewHandler: DetailRatingHorizontalCollectionViewHandler = DetailRatingHorizontalCollectionViewHandler(detailRatings: [])
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         addComponents()
         
-        featureCollectionView.delegate = typeCollectionViewHandler
-        featureCollectionView.dataSource = typeCollectionViewHandler
+        featureCollectionView.delegate = featureCollectionViewHandler
+        featureCollectionView.dataSource = featureCollectionViewHandler
         
         detailScoreCollectionView.delegate = detailRatingHorizontalCollectionViewHandler
         detailScoreCollectionView.dataSource = detailRatingHorizontalCollectionViewHandler
@@ -87,7 +87,7 @@ class StoreTableViewCell: UITableViewCell {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.backgroundColor = .clear
-        collectionView.register(TypeCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: TypeCollectionViewCell.self))
+        collectionView.register(FeatureCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: FeatureCollectionViewCell.self))
         
         return collectionView
     }()
@@ -160,7 +160,7 @@ class StoreTableViewCell: UITableViewCell {
             ("다이어트", storeResponseModel.dietScore, storeResponseModel.dietCount),
         ]
         detailScoreCollectionView.reloadData()
-        typeCollectionViewHandler.types = storeResponseModel.features
+        featureCollectionViewHandler.features = storeResponseModel.features
         featureCollectionView.reloadData()
     }
 }

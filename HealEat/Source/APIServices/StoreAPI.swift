@@ -4,8 +4,9 @@ import Foundation
 import Moya
 
 enum StoreAPI {
-    case getStoreDetail(storeId: Int)
-    case saveStore(param: StoreSaveRequest)
+    case getStoreDetail(placeId: Int)
+    case getReviewImgs(placeId: Int, page: Int)
+    case getDaumImgs(placeId: Int)
     case getReview(param: ReviewGetRequest)
 //    case postBookmark(storeId: Int)
 //    case deleteBookmark(storeId: Int)
@@ -21,10 +22,12 @@ extension StoreAPI: TargetType {
     
     var path: String {
         switch self {
-        case .getStoreDetail(let storeId):
-            return "/stores/\(storeId)"
-        case .saveStore(let param):
-            return "/stores/\(param.placeId)"
+        case .getStoreDetail(let placeId):
+            return "/stores/\(placeId)"
+        case .getReviewImgs(let placeId, let page):
+            return "/stores/\(placeId)/reviewImgs"
+        case .getDaumImgs(let placeId):
+            return "/stores/\(placeId)/daumImgs"
         case .getReview(let param):
             return "/stores/\(param.storeId)/reviews"
         }
@@ -32,10 +35,8 @@ extension StoreAPI: TargetType {
     
     var method: Moya.Method {
         switch self {
-        case .getStoreDetail:
+        case .getStoreDetail, .getReviewImgs, .getDaumImgs:
             return .get
-        case .saveStore:
-            return . post
         case .getReview:
             return .get
         }
@@ -43,10 +44,10 @@ extension StoreAPI: TargetType {
     
     var task: Moya.Task {
         switch self {
-        case .getStoreDetail:
+        case .getStoreDetail, .getDaumImgs:
             return .requestPlain
-        case .saveStore(let param):
-            return .requestJSONEncodable(param)
+        case .getReviewImgs(let placeId, let page):
+            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
         case .getReview(let param):
             return .requestParameters(parameters: [
                 "page": param.page,

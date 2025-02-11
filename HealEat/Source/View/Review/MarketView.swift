@@ -7,11 +7,9 @@ class MarketView: UIView {
     
     var pageViewControllers: [UIViewController] = []
     
-    var expanded: Bool = true
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = .systemBackground
+        self.backgroundColor = .white
         addComponents()
     }
     
@@ -21,7 +19,7 @@ class MarketView: UIView {
     
     lazy var navigationView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
         return view
     }()
     
@@ -39,10 +37,32 @@ class MarketView: UIView {
     
     lazy var navigationTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textColor = .healeatBlack
         label.alpha = 0
         return label
+    }()
+    
+    lazy var navigationNaverButton: UIButton = {
+        let button = UIButton()
+        
+        var configuration = UIButton.Configuration.plain()
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 8, bottom: 5, trailing: 8)
+        configuration.background.backgroundColor = UIColor.white
+        configuration.attributedTitle = AttributedString("네이버로 열기", attributes: AttributeContainer([
+            .font: UIFont.systemFont(ofSize: 12),
+            .foregroundColor: UIColor.healeatGray5,
+        ]))
+        configuration.titleAlignment = .center
+        
+        button.configuration = configuration
+        button.layer.borderColor = UIColor.healeatGray3P5.cgColor
+        button.layer.cornerRadius = 12
+        button.layer.borderWidth = 1
+        
+        button.alpha = 0
+        
+        return button
     }()
     
     lazy var expandableView: UIView = {
@@ -58,14 +78,14 @@ class MarketView: UIView {
     
     lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.font = .systemFont(ofSize: 22, weight: .bold)
         label.textColor = .healeatBlack
         return label
     }()
     
     lazy var subtitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 8)
+        label.font = .systemFont(ofSize: 16)
         label.textColor = .healeatGray5
         return label
     }()
@@ -73,8 +93,8 @@ class MarketView: UIView {
     lazy var bookmarkButton: UIButton = {
         let button = UIButton()
         button.contentMode = .scaleAspectFit
-        button.setImage(UIImage(systemName: "bookmark"), for: .normal)
-        button.setImage(UIImage(systemName: "bookmark.fill"), for: .selected)
+        button.setImage(UIImage(resource: .bookmark), for: .normal)
+        button.setImage(UIImage(resource: .bookmarkFill), for: .selected)
         button.tintColor = .healeatBlack
         return button
     }()
@@ -85,15 +105,15 @@ class MarketView: UIView {
     }()
     
     lazy var ratingStarView: StarsView = {
-        let starsView = StarsView(accentColor: .healeatYellow, baseColor: .healeatGray4)
+        let starsView = StarsView(accentColor: .healeatGreen2, baseColor: .healeatGray4)
         starsView.isUserInteractionEnabled = false
         return starsView
     }()
     
     lazy var ratingLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 10)
-        label.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = .healeatGray5
         return label
     }()
     
@@ -104,23 +124,24 @@ class MarketView: UIView {
     
     lazy var openLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 8, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.textColor = .healeatBlack
         return label
     }()
     
     lazy var openHourLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 8)
-        label.textColor = UIColor(red: 131/255, green: 131/255, blue: 131/255, alpha: 1)
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = .healeatGray5
         return label
     }()
     
-    lazy var typeView: UIView = {
+    lazy var featureView: UIView = {
         let view = UIView()
         return view
     }()
     
-    lazy var typeCollectionView: UICollectionView = {
+    lazy var featureCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 4
         layout.scrollDirection = .horizontal
@@ -129,7 +150,7 @@ class MarketView: UIView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.backgroundColor = .clear
-        collectionView.register(TypeCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: TypeCollectionViewCell.self))
+        collectionView.register(FeatureCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: FeatureCollectionViewCell.self))
         
         return collectionView
     }()
@@ -181,8 +202,8 @@ class MarketView: UIView {
     lazy var topTabBar: TabBarSegmentedControl = {
         let tabBarSegmentedControl = TabBarSegmentedControl(menus: [
             "홈",
-            "사진",
             "리뷰",
+            "사진",
         ])
         return tabBarSegmentedControl
     }()
@@ -202,7 +223,7 @@ class MarketView: UIView {
         expandableStackView.addArrangedSubview(titleView)
         expandableStackView.addArrangedSubview(mainRatingView)
         expandableStackView.addArrangedSubview(openView)
-        expandableStackView.addArrangedSubview(typeView)
+        expandableStackView.addArrangedSubview(featureView)
         expandableStackView.addArrangedSubview(detailRatingView)
         expandableStackView.addArrangedSubview(previewView)
         
@@ -216,7 +237,7 @@ class MarketView: UIView {
         openView.addSubview(openLabel)
         openView.addSubview(openHourLabel)
         
-        typeView.addSubview(typeCollectionView)
+        featureView.addSubview(featureCollectionView)
         
         detailRatingView.addSubview(detailRatingCollectionView)
         
@@ -229,6 +250,7 @@ class MarketView: UIView {
         navigationView.addSubview(navigationSafeAreaView)
         navigationSafeAreaView.addSubview(navigationBackButton)
         navigationSafeAreaView.addSubview(navigationTitleLabel)
+        navigationSafeAreaView.addSubview(navigationNaverButton)
         setConstraints()
     }
     private func setConstraints() {
@@ -248,6 +270,10 @@ class MarketView: UIView {
             make.centerY.equalToSuperview()
             make.leading.equalTo(navigationBackButton.snp.trailing).offset(10)
         })
+        navigationNaverButton.snp.makeConstraints({ make in
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview().inset(18)
+        })
         expandableView.snp.makeConstraints({ make in
             make.top.equalTo(navigationView.snp.bottom)
             make.leading.trailing.equalToSuperview()
@@ -259,7 +285,7 @@ class MarketView: UIView {
         })
         titleLabel.snp.makeConstraints({ make in
             make.leading.equalToSuperview().inset(16)
-            make.bottom.equalToSuperview()
+            make.top.bottom.equalToSuperview()
         })
         subtitleLabel.snp.makeConstraints({ make in
             make.leading.equalTo(titleLabel.snp.trailing).offset(6)
@@ -268,7 +294,6 @@ class MarketView: UIView {
         bookmarkButton.snp.makeConstraints({ make in
             make.trailing.equalToSuperview().inset(16)
             make.top.bottom.equalToSuperview()
-            make.height.equalTo(14)
         })
         ratingStarView.snp.makeConstraints({ make in
             make.leading.equalToSuperview().inset(16)
@@ -286,15 +311,15 @@ class MarketView: UIView {
             make.leading.equalTo(openLabel.snp.trailing).offset(3)
             make.top.bottom.equalToSuperview()
         })
-        typeCollectionView.snp.makeConstraints({ make in
+        featureCollectionView.snp.makeConstraints({ make in
             make.top.bottom.trailing.equalToSuperview()
             make.leading.equalToSuperview().inset(16)
-            make.height.equalTo(20)
+            make.height.equalTo(30)
         })
         detailRatingCollectionView.snp.makeConstraints({ make in
             make.top.bottom.trailing.equalToSuperview()
             make.leading.equalToSuperview().inset(16)
-            make.height.equalTo(35)
+            make.height.equalTo(50)
         })
         previewCollectionView.snp.makeConstraints({ make in
             make.top.bottom.trailing.equalToSuperview()

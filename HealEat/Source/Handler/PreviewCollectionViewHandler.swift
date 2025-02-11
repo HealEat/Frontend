@@ -6,22 +6,17 @@ import Kingfisher
 
 class PreviewCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
-    private let urls: [URL]
-    
-    init(urls: [URL]) {
-        self.urls = urls
-        super.init()
-    }
+    var imageModels: [ImageModel] = []
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return urls.count
+        return imageModels.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: PreviewCollectionViewCell.self), for: indexPath) as? PreviewCollectionViewCell else {
             return UICollectionViewCell()
         }
-        cell.previewImageView.kf.setImage(with: urls[indexPath.row])
+        cell.previewImageView.kf.setImage(with: imageModels[indexPath.row].imageUrl)
         return cell
     }
     

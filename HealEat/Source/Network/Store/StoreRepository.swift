@@ -12,19 +12,30 @@ class StoreRepository {
     
     private let provider = APIManager.StoreProvider
     
-    func saveStore(saveStoreRequest: StoreSaveRequest) -> AnyPublisher<SaveStoreResponseModel, HealEatError> {
-        return provider.requestPublisher(.saveStore(param: saveStoreRequest))
-            .extractResult(SaveStoreResponseEntity.self)
-            .map({ SaveStoreResponseModel(saveStoreResponseEntity: $0) })
+    func getStoreDetail(placeId: Int) -> AnyPublisher<StoreDetailResponseModel, HealEatError> {
+        return provider.requestPublisher(.getStoreDetail(placeId: placeId))
+            .extractResult(StoreDetailResponseEntity.self)
+            .map({ StoreDetailResponseModel(storeDetailResponseEntity: $0) })
             .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
     
-    func getStoreDetail(storeId: Int) -> AnyPublisher<StoreDetailResponseModel, HealEatError> {
-        return provider.requestPublisher(.getStoreDetail(storeId: storeId))
-            .extractResult(StoreDetailResponseEntity.self)
-            .map({ StoreDetailResponseModel(storeDetailResponseEntity: $0) })
+    func getReviewImgs(placeId: Int, page: Int) -> AnyPublisher<ReviewImagesResponseModel, HealEatError> {
+        return provider.requestPublisher(.getReviewImgs(placeId: placeId, page: page))
+            .extractResult(ReviewImagesResponseEntity.self)
+            .map({ ReviewImagesResponseModel(reviewImagesResponseEntity: $0) })
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+    
+    func getDaumImgs(placeId: Int) -> AnyPublisher<[DaumImageResponseModel], HealEatError> {
+        return provider.requestPublisher(.getDaumImgs(placeId: placeId))
+            .extractResult([DaumImageResponseEntity].self)
+            .map({ daumImageResponseEntities in
+                daumImageResponseEntities.map({ DaumImageResponseModel(daumImageResponseEntity: $0) })
+            })
             .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()

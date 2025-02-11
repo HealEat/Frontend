@@ -3,23 +3,21 @@
 import Foundation
 import UIKit
 
-enum ReviewSectionEnum: CaseIterable {
-    case writeReview
-    case ratingReview
-    case userReview
-}
-
-// TODO: Hosung.Kim API 연결 이후 수정할 것
-class ReviewTableViewHandler: NSObject, UITableViewDataSource, UITableViewDelegate {
+class MarketReviewTableViewHandler: NSObject, UITableViewDataSource, UITableViewDelegate {
+    private enum SectionEnum: CaseIterable {
+        case writeReview
+        case ratingReview
+        case userReview
+    }
     
     var pushWriteReviewVC: (() -> Void)?
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return ReviewSectionEnum.allCases.count
+        return SectionEnum.allCases.count
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        switch ReviewSectionEnum.allCases[section] {
+        switch SectionEnum.allCases[section] {
         case .writeReview:
             return nil
         case .ratingReview:
@@ -30,7 +28,7 @@ class ReviewTableViewHandler: NSObject, UITableViewDataSource, UITableViewDelega
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        switch ReviewSectionEnum.allCases[section] {
+        switch SectionEnum.allCases[section] {
         case .writeReview:
             return 0
         case .ratingReview:
@@ -41,7 +39,7 @@ class ReviewTableViewHandler: NSObject, UITableViewDataSource, UITableViewDelega
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch ReviewSectionEnum.allCases[section] {
+        switch SectionEnum.allCases[section] {
         case .writeReview:
             return 1
         case .ratingReview:
@@ -52,7 +50,7 @@ class ReviewTableViewHandler: NSObject, UITableViewDataSource, UITableViewDelega
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch ReviewSectionEnum.allCases[indexPath.section] {
+        switch SectionEnum.allCases[indexPath.section] {
         case .writeReview:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: WriteReviewTableViewCell.self), for: indexPath) as? WriteReviewTableViewCell else { return UITableViewCell() }
             cell.reviewTitleLabel.text = "'본죽&비빔밥cafe 홍대점'의\n건강 평점을 남겨주세요!"

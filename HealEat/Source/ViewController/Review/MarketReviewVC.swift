@@ -13,8 +13,6 @@ class MarketReviewVC: UIViewController {
         super.viewDidLoad()
         
         self.view = marketReviewView
-        
-        getReview(reviewGetRequest: ReviewGetRequest(storeId: 99, page: 0, sort: .defaultValue, sortOrder: .asc))
     }
     
     lazy var marketReviewView: MarketReviewView = {
@@ -32,20 +30,6 @@ class MarketReviewVC: UIViewController {
             recognizer.state = .ended
         }
         onGesture?(recognizer)
-    }
-    
-    private func getReview(reviewGetRequest: ReviewGetRequest) {
-        StoreRepository.shared.getReview(reviewGetRequest: reviewGetRequest)
-            .sink(receiveCompletion: { completion in
-                switch completion {
-                case .finished: break
-                case .failure(let error):
-                    print(error.description)
-                }
-            }, receiveValue: { result in
-                print(result)
-            })
-            .store(in: &cancellable)
     }
 }
 
