@@ -15,6 +15,7 @@ class StoreView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+    
     }
     
     override var intrinsicContentSize: CGSize {

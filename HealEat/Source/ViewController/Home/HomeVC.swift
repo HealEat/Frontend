@@ -274,10 +274,6 @@ class HomeVC: UIViewController {
         let screenHeight = UIScreen.main.bounds.height - 130
         let collectionView = storeVC.storeview.storeCollectionView
 
-            // 컬렉션뷰가 스크롤 중이면 StoreView 팬 제스처 비활성화
-        if collectionView.contentOffset.y > 0 {
-            return
-        }
         
         switch gesture.state {
         case .changed:
