@@ -61,14 +61,9 @@ class StoreVC: UIViewController {
                 do {
                     let decodedData = try JSONDecoder().decode(DefaultResponse<HomeResponse>.self, from: response.data)
                         
-                    if let memberName = decodedData.result?.searchInfo.memberName, !memberName.isEmpty {
-                        DispatchQueue.main.async {
-                            self.storeview.setUserRecommendLabel(name: memberName)
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            self.storeview.setUserRecommendLabel(name: "힐릿")
-                        }
+                    let memberName = decodedData.result?.searchInfo?.memberName ?? "힐릿"
+                    DispatchQueue.main.async {
+                        self.storeview.setUserRecommendLabel(name: memberName)
                     }
                 
                     
@@ -78,7 +73,6 @@ class StoreVC: UIViewController {
                         self.isLastPage = decodedData.result?.isLast ?? false
                         
                         DispatchQueue.main.async {
-                            
                             self.reloadCollectionView()
                         }
                     }
@@ -93,7 +87,6 @@ class StoreVC: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        reloadCollectionView()
     }
 
     private func setupCollectionView() {
@@ -103,13 +96,6 @@ class StoreVC: UIViewController {
         storeview.storeCollectionView.contentInsetAdjustmentBehavior = .never
         storeview.storeCollectionView.isScrollEnabled = true
         storeview.storeCollectionView.canCancelContentTouches = false
-        storeview.storeCollectionView.snp.makeConstraints {
-                $0.height.equalTo(700) 
-        }
-        
-        storeview.storeCollectionView.reloadData()
-        
-        
     }
 
     public func reloadCollectionView() {
@@ -117,7 +103,6 @@ class StoreVC: UIViewController {
             self.storeview.storeCollectionView.reloadData()
             self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
             self.storeview.storeCollectionView.layoutIfNeeded()
-            self.storeview.updateCollectionViewHeight()
         }
     }
                                                 

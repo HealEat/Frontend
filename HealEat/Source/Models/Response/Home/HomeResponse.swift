@@ -9,7 +9,7 @@ struct HomeResponse: Codable {
     let totalElements: Int
     let isFirst: Bool
     let isLast: Bool
-    let searchInfo: SearchInfo
+    let searchInfo: SearchInfo?
 }
 
 
@@ -47,7 +47,7 @@ struct StoreResponse: Codable {
         let x: String
         let y: String
         let placeUrl: String
-        let distance: Double
+        let distance: Double?
         let features: [String]
     }
     
@@ -72,7 +72,7 @@ struct StoreResponse: Codable {
             self.x = storeInfo.x
             self.y = storeInfo.y
             self.place_url = storeInfo.placeUrl
-            self.distance = storeInfo.distance
+            self.distance = storeInfo.distance ?? 0.0
             self.features = storeInfo.features
 
             // 이미지 URL 가져오기

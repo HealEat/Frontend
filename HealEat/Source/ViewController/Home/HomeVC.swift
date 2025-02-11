@@ -69,6 +69,7 @@ class HomeVC: UIViewController {
             
         storeview.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
+            $0.height.greaterThanOrEqualTo(370)
         }
         
         _ = UIScreen.main.bounds.height - 130
@@ -319,7 +320,7 @@ extension HomeVC: StoreVCDelegate {
 extension HomeVC: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         if let collectionView = otherGestureRecognizer.view as? UICollectionView {
-            return true
+            return collectionView.contentOffset.y <= 0
         }
         return false
     }
