@@ -6,12 +6,7 @@ import UIKit
 class SearchVC: UIViewController {
     let foodTypeList = FoodCategory.allItems
     let nutritionList = NutritionCategory.allItems
-    let recentSearches = [
-        RecentSearchModels(type: "place", nameData: "샐러디"),
-        RecentSearchModels(type: "keyword", nameData: "포케"),
-        RecentSearchModels(type: "place", nameData: "내가 찜한 닭"),
-        RecentSearchModels(type: "place", nameData: "본죽")
-    ]
+    var recentSearches: [RecentSearchItem] = []
         
     
     // MARK: - UI Components
@@ -81,6 +76,7 @@ class SearchVC: UIViewController {
         $0.separatorStyle = .singleLine
         $0.register(UITableViewCell.self, forCellReuseIdentifier: "headerCell") // ✅ 기본 셀 등록
         $0.register(RecentSearchCell.self, forCellReuseIdentifier: RecentSearchCell.identifier)
+        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 40, right: 0)
     }
         
 
@@ -90,6 +86,11 @@ class SearchVC: UIViewController {
         setupUI()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
 
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        getRecentSearches()
     }
     
 
@@ -163,6 +164,21 @@ class SearchVC: UIViewController {
     }
     
     //MARK: API call
+    private func getRecentSearches() {
+        CSearchManager.recentSearches(page: 1) { result in
+            switch result {
+            case .success(let data):
+                guard let searchData = data.result?.recentSearchList else { return }
+                self.recentSearches = searchData
+                DispatchQueue.main.async {
+                    self.tableview.reloadData()
+                }
+            case .failure(let error):
+                print("최근 검색 기록 조회 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+    
 
 }
 
@@ -231,12 +247,12 @@ extension SearchVC: UITableViewDelegate, UITableViewDataSource {
         } else {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: RecentSearchCell.identifier, for: indexPath) as? RecentSearchCell else { return UITableViewCell() }
             let searchData = recentSearches[indexPath.row - 1]
-            cell.cellLabel.text = searchData.nameData
+            cell.cellLabel.text = searchData.query
             
-            switch searchData.type {
-            case "place":
+            switch searchData.searchType {
+            case .store:
                 cell.typeImage.image = UIImage(named: "place")
-            case "keyword":
+            case .query:
                 cell.typeImage.image = UIImage(named: "keyword")
             default:
                 cell.typeImage.image = UIImage(systemName: "xmark")

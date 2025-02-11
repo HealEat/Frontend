@@ -11,6 +11,7 @@ import Moya
 
 class APIManager {
     static let HomeProvider = MoyaProvider<HomeAPI>(plugins: [NetworkLoggerPlugin()])
+    static let CSearchProvider = MoyaProvider<CSearchAPI>(plugins: [NetworkLoggerPlugin()])
     static let HealthGoalProvider = MoyaProvider<HealthGoalAPI>(plugins: [
         NetworkLoggerPlugin(configuration: .init(logOptions: [.verbose, .requestBody, .requestHeaders, .successResponseBody, .errorResponseBody])) // ✅ 모든 로그 활성화!
     ])

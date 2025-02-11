@@ -6,11 +6,10 @@ import UIKit
 
 
 enum CSearchAPI {
-    case getHealthGoal
-    case postHealthGoal(param: HealthGoalRequest)
-    case deleteHealthGoal(planId: Int)
-    case changeHealthGoal(planId: Int, param: HealthGoalRequest)
-    case uploadImage(planId: Int, param: [MultipartFormData])
+    case search(page: Int, param: CSearchRequest)
+    case searchStore(placeId: Int)
+    case searchRecent(page: Int)
+    case deleteRecentSearch(recentId: Int)
 }
 
 
@@ -26,55 +25,54 @@ extension CSearchAPI: TargetType {
     
     var path: String {
         switch self {
-        case .getHealthGoal: return "plans"
-            
-        case .postHealthGoal(let param): return "plans"
-            
-        case .deleteHealthGoal(let planId): return "plans/\(planId)"
-        case .changeHealthGoal(let planId, let param): return "plans/\(planId)"
-            
-        case .uploadImage(let planId, _): return "plans/\(planId)/upload-images"
+        case .search(let page, let param): return "search"
+        case .searchStore(let placeId): return "search/\(placeId)"
+        case .searchRecent: return "search/recent"
+        case .deleteRecentSearch(let recentId): return "search/recent/\(recentId)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getHealthGoal:
+        case .search:
+            return .post
+        case .searchStore:
+            return .post
+        case .searchRecent:
             return .get
-        case .postHealthGoal:
-            return .post
-        case .deleteHealthGoal:
+        case .deleteRecentSearch:
             return .delete
-        case .changeHealthGoal:
-            return .patch
-            
-        case .uploadImage:
-            return .post
         }
     }
     
     var task: Moya.Task {
         switch self {
-        case .getHealthGoal :
-            return .requestPlain
-        case .postHealthGoal(let param) :
-            return .requestJSONEncodable(param)
-        case .deleteHealthGoal :
-            return .requestPlain
-        case .changeHealthGoal(let planId, let param) :
-            return .requestJSONEncodable(param)
+        case .search(let page, let param):
+            let queryParam: [String: Any] = ["page": page]
+            guard let bodyParams = param.toDictionary() else {
+                return .requestPlain
+            }
+            return .requestCompositeParameters(
+                bodyParameters: bodyParams,
+                bodyEncoding: JSONEncoding.default,
+                urlParameters: queryParam)
             
+        case .searchStore:
+            return .requestPlain
             
-        case .uploadImage(_, let param):
-            return .uploadMultipart(param)
+        case .searchRecent(let page):
+            let queryParam: [String: Any] = ["page": page]
+            
+            return .requestParameters(parameters: queryParam, encoding: URLEncoding.default)
+            
+        case .deleteRecentSearch(let recentId):
+            return .requestPlain
         }
         
     }
     
     var headers: [String : String]? {
         switch self {
-        case .uploadImage:
-            return ["Content-Type": "multipart/form-data"]
         default:
             return ["Content-Type": "application/json"]
         }
