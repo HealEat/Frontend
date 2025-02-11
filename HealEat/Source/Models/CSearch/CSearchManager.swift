@@ -23,6 +23,23 @@ class CSearchManager {
             }
         }
     }
+
+    
+    static func deleteRecentSearch(recentId: Int, completion: @escaping (Bool, Response?) -> Void ) {
+        APIManager.CSearchProvider.request(.deleteRecentSearch(recentId: recentId)) { result in
+            switch result {
+            case .success(let response):
+                if response.statusCode == 200 {
+                    completion(true, response)
+                } else {
+                    completion(false, response)
+                }
+            case .failure(let error):
+                Toaster.shared.makeToast("최근 검색 기록 삭제 중 에러가 발생했습니다.")
+                completion(false, error.response)
+            }
+        }
+    }
     
     
     static func search(page: Int, param: CSearchRequest, completion: @escaping (Bool, Response?) -> Void) {

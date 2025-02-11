@@ -2,11 +2,11 @@
 
 
 import UIKit
+import SwiftyToaster
 
 class AllKeywordsVC: UIViewController {
-    let foodTypeList = FoodCategory.allItems
-    let nutritionList = NutritionCategory.allItems
     var isFoodType = true
+    let maxSelectionCount = 5
         
     
     // MARK: - UI Components
@@ -161,77 +161,81 @@ class AllKeywordsVC: UIViewController {
 
 }
 
-
 extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        if isFoodType {
-            return FoodCategory.allCases.count
-        } else {
-            return NutritionCategory.allCases.count
-        }
+        return isFoodType ? FoodCategory.allCases.count : NutritionCategory.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if isFoodType {
-            return FoodCategory.allCases[section].sections.count
-        } else {
-            return NutritionCategory.allCases[section].sections.count
-        }
+        return isFoodType ? FoodCategory.allCases[section].sections.count : NutritionCategory.allCases[section].sections.count
     }
 
-
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FoodKeywordCell.identifier, for: indexPath) as! FoodKeywordCell
-        
-        let category: Any
-        if isFoodType {
-            category = FoodCategory.allCases[indexPath.section] // ✅ 음식 카테고리
-        } else {
-            category = NutritionCategory.allCases[indexPath.section] // ✅ 영양소 카테고리
-        }
-            
+
+        let categoryType = isFoodType ? 0 : 1
+
+        // ✅ ID 및 이름 가져오기
+        let id: Int
         let item: String
-        if let foodCategory = category as? FoodCategory {
-            item = foodCategory.sections[indexPath.row]
-        } else if let nutritionCategory = category as? NutritionCategory {
-            item = nutritionCategory.sections[indexPath.row]
+        if isFoodType {
+            let foodCategory = FoodCategory.allCases[indexPath.section].sections[indexPath.row]
+            id = foodCategory.id
+            item = foodCategory.name
         } else {
-            item = ""
+            let nutritionCategory = NutritionCategory.allCases[indexPath.section].sections[indexPath.row]
+            id = nutritionCategory.id
+            item = nutritionCategory.name
         }
         
         // ✅ 셀에 데이터 적용
         cell.label.text = item
 
+        // ✅ 선택된 상태 반영
+        let isSelected = CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id)
+        cell.updateUI(isSelected: isSelected)
+
         return cell
     }
 
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let category: Any
-        if isFoodType {
-            category = FoodCategory.allCases[indexPath.section] // ✅ 음식 카테고리
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let categoryType = isFoodType ? 0 : 1
+
+        // ✅ ID 가져오기
+        let id = isFoodType
+        ? FoodCategory.allCases[indexPath.section].sections[indexPath.row].id
+        : NutritionCategory.allCases[indexPath.section].sections[indexPath.row].id
+
+        if CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id) {
+            // ✅ 선택 해제
+            CategorySelectionManager.shared.removeSelection(id, forCategory: categoryType)
         } else {
-            category = NutritionCategory.allCases[indexPath.section] // ✅ 영양소 카테고리
+            // ✅ 현재 선택된 총 개수 확인 (새로운 선택만 제한)
+            if CategorySelectionManager.shared.getTotalSelectedCount() >= maxSelectionCount {
+                Toaster.shared.makeToast("5개 이상 선택할 수 없습니다.", .short)
+                return
+            }
+            // ✅ 새로운 선택 추가
+            CategorySelectionManager.shared.addSelection(id, forCategory: categoryType)
         }
-            
-        let item: String
-        if let foodCategory = category as? FoodCategory {
-            item = foodCategory.sections[indexPath.row]
-        } else if let nutritionCategory = category as? NutritionCategory {
-            item = nutritionCategory.sections[indexPath.row]
-        } else {
-            return CGSize(width: 0, height: 0) // ✅ 안전 처리 (예외 발생 방지)
-        }
-        var size = CGSize(width: 0, height: 0)
-        let label = UILabel().then {
-            $0.font = .systemFont(ofSize: 14)
-            $0.text = item
-            $0.sizeToFit()
-            size = $0.frame.size
-        }
-        return CGSize(width: size.width + 13, height: size.height + 7)
+
+        // ✅ UI 업데이트 → 특정 셀만 다시 로드
+        collectionView.reloadItems(at: [indexPath])
     }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let item = isFoodType
+            ? FoodCategory.allCases[indexPath.section].sections[indexPath.row].name
+            : NutritionCategory.allCases[indexPath.section].sections[indexPath.row].name
+
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.text = item
+        label.sizeToFit()
+
+        return CGSize(width: label.frame.width + 13, height: label.frame.height + 7)
+    }
+    
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         switch kind {
@@ -248,13 +252,10 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
         }
     }
     
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: collectionView.frame.width, height: 45) // ✅ 헤더 높이 설정
     }
-
-    
 }
 
-
-    
 

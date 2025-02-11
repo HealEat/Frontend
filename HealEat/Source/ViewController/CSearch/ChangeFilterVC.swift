@@ -2,16 +2,12 @@
 
 
 import UIKit
+import SwiftyToaster
 
 class ChangeFilterVC: UIViewController {
     let foodTypeList = FoodCategory.allItems
     let nutritionList = NutritionCategory.allItems
-    let recentSearches = [
-        RecentSearchModels(type: "place", nameData: "샐러디"),
-        RecentSearchModels(type: "keyword", nameData: "포케"),
-        RecentSearchModels(type: "place", nameData: "내가 찜한 닭"),
-        RecentSearchModels(type: "place", nameData: "본죽")
-    ]
+    let maxSelectionCount = 5
         
     
     // MARK: - UI Components
@@ -226,50 +222,61 @@ class ChangeFilterVC: UIViewController {
 
 extension ChangeFilterVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch collectionView.tag {
-        case 0:
-            return foodTypeList.count
-        case 1:
-            return nutritionList.count
-        default:
-            return 0
-        }
+        return collectionView.tag == 0 ? foodTypeList.count : nutritionList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FoodKeywordCell.identifier, for: indexPath) as! FoodKeywordCell
+
+        let categoryType = collectionView.tag
+        let item = (categoryType == 0) ? foodTypeList[indexPath.row].name : nutritionList[indexPath.row].name
+
+        // ✅ ID 가져오기
+        let id = (categoryType == 0) ? foodTypeList[indexPath.row].id : nutritionList[indexPath.row].id
         
-        if collectionView.tag == 0 {
-            cell.label.text = foodTypeList[indexPath.row]
-        } else {
-            cell.label.text = nutritionList[indexPath.row]
-        }
-        
+        // ✅ 셀에 데이터 적용
+        cell.label.text = item
+
+        // ✅ 선택된 상태 반영
+        let isSelected = CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id)
+        cell.updateUI(isSelected: isSelected)
+
         return cell
     }
 
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        var size = CGSize(width: 0, height: 0)
-        if collectionView.tag == 0 {
-            let label = UILabel().then {
-                $0.font = .systemFont(ofSize: 14)
-                $0.text = foodTypeList[indexPath.item]
-                $0.sizeToFit()
-                size = $0.frame.size
-            }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let categoryType = collectionView.tag
+
+        // ✅ ID 가져오기
+        let id = (categoryType == 0) ? foodTypeList[indexPath.row].id : nutritionList[indexPath.row].id
+
+        if CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id) {
+            // ✅ 선택 해제
+            CategorySelectionManager.shared.removeSelection(id, forCategory: categoryType)
         } else {
-            let label = UILabel().then {
-                $0.font = .systemFont(ofSize: 14)
-                $0.text = nutritionList[indexPath.item]
-                $0.sizeToFit()
-                size = $0.frame.size
+            // ✅ 현재 선택된 총 개수 확인 (새로운 선택만 제한)
+            if CategorySelectionManager.shared.getTotalSelectedCount() >= maxSelectionCount {
+                Toaster.shared.makeToast("5개 이상 선택할 수 없습니다.", .short)
+                return
             }
+            // ✅ 새로운 선택 추가
+            CategorySelectionManager.shared.addSelection(id, forCategory: categoryType)
         }
-        
-        return CGSize(width: size.width + 13, height: size.height + 7)
+
+        // ✅ UI 업데이트 → 특정 셀만 다시 로드
+        collectionView.reloadItems(at: [indexPath])
     }
-    
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let item = (collectionView.tag == 0) ? foodTypeList[indexPath.item].name : nutritionList[indexPath.item].name
+
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.text = item
+        label.sizeToFit()
+
+        return CGSize(width: label.frame.width + 13, height: label.frame.height + 7)
+    }
 }
 
 

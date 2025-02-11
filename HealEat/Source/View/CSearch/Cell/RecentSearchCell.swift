@@ -25,7 +25,7 @@ class RecentSearchCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+        selectionStyle = .none
         setUpUI()
     }
     
@@ -33,9 +33,23 @@ class RecentSearchCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(text: String) {
-        cellLabel.text = "\(text)"
+    func configure(with searchData: RecentSearchItem, target: Any?, action: Selector) {
+        cellLabel.text = searchData.query
+        deleteButton.tag = searchData.recentSearchId
+
+        switch searchData.searchType {
+        case .store:
+            typeImage.image = UIImage(named: "place")
+        case .query:
+            typeImage.image = UIImage(named: "keyword")
+        default:
+            typeImage.image = UIImage(systemName: "xmark")
+        }
+
+        deleteButton.removeTarget(nil, action: nil, for: .allEvents) // 🔥 중복 방지
+        deleteButton.addTarget(target, action: action, for: .touchUpInside)
     }
+
     
     
     func setUpUI() {
