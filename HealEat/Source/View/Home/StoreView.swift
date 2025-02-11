@@ -15,16 +15,12 @@ class StoreView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        DispatchQueue.main.async {
-            self.storeCollectionView.reloadData() // 강제 리로드
-            self.storeCollectionView.layoutIfNeeded() // 강제 레이아웃 업데이트
-            
-            let height = self.storeCollectionView.contentSize.height
-
-            self.storeCollectionViewHeightConstraint?.update(offset: height)
-            self.layoutIfNeeded()
-        }
+    
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        let height = storeCollectionView.contentSize.height + 100 // 버튼, 라벨 포함
+        return CGSize(width: UIView.noIntrinsicMetric, height: height)
     }
     
     required init?(coder: NSCoder) {
@@ -80,17 +76,20 @@ class StoreView: UIView {
         storeCollectionView.snp.makeConstraints {
             $0.top.equalTo(userRecommendLabel.snp.bottom).offset(7)
             $0.leading.trailing.equalToSuperview()
-            storeCollectionViewHeightConstraint = $0.height.equalTo(1).constraint // 초기 높이를 1로 설정
+            $0.bottom.equalToSuperview().priority(.low) //  낮은 우선순위로 `bottom` 설정
+            $0.height.greaterThanOrEqualTo(200)
         }
     }
     
-    public func updateCollectionViewHeight() {
-        DispatchQueue.main.async {
-            let collectionHeight = self.storeCollectionView.contentSize.height
-
-            self.storeCollectionViewHeightConstraint?.update(offset: collectionHeight)
-            self.layoutIfNeeded()
-        }
+    func updateCollectionViewHeight() {
+        let newHeight = storeCollectionView.contentSize.height
+        print("📢 업데이트할 CollectionView 높이: \(newHeight)")
+        if newHeight > 0, storeCollectionView.frame.height != newHeight {
+                storeCollectionView.snp.updateConstraints {
+                    $0.height.equalTo(newHeight)
+                }
+                self.layoutIfNeeded()
+            }
     }
     
     public func setUserRecommendLabel(name: String) {

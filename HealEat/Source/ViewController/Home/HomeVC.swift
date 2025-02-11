@@ -64,6 +64,7 @@ class HomeVC: UIViewController {
             
         storeview.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
+            $0.height.greaterThanOrEqualTo(370)
         }
         
         _ = UIScreen.main.bounds.height - 130
@@ -268,10 +269,6 @@ class HomeVC: UIViewController {
         let screenHeight = UIScreen.main.bounds.height - 130
         let collectionView = storeVC.storeview.storeCollectionView
 
-            // 컬렉션뷰가 스크롤 중이면 StoreView 팬 제스처 비활성화
-        if collectionView.contentOffset.y > 0 {
-            return
-        }
         
         switch gesture.state {
         case .changed:
@@ -312,31 +309,12 @@ extension HomeVC: StoreVCDelegate {
 }
 
 extension HomeVC: UIGestureRecognizerDelegate {
-    // 컬렉션뷰와 StoreView의 스크롤을 동시에 인식하게 함
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-            // 컬렉션뷰가 터치 이벤트를 받으면 StoreView 팬 제스처를 비활성화
-        if otherGestureRecognizer.view is UICollectionView {
-                    return false
+        if let collectionView = otherGestureRecognizer.view as? UICollectionView {
+            return collectionView.contentOffset.y <= 0
         }
-        return true
-    }
-
-}
-
-extension HomeVC: UIScrollViewDelegate {
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // 컬렉션뷰가 스크롤될 때 StoreView 팬 제스처 제거
-        if scrollView == storeVC.storeview.storeCollectionView && scrollView.contentOffset.y > 0 {
-            storeview.removeGestureRecognizer(storePanGesture!)
-        }
-    }
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        // 컬렉션뷰가 최상단에 도달하면 다시 팬 제스처 활성화
-        if scrollView == storeVC.storeview.storeCollectionView && scrollView.contentOffset.y == 0 {
-            if storeview.gestureRecognizers?.contains(storePanGesture!) == false {
-                storeview.addGestureRecognizer(storePanGesture!)
-            }
-        }
+        return false
     }
 }
+
+

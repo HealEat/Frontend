@@ -17,7 +17,7 @@ class FoodTagCell: UICollectionViewCell {
   
   override init(frame: CGRect) {
     super.init(frame: frame)
-      contentView.layer.cornerRadius = 12
+      contentView.layer.cornerRadius = 10
       contentView.layer.borderWidth = 0.7
       contentView.layer.borderColor = UIColor(hex: "CFCFCF")?.cgColor
       contentView.backgroundColor = UIColor(hex: "F8F8F8")
@@ -33,6 +33,13 @@ class FoodTagCell: UICollectionViewCell {
       }
   }
   
+  func configure(text: String) {
+      label.text = text
+  }
+    
+  override var intrinsicContentSize: CGSize {
+      return CGSize(width: label.intrinsicContentSize.width + 16, height: 19) // ✅ 셀 크기 고정
+  }
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
