@@ -5,11 +5,11 @@ import UIKit
 import SnapKit
 import Then
 
-class CustomSearchBar: UIView {
+class CustomSearchBar: UIView, UITextFieldDelegate {
     
     // MARK: - Properties
     
-    var onTextDidChange: ((String) -> Void)? // 텍스트 변경 시 호출될 클로저
+    var returnKeyPressed: ((String?) -> Void)? // 텍스트 변경 시 호출될 클로저
     
     private lazy var background = UIView().then {
         $0.backgroundColor = .white
@@ -25,6 +25,7 @@ class CustomSearchBar: UIView {
         $0.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         $0.textColor = UIColor.healeatGray5
         $0.addLeftPadding()
+        $0.returnKeyType = .search
     }
 
 
@@ -51,7 +52,6 @@ class CustomSearchBar: UIView {
     }
     
     // MARK: - Setup UI
-    
     private func setupUI() {
         self.addSubview(background)
         background.addSubview(searchBar)
@@ -59,6 +59,7 @@ class CustomSearchBar: UIView {
         background.addSubview(mike)
         
         setupConstraints()
+        self.searchBar.delegate = self
     }
     
     private func setupConstraints() {
@@ -82,4 +83,13 @@ class CustomSearchBar: UIView {
             make.trailing.equalToSuperview().offset(-15)
         }
     }
+    
+    // MARK: - Action Function
+    func textFieldShouldReturn(_ textfield: UITextField) -> Bool {
+        returnKeyPressed?(textfield.text)  // 클로저 실행
+        textfield.resignFirstResponder()   // 키보드 내리기
+        return true
+    }
+    
+    
 }

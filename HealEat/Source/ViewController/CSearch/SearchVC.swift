@@ -2,6 +2,7 @@
 
 import UIKit
 import SwiftyToaster
+import CoreLocation
 
 class SearchVC: UIViewController {
     let foodTypeList = FoodCategory.allItems
@@ -22,6 +23,10 @@ class SearchVC: UIViewController {
             .font: UIFont.systemFont(ofSize: 16, weight: .regular)
         ]
         $0.searchBar.attributedPlaceholder = NSAttributedString(string: "음식, 매장, 주소 검색", attributes: attributes)
+        
+        $0.returnKeyPressed = { text in
+            print("검색할 값, to search query: \(text)")
+        }
     }
     
     private lazy var keywordBackground = KeywordChipsView().then {
@@ -250,6 +255,20 @@ class SearchVC: UIViewController {
                 if let data = response?.data,
                    let errorMessage = String(data: data, encoding: .utf8) {
                     print("최근 검색 기록 삭제 서버 에러 메시지: \(errorMessage)")
+                }
+            }
+        }
+    }
+    
+    private func search() {
+        let param = CSearchRequest(query: "본죽", x: "37.5665", y: "126.978", categoryIdList: [], featureIdList: [], minRating: 0, searchBy: "DISTANCE", sortBy: "DIET")
+        CSearchManager.search(page: 1, param: param) { isSuccess, response in
+            if isSuccess {
+                print("맞춤 검색 요청 성공")
+            } else {
+                if let data = response?.data,
+                   let errorMessage = String(data: data, encoding: .utf8) {
+                    print("맞춤 검색 서버 에러 메시지: \(errorMessage)")
                 }
             }
         }
