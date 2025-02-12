@@ -220,7 +220,6 @@ class MarketVC: UIViewController {
                     print(error.description)
                 }
             }, receiveValue: { [weak self] storeDetailResponseModel in
-                print(storeDetailResponseModel)
                 self?.storeDetailResponseModel = storeDetailResponseModel
                 self?.initializeView(storeDetailResponseModel: storeDetailResponseModel)
                 self?.setStoreToHandlers(storeDetailResponseModel: storeDetailResponseModel)
@@ -237,7 +236,6 @@ class MarketVC: UIViewController {
                     print(error.description)
                 }
             }, receiveValue: { [weak self] reviewImagesResponseModel in
-                print(reviewImagesResponseModel)
                 reviewImagesResponseModel.reviewImageDtoList.forEach({
                     self?.imageModels.append(ImageModel(reviewImage: $0))
                 })
@@ -260,7 +258,6 @@ class MarketVC: UIViewController {
                     print(error.description)
                 }
             }, receiveValue: { [weak self] daumImageResponseModels in
-                print(daumImageResponseModels)
                 daumImageResponseModels.forEach({
                     self?.imageModels.append(ImageModel(daumImage: $0))
                 })

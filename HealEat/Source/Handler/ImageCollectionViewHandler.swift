@@ -19,14 +19,7 @@ class ImageCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollecti
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: PreviewCollectionViewCell.self), for: indexPath) as? PreviewCollectionViewCell else {
             return UICollectionViewCell()
         }
-        cell.previewImageView.kf.setImage(with: imageModels[indexPath.row].imageUrl) { [weak self] result in
-            switch result {
-            case .success(let value):
-                self?.imageModels[indexPath.row].size = value.image.size
-            case .failure(let error):
-                print(error)
-            }
-        }
+        cell.previewImageView.kf.setImage(with: imageModels[indexPath.row].imageUrl)
         return cell
     }
     

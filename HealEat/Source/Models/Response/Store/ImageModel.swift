@@ -1,8 +1,12 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
 import Foundation
+import Kingfisher
+import Combine
 
-struct ImageModel {
+class ImageModel {
+    private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
+    
     enum ImageType {
         case review
         case daum
@@ -35,6 +39,7 @@ struct ImageModel {
         self.reviewId = reviewImage.reviewId
         self.imageUrl = reviewImage.imageUrl
         self.info = Info(reviewInfo: reviewImage.reviewerInfo)
+        setSize()
     }
     
     init(daumImage: DaumImageResponseModel) {
@@ -42,6 +47,36 @@ struct ImageModel {
         self.reviewId = 0
         self.imageUrl = daumImage.image_url
         self.info = Info(daumInfo: daumImage)
-        self.size = CGSize(width: daumImage.width, height: daumImage.height)
+        setSize()
+    }
+    
+    private func getImageSize(url: URL) -> Future<CGSize, KingfisherError> {
+        return Future<CGSize, KingfisherError> { promise in
+            KingfisherManager.shared.retrieveImage(with: url, completionHandler: { result in
+                switch result {
+                case .success(let value):
+                    promise(.success(value.image.size))
+                case .failure(let error):
+                    promise(.failure(error))
+                }
+            })
+        }
+    }
+    
+    private func setSize() {
+        guard let imageUrl = self.imageUrl else { return }
+        getImageSize(url: imageUrl)
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .finished: break
+                case .failure(let error):
+                    print(error)
+                }
+            }, receiveValue: { [weak self] size in
+                self?.size = size
+            })
+            .store(in: &cancellable)
     }
 }
