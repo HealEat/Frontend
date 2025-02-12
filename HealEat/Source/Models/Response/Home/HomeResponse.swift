@@ -35,7 +35,7 @@ struct StoreResponse: Codable {
     let y: String
     let place_url: String
     let distance: Double
-    let imageUrlList: [String]
+    let imageUrl: String?
     let features: [String]
     let reviewCount: Int?
     let totalScore: Int?
@@ -43,7 +43,7 @@ struct StoreResponse: Codable {
 
     enum CodingKeys: String, CodingKey {
         case storeInfoDto
-        case storeImageListDto
+        case imageUrl
         case isBookMarked = "bookmarkId"
     }
 
@@ -86,15 +86,11 @@ struct StoreResponse: Codable {
             self.features = storeInfo.features
 
             // 이미지 URL 가져오기
-            if let imageList = try container.decodeIfPresent(StoreImageList.self, forKey: .storeImageListDto) {
-                self.imageUrlList = imageList.daumImgDocuments.map { $0.image_url }
-            } else {
-                self.imageUrlList = []
-            }
+            self.imageUrl = try container.decodeIfPresent(String.self, forKey: .imageUrl) ?? ""
 
             let bookmarkId = try container.decodeIfPresent(Int?.self, forKey: .isBookMarked)
             self.isBookMarked = bookmarkId != nil
-            // 🚀 아직 서버 응답에 없어서 기본값 설정
+            
             self.reviewCount = 0
             self.totalScore = 0
         }
@@ -119,8 +115,10 @@ struct StoreResponse: Codable {
 
             try container.encode(storeInfo, forKey: .storeInfoDto)
 
-            let imageList = StoreImageList(daumImgDocuments: imageUrlList.map { ImageDocument(image_url: $0) })
-            try container.encode(imageList, forKey: .storeImageListDto)
+            if let imageUrl = imageUrl, !imageUrl.isEmpty {
+                try container.encode(imageUrl, forKey: .imageUrl)
+            }
+
             if isBookMarked {
                 try container.encode(1, forKey: .isBookMarked) // True일 때 1로 저장
             }

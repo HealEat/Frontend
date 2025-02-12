@@ -80,18 +80,7 @@ class StoreView: UIView {
             $0.height.greaterThanOrEqualTo(200)
         }
     }
-    
-    func updateCollectionViewHeight() {
-        let newHeight = storeCollectionView.contentSize.height
-        print("📢 업데이트할 CollectionView 높이: \(newHeight)")
-        if newHeight > 0, storeCollectionView.frame.height != newHeight {
-                storeCollectionView.snp.updateConstraints {
-                    $0.height.equalTo(newHeight)
-                }
-                self.layoutIfNeeded()
-            }
-    }
-    
+   
     public func setUserRecommendLabel(name: String) {
         let fullText = "\(name)님 건강 맞춤 추천"
         let attributedString = NSMutableAttributedString(string: fullText)

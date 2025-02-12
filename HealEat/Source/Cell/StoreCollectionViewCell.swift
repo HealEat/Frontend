@@ -154,11 +154,12 @@ class StoreCollectionViewCell: UICollectionViewCell {
         self.features = []
         alltagView.collectionview.reloadData()
         
-        if let imageUrl = model.imageUrlList.first, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+        if let imageUrl = model.imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
             self.storeImage.kf.setImage(with: url, placeholder: UIImage(named: "placeholder"))
         } else {
             self.storeImage.image = UIImage(named: "placeholder") // 기본 이미지 설정
         }
+        
         self.storenameLabel.text = model.place_name
         self.foodnameLabel.text = model.category_name
         self.scrapButton.setImage(UIImage(named: "scrapimage"), for: .normal)
