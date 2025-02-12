@@ -136,5 +136,3 @@ class MyHealthInfoVC: UIViewController {
         }
     }
 }
-
-

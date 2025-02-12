@@ -34,7 +34,7 @@ class StoreVC: UIViewController {
         else {
             if !hasHealthInfo {
                 self.view = storeview
-                storeview.isUserInteractionEnabled = true // ✅ 이벤트 활성화
+                storeview.isUserInteractionEnabled = true // 이벤트 활성화
                 storeview.storeCollectionView.isUserInteractionEnabled = true
                 setupCollectionView()
                 storeview.healthsettingButton.addTarget(self, action: #selector(healthsettingTapped), for: .touchUpInside)
@@ -67,6 +67,7 @@ class StoreVC: UIViewController {
         }
 
         isFetchingData = true
+        
 
         // 현재 위치를 사용하여 API 요청을 보냄
         APIManager.HomeProvider.request(.getStores(lon: currentLongitude, lat: currentLatitude, radius: 1000, page: currentPage)) { result in

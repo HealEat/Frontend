@@ -120,15 +120,14 @@ class MyHealthInfoView: UIView {
     }
     
     private func createTagButton(title: String) -> UIButton {
-        let button = UIButton(type: .system)
+        let button = DynamicTagButton(type: .system)
         button.setTitle(title, for: .normal)
         button.setTitleColor(UIColor(hex: "009459"), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = UIColor(hex: "EEFAF5")
-        config.background.cornerRadius = 12
-        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 11, bottom: 6, trailing: 11)
-        button.configuration = config
+        button.backgroundColor = UIColor(hex: "EEFAF5")
+        button.layer.cornerRadius = 12
+        button.layer.masksToBounds = true
+        button.isUserInteractionEnabled = false
         button.sizeToFit()
         return button
     }
@@ -145,9 +144,15 @@ class MyHealthInfoView: UIView {
         config.background.cornerRadius = 12
         config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 11, bottom: 6, trailing: 11)
         button.configuration = config
+        button.isUserInteractionEnabled = false
         button.sizeToFit()
         return button
     }
 }
 
-
+class DynamicTagButton: UIButton {
+    override var intrinsicContentSize: CGSize {
+        let size = super.intrinsicContentSize
+        return CGSize(width: size.width + 22, height: size.height + 12) // 패딩 적용
+    }
+}

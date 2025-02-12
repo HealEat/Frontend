@@ -16,3 +16,4 @@ class APIManager {
     static let MyPageProvider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin()])
     static let StoreProvider = MoyaProvider<StoreAPI>(plugins: [NetworkLoggerPlugin()])
 }
+
