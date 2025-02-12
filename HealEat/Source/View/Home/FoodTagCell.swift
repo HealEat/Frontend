@@ -11,6 +11,7 @@ class FoodTagCell: UICollectionViewCell {
   let label = UILabel().then {
       $0.font = .systemFont(ofSize: 12, weight: .regular)
       $0.textColor = UIColor(hex: "5A5A5A")
+      $0.numberOfLines = 1
   }
   
   // MARK: - layout
@@ -38,8 +39,10 @@ class FoodTagCell: UICollectionViewCell {
   }
     
   override var intrinsicContentSize: CGSize {
-      return CGSize(width: label.intrinsicContentSize.width + 16, height: 19) // ✅ 셀 크기 고정
+      label.sizeToFit()
+      return CGSize(width: label.frame.width + 16, height: label.frame.height + 6)
   }
+    
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }

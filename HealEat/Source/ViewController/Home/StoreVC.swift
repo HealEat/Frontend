@@ -97,6 +97,8 @@ class StoreVC: UIViewController {
         storeview.storeCollectionView.contentInsetAdjustmentBehavior = .never
         storeview.storeCollectionView.isScrollEnabled = true
         storeview.storeCollectionView.canCancelContentTouches = false
+        
+        storeview.storeCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 55, right: 0)
     }
 
     public func reloadCollectionView() {

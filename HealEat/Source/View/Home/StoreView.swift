@@ -19,9 +19,12 @@ class StoreView: UIView {
     }
     
     override var intrinsicContentSize: CGSize {
+        layoutIfNeeded()
         let height = storeCollectionView.contentSize.height + 100 // 버튼, 라벨 포함
         return CGSize(width: UIView.noIntrinsicMetric, height: height)
     }
+    
+
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -48,7 +51,7 @@ class StoreView: UIView {
         $0.scrollDirection = .vertical
     }).then {
         $0.backgroundColor = .clear
-        $0.isScrollEnabled = true
+        $0.isScrollEnabled = false
         $0.register(StoreCollectionViewCell.self, forCellWithReuseIdentifier: StoreCollectionViewCell.identifier)
     }
     
@@ -76,11 +79,13 @@ class StoreView: UIView {
         storeCollectionView.snp.makeConstraints {
             $0.top.equalTo(userRecommendLabel.snp.bottom).offset(7)
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalToSuperview().priority(.low) //  낮은 우선순위로 `bottom` 설정
+            $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
             $0.height.greaterThanOrEqualTo(200)
         }
     }
-   
+    
+    
+    
     public func setUserRecommendLabel(name: String) {
         let fullText = "\(name)님 건강 맞춤 추천"
         let attributedString = NSMutableAttributedString(string: fullText)

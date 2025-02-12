@@ -14,7 +14,7 @@ class AllTagView: UIView {
             $0.scrollDirection = .vertical
             $0.minimumLineSpacing = 4
             $0.minimumInteritemSpacing = 4
-            $0.estimatedItemSize = CGSize(width: 60, height: 19)
+            $0.estimatedItemSize = CGSize(width: 100, height: 19)
         }
     ).then {
         $0.backgroundColor = .clear
