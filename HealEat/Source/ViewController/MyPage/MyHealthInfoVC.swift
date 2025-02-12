@@ -59,7 +59,9 @@ class MyHealthInfoVC: UIViewController {
         }*/
         
         view.addSubview(myhealthinfoview)
-
+        myhealthinfoview.snp.makeConstraints {
+            $0.top.leading.trailing.bottom.equalToSuperview()
+        }
     }
     
     //MARK: - Setup Actions
@@ -75,10 +77,20 @@ class MyHealthInfoVC: UIViewController {
     //MARK: - API call
 
     private func fetchHealthInfo() {
-        MyPageManager.getMyHealthInfo { result in
+        MyPageManager.getMyHealthInfo { [weak self] result in
+            guard let self = self else { return }
             switch result {
-            case .success(let healthInfo):
-                print(healthInfo)
+            case .success(let response):
+                if let healthInfo = response.result {
+                    print("🔥 API 응답 데이터: \(healthInfo)")
+                    
+                    DispatchQueue.main.async {
+                        self.healthInfo = healthInfo
+                        self.myhealthinfoview.updateUI(with: healthInfo)
+                    }
+                    } else {
+                        print("⚠️ API 응답 데이터가 nil입니다.")
+                }
             case .failure(let error):
                 print("내 건강 정보 조회 실패: \(error.localizedDescription)")
             }

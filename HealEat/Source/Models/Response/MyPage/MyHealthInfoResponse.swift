@@ -3,15 +3,10 @@
 import Foundation
 
 struct MyHealthInfoResponse: Codable {
-    let diseases: [String]
-    // enum type으로 추정
-    let vegetarian: String
-    let diet: String
-    let qnas: [HealthInfoQna]
-}
-
-struct HealthInfoQna: Codable {
-    // enum type
-    let question: String
-    let answers: [String]
+    let healthGoals: [String]
+    let vegetarianType: String
+    let healthIssues: [String]
+    let requiredMeals: [String]
+    let requiredNutrients: [String]
+    let avoidedFoods: [String]
 }

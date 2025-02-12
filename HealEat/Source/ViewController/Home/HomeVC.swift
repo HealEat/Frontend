@@ -52,6 +52,10 @@ class HomeVC: UIViewController {
         view.addSubview(mapsVC.view)
         mapsVC.view.frame = view.bounds
         mapsVC.didMove(toParent: self)
+        
+        mapsVC.onLocationUpdate = { [weak self] lat, lon in
+            self?.storeVC.updateLocation(lat: lat, lon: lon)
+        }
     }
         
     private func setupStoreView() {

@@ -163,7 +163,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         }
         
         //여기에서 그릴 View(KakaoMap, Roadview)들을 추가한다.
-        let defaultPosition: MapPoint = MapPoint(longitude: 127.10980993945, latitude: 37.34698042338)
+        let defaultPosition: MapPoint = MapPoint(longitude: 126.925554591431, latitude: 37.550874837441)
         //지도(KakaoMap)를 그리기 위한 viewInfo를 생성
         let mapviewInfo: MapviewInfo = MapviewInfo(viewName: "mapview", viewInfoName: "map", defaultPosition: defaultPosition, defaultLevel: 16)
         
@@ -298,8 +298,6 @@ class MapsVC: UIViewController, MapControllerDelegate {
 
 extension MapsVC:CLLocationManagerDelegate {
     
-    
-    
     func getLocationUsagePermission() {
         self.locationManager.requestWhenInUseAuthorization()
     }
@@ -325,8 +323,17 @@ extension MapsVC:CLLocationManagerDelegate {
                 return
         }
             
-        print("현재 위치: \(currentLocation.coordinate.latitude), \(currentLocation.coordinate.longitude)")
+        let newLat = currentLocation.coordinate.latitude
+        let newLon = currentLocation.coordinate.longitude
             
+        if newLat == la && newLon == lo { return }
+            
+        print("현재 위치: \(newLat), \(newLon)")
+            
+        // 위치 업데이트 저장
+        la = newLat
+        lo = newLon
+        
         // 지도 중심 이동
         let currentPosition = MapPoint(longitude: currentLocation.coordinate.longitude, latitude: currentLocation.coordinate.latitude)
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
@@ -335,7 +342,7 @@ extension MapsVC:CLLocationManagerDelegate {
         
         moveCameraToCurrentLocation(currentLocation.coordinate)
         startTracking()
-        onLocationUpdate?(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude)
+        onLocationUpdate?(newLat, newLon)
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

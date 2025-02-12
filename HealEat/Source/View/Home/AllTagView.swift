@@ -14,7 +14,7 @@ class AllTagView: UIView {
             $0.scrollDirection = .vertical
             $0.minimumLineSpacing = 4
             $0.minimumInteritemSpacing = 4
-            $0.estimatedItemSize = CGSize(width: 60, height: 19)
+            $0.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         }
     ).then {
         $0.backgroundColor = .clear
@@ -51,15 +51,35 @@ class AllTagView: UIView {
     }
     
     public func updateTags(features: [String]) {
-        self.features = features
+        let filteredFeatures = features.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+
+        self.features = filteredFeatures
+
+        // 배열이 비어 있으면 reloadData 호출하지 않음
+        if self.features.isEmpty {
+            self.isHidden = true
+            self.collectionview.isHidden = true
+            self.updateHeight(isEmpty: true)
+            return
+        }
+
         self.collectionview.reloadData()
-        updateHeight() // 높이 업데이트
+
+        let isEmpty = filteredFeatures.isEmpty
+        self.isHidden = isEmpty
+        collectionview.isHidden = isEmpty
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.updateHeight(isEmpty: isEmpty)
+        }
     }
 
-    public func updateHeight() {
+
+    public func updateHeight(isEmpty: Bool) {
         DispatchQueue.main.async {
-            let height = self.collectionview.collectionViewLayout.collectionViewContentSize.height
+            let height = isEmpty ? 0 : self.collectionview.collectionViewLayout.collectionViewContentSize.height
             self.collectionViewHeightConstraint?.update(offset: height)
+            self.invalidateIntrinsicContentSize()
             self.layoutIfNeeded()
         }
     }
@@ -70,14 +90,19 @@ class AllTagView: UIView {
 
 extension AllTagView: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return features.count
+        return features.isEmpty ? 0 : features.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard indexPath.row < features.count else {
+            return UICollectionViewCell()
+        }
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FoodTagCell.identifier, for: indexPath) as? FoodTagCell else {
             return UICollectionViewCell()
         }
+
         cell.label.text = features[indexPath.row]
         return cell
     }
+
 }
