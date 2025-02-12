@@ -10,7 +10,7 @@ import Foundation
 import Moya
 
 enum HomeAPI {
-    case getStores(lat: Double, lon: Double, radius: Int, page: Int)
+    case getStores(lon: Double, lat: Double, radius: Int, page: Int)
 }
 
 extension HomeAPI: TargetType {
@@ -37,11 +37,11 @@ extension HomeAPI: TargetType {
 
     var task: Moya.Task {
         switch self {
-        case .getStores(let lat, let lon, let radius, let page):
+        case .getStores(let lon, let lat, let radius, let page):
             let parameters: [String: Any] = [
-                "x": "\(lat)",
-                "y": "\(lon)",
-                "radius": 100
+                "x": "\(lon)",
+                "y": "\(lat)",
+                "radius": radius
             ]
             let queryParameters: [String: Any] = ["page": page]
             

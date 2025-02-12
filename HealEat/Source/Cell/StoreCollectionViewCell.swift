@@ -168,6 +168,8 @@ class StoreCollectionViewCell: UICollectionViewCell {
         self.scorelist.setImage(UIImage(named: "starlist"), for: .normal)
         
         self.features = model.features
+        self.alltagView.updateTags(features: model.features)
+        
         DispatchQueue.main.async {
             self.storeImage.setNeedsLayout()
             self.storeImage.layoutIfNeeded()
