@@ -1,8 +1,3 @@
-//  HomeViewController.swift
-//  HealEat
-//
-//  Created by 김호성 on 2025.01.08.
-//
 // Copyright © 2025 HealEat. All rights reserved.
 
 
@@ -58,7 +53,7 @@ class HomeVC: UIViewController {
         mapsVC.view.frame = view.bounds
         mapsVC.didMove(toParent: self)
         
-        mapsVC.onLocationUpdate = { [weak self] lat, lon in
+        LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
             self?.storeVC.updateLocation(lat: lat, lon: lon)
         }
     }

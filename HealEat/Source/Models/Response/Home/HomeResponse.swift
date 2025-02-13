@@ -34,17 +34,16 @@ struct StoreResponse: Codable {
     let x: String
     let y: String
     let place_url: String
-    let distance: Double
     let imageUrl: String?
     let features: [String]
-    let reviewCount: Int?
-    let totalScore: Int?
-    let isBookMarked: Bool
+    let isInDBInfo: IsInDBInfo?
+    let bookmarkId: Int?
 
     enum CodingKeys: String, CodingKey {
         case storeInfoDto
         case imageUrl
-        case isBookMarked = "bookmarkId"
+        case isInDBInfo = "isInDBDto"
+        case bookmarkId
     }
 
     struct StoreInfo: Codable {
@@ -57,7 +56,6 @@ struct StoreResponse: Codable {
         let x: String
         let y: String
         let placeUrl: String
-        let distance: Double?
         let features: [String]
     }
     
@@ -70,70 +68,84 @@ struct StoreResponse: Codable {
     }
     // JSON 디코딩
     init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
 
-            let storeInfo = try container.decode(StoreInfo.self, forKey: .storeInfoDto)
-            self.id = storeInfo.placeId
-            self.place_name = storeInfo.placeName
-            self.category_name = storeInfo.categoryName
-            self.phone = storeInfo.phone
-            self.address_name = storeInfo.addressName
-            self.road_address_name = storeInfo.roadAddressName
-            self.x = storeInfo.x
-            self.y = storeInfo.y
-            self.place_url = storeInfo.placeUrl
-            self.distance = storeInfo.distance ?? 0.0
-            self.features = storeInfo.features
+        let storeInfo = try container.decode(StoreInfo.self, forKey: .storeInfoDto)
+        self.id = storeInfo.placeId
+        self.place_name = storeInfo.placeName
+        self.category_name = storeInfo.categoryName
+        self.phone = storeInfo.phone
+        self.address_name = storeInfo.addressName
+        self.road_address_name = storeInfo.roadAddressName
+        self.x = storeInfo.x
+        self.y = storeInfo.y
+        self.place_url = storeInfo.placeUrl
+        self.features = storeInfo.features
 
-            // 이미지 URL 가져오기
-            self.imageUrl = try container.decodeIfPresent(String.self, forKey: .imageUrl) ?? ""
+        // 이미지 URL 가져오기
+        self.imageUrl = try container.decodeIfPresent(String.self, forKey: .imageUrl) ?? ""
 
-            let bookmarkId = try container.decodeIfPresent(Int?.self, forKey: .isBookMarked)
-            self.isBookMarked = bookmarkId != nil
-            
-            self.reviewCount = 0
-            self.totalScore = 0
+        self.bookmarkId = try container.decodeIfPresent(Int.self, forKey: .bookmarkId)
+        
+        self.isInDBInfo = try container.decodeIfPresent(IsInDBInfo.self, forKey: .isInDBInfo)
+
+    }
+
+    // JSON 인코딩
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        let storeInfo = StoreInfo(
+            placeId: id,
+            placeName: place_name,
+            categoryName: category_name,
+            phone: phone,
+            addressName: address_name,
+            roadAddressName: road_address_name,
+            x: x,
+            y: y,
+            placeUrl: place_url,
+            features: features
+        )
+
+        try container.encode(storeInfo, forKey: .storeInfoDto)
+
+        if let imageUrl = imageUrl, !imageUrl.isEmpty {
+            try container.encode(imageUrl, forKey: .imageUrl)
         }
 
-        // JSON 인코딩
-        func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(bookmarkId, forKey: .bookmarkId)
+        
+        try container.encodeIfPresent(isInDBInfo, forKey: .isInDBInfo)
+        
 
-            let storeInfo = StoreInfo(
-                placeId: id,
-                placeName: place_name,
-                categoryName: category_name,
-                phone: phone,
-                addressName: address_name,
-                roadAddressName: road_address_name,
-                x: x,
-                y: y,
-                placeUrl: place_url,
-                distance: distance,
-                features: features
-            )
+    }
+}
 
-            try container.encode(storeInfo, forKey: .storeInfoDto)
-
-            if let imageUrl = imageUrl, !imageUrl.isEmpty {
-                try container.encode(imageUrl, forKey: .imageUrl)
-            }
-
-            if isBookMarked {
-                try container.encode(1, forKey: .isBookMarked) // True일 때 1로 저장
-            }
-        }
+struct IsInDBInfo: Codable {
+    let totalHealthScore: Float
+    let reviewCount: Int
+    let sickScore: Float
+    let sickCount: Int
+    let vegetScore: Float
+    let vegetCount: Int
+    let dietScore: Float
+    let dietCount: Int
 }
 
 
 // 검색 정보 모델
 struct SearchInfo: Codable {
+    let memberName: String
+    let hasHealthInfo: Bool
+    let query: String
     let baseX: String
     let baseY: String
-    let query: String
+    let radius: Int?
+    let avgX: Double?
+    let avgY: Double?
+    let maxMeters: Double?
     let otherRegions: [String]
     let selectedRegion: String?
     let apiCallCount: Int
-    let memberName: String?
 }
-

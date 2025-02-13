@@ -164,7 +164,11 @@ class StoreCollectionViewCell: UICollectionViewCell {
         self.foodnameLabel.text = model.category_name
         self.scrapButton.setImage(UIImage(named: "scrapimage"), for: .normal)
         self.starImage.setImage(UIImage(named: "starimage"), for: .normal)
-        self.scoreLabel.text = "\(model.totalScore) (\(model.reviewCount))"
+        if let scoreInfo = model.isInDBInfo {
+            self.scoreLabel.text = "\(scoreInfo.totalHealthScore) (\(scoreInfo.reviewCount))"
+        } else {
+            self.scoreLabel.text = "등록된 리뷰가 없습니다."
+        }
         self.scorelist.setImage(UIImage(named: "starlist"), for: .normal)
         
         self.features = model.features

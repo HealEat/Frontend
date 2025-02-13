@@ -10,10 +10,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        //태림오빠꺼
+        //SDKInitializer.InitSDK(appKey: "826dcfc24d65718bf46f1655ed2a283d")
+        //임시방편
+        SDKInitializer.InitSDK(appKey: "7f7993bda29532bdccc7163352611b10")
         
-        SDKInitializer.InitSDK(appKey: "826dcfc24d65718bf46f1655ed2a283d")
-    
-
+        
         return true
     }
 

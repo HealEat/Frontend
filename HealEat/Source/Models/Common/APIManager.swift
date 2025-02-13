@@ -11,7 +11,10 @@ import Moya
 
 class APIManager {
     static let HomeProvider = MoyaProvider<HomeAPI>(plugins: [NetworkLoggerPlugin()])
-    static let HealthGoalProvider = MoyaProvider<HealthGoalAPI>(plugins: [NetworkLoggerPlugin()])
+    static let CSearchProvider = MoyaProvider<CSearchAPI>(plugins: [NetworkLoggerPlugin()])
+    static let HealthGoalProvider = MoyaProvider<HealthGoalAPI>(plugins: [
+        NetworkLoggerPlugin(configuration: .init(logOptions: [.verbose, .requestBody, .requestHeaders, .successResponseBody, .errorResponseBody])) // ✅ 모든 로그 활성화!
+    ])
     static let InfoProvider = MoyaProvider<InfoAPI>(plugins: [NetworkLoggerPlugin()])
     static let MyPageProvider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin()])
     static let StoreProvider = MoyaProvider<StoreAPI>(plugins: [NetworkLoggerPlugin()])
