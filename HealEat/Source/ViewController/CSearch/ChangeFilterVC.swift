@@ -141,7 +141,7 @@ class ChangeFilterVC: UIViewController {
     private func setupUI() {
         view.backgroundColor = .white
         
-        [vcLabel, keywordBackground, openHoursLabel, openHoursStack, leastRatingLabel, leastRatingStack, bottomButtonStack].forEach {
+        [vcLabel, keywordBackground, leastRatingLabel, leastRatingStack, bottomButtonStack].forEach {
             view.addSubview($0)
         }
         [foodTypeCollectionView, nutritionCollectionView, foodTypeButton, nutritionButton].forEach {
@@ -185,17 +185,9 @@ class ChangeFilterVC: UIViewController {
             make.height.equalTo(24)
             make.centerY.equalTo(nutritionCollectionView.snp.centerY)
         }
-        openHoursLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(15)
-            make.top.equalTo(keywordBackground.snp.bottom).offset(15)
-        }
-        openHoursStack.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(15)
-            make.top.equalTo(openHoursLabel.snp.bottom).offset(15)
-        }
         leastRatingLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(15)
-            make.top.equalTo(openHoursStack.snp.bottom).offset(15)
+            make.top.equalTo(keywordBackground.snp.bottom).offset(15)
         }
         leastRatingStack.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(15)

@@ -55,7 +55,7 @@ class FilteredSearchVC: UIViewController {
         mapsVC.view.frame = view.bounds
         mapsVC.didMove(toParent: self)
         
-        mapsVC.onLocationUpdate = { [weak self] lat, lon in
+        LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
             self?.filteredStoresVC.updateLocation(lat: lat, lon: lon)
         }
     }
@@ -153,6 +153,7 @@ class FilteredSearchVC: UIViewController {
             break
         }
     }
+ 
 
     
     //MARK: - API call

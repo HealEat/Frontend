@@ -5,7 +5,6 @@ import UIKit
 class DropDownSearchButton: UIButton {
     
     private lazy var myImageView = UIImageView().then {
-        $0.isUserInteractionEnabled = false
         let config = UIImage.SymbolConfiguration(weight: .bold)
         let image = UIImage(systemName: "chevron.down", withConfiguration: config)?.withRenderingMode(.alwaysTemplate)
         $0.contentMode = .scaleToFill
@@ -20,6 +19,7 @@ class DropDownSearchButton: UIButton {
     }
     
     private lazy var stack = UIStackView(arrangedSubviews: [buttonLabel, myImageView]).then {
+        $0.isUserInteractionEnabled = false
         $0.axis = .horizontal
         $0.distribution = .fill
         $0.spacing = 3
@@ -37,6 +37,7 @@ class DropDownSearchButton: UIButton {
     }
         
     private func setUp() {
+        self.isUserInteractionEnabled = true
         backgroundColor = .white
         addSubview(stack)
         myImageView.snp.makeConstraints { make in

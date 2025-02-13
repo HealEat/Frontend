@@ -2,8 +2,6 @@
 
 import Foundation
 
-import Foundation
-
 // ✅ 대분류 (최상위 카테고리)
 enum FoodCategory: String, CaseIterable {
     case korean = "한식"
@@ -101,3 +99,43 @@ enum NutritionCategory: String, CaseIterable {
     (12, "따뜻한 음식"), (13, "짜지 않은 음식"), (14, "국물 요리"), (15, "야채")
  ]
 */
+
+enum SearchBy: String, CaseIterable {
+    case accuracy = "ACCURACY"
+    case distance = "DISTANCE"
+    
+    var name: String {
+        switch self {
+        case .accuracy: return "정확도 순"
+        case .distance: return "거리 순"
+        }
+    }
+    
+    // ✅ 모든 카테고리의 리스트 (이전 allItems 역할)
+    static var allItems: [String] {
+        return SearchBy.allCases.map { $0.name }
+    }
+}
+
+enum SortBy: String, CaseIterable {
+    case disease = "SICK"
+    case vegetarian = "VEGET"
+    case diet = "DIET"
+    case rating = "TOTAL"
+    case none = "NONE"
+    
+    var name: String {
+        switch self {
+        case .disease: return "질병관리 순"
+        case .vegetarian: return "베지테리언 순"
+        case .diet: return "다이어트 순"
+        case .rating: return "전체 별점 순"
+        case .none: return "별점 선택 없음"
+        }
+    }
+    
+    // ✅ 모든 카테고리의 리스트 (이전 allItems 역할)
+    static var allItems: [String] {
+        return SortBy.allCases.map { $0.name }
+    }
+}

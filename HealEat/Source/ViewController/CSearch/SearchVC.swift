@@ -11,7 +11,6 @@ class SearchVC: UIViewController {
     // ✅ 선택된 셀을 저장할 변수 (두 개의 컬렉션뷰를 개별적으로 관리)
     var selectedFoodType: Set<IndexPath> = [] // 첫 번째 컬렉션뷰의 선택된 항목
     var selectedNutritionType: Set<IndexPath> = [] // 두 번째 컬렉션뷰의 선택된 항목
-
     // ✅ 최대 선택 가능 개수
     let maxSelectionCount = 5
         
@@ -113,7 +112,10 @@ class SearchVC: UIViewController {
         super.viewDidLoad()
         setupUI()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
-
+        // ✅ 위치 권한 요청 (앱 실행 시 한 번만 요청됨)
+        LocationManager.shared.requestAuthorization()
+        // ✅ 위치 업데이트 시작
+        LocationManager.shared.startUpdatingLocation()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -230,8 +232,9 @@ class SearchVC: UIViewController {
     }
     
     
-    private func goToFilteredSearch(searchResults: HomeResponse) {
+    private func goToFilteredSearch(searchRequest: CSearchRequest, searchResults: HomeResponse) {
         let filteredSearchVC = FilteredSearchVC()
+        filteredSearchVC.filteredStoresVC.searchRequest = searchRequest
         filteredSearchVC.filteredStoresVC.filteredData = searchResults
         filteredSearchVC.filteredStoresVC.storeData = searchResults.storeList
         filteredSearchVC.hidesBottomBarWhenPushed = true // 탭바 숨겨주기
@@ -239,12 +242,8 @@ class SearchVC: UIViewController {
     }
     
     @objc private func searchButtonClicked() {
-        let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
-        let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
         let query = searchBar.searchBar.text ?? ""
-        search(query: query, foodTypeList: foodList, nutritionList: nutritionList)
-        print("\(foodList) and \(nutritionList)")
-        
+        search(query: query)
     }
     
     
@@ -281,17 +280,28 @@ class SearchVC: UIViewController {
         }
     }
     
-    private func search(query: String, foodTypeList: [Int], nutritionList: [Int]) {
-        let param = CSearchRequest(query: query, x: "37.5665", y: "126.978", categoryIdList: foodTypeList, featureIdList: nutritionList, minRating: 0, searchBy: "DISTANCE", sortBy: "DIET")
+    private func search(query: String) {
+        let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
+        let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
+        
+        let x = LocationManager.shared.currentLongitude
+        let y = LocationManager.shared.currentLatitude
+        
+        let searchBy = SortSelectionManager.shared.searchBy.rawValue
+        let sortBy = SortSelectionManager.shared.sortBy.rawValue
+        
+        let param = CSearchRequest(query: query, x: "\(x)", y: "\(y)", categoryIdList: foodList, featureIdList: nutritionList, minRating: 0, searchBy: searchBy, sortBy: sortBy)
+        print("param:\(param)")
         
         CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
             guard isSuccess, let searchResults = searchResults else {
                 Toaster.shared.makeToast("검색 요청 실패")
                 return
             }
-            
             print("맞춤 검색 요청 성공")
-            self.goToFilteredSearch(searchResults: searchResults)
+            print("사용한 필터: \(param)")
+            print("받아온 검색 결과: \(searchResults)")
+            self.goToFilteredSearch(searchRequest: param, searchResults: searchResults)
         }
     }
 
@@ -505,3 +515,5 @@ extension SearchVC: UITableViewDelegate, UITableViewDataSource {
     
     
 }
+
+

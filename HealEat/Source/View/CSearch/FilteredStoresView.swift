@@ -25,11 +25,11 @@ class FilteredStoresView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private lazy var setByUserInfoButton = DropDownSearchButton().then {
-        $0.buttonLabel.text = "별점 순"
+    public lazy var setByUserInfoButton = DropDownSearchButton().then {
+        $0.buttonLabel.text = SortSelectionManager.shared.sortBy.name
     }
-    private lazy var setByResultButton = DropDownSearchButton().then {
-        $0.buttonLabel.text = "거리 순"
+    public lazy var setByResultButton = DropDownSearchButton().then {
+        $0.buttonLabel.text = SortSelectionManager.shared.searchBy.name
     }
     
     private lazy var setButtonStack = UIStackView(arrangedSubviews: [setByUserInfoButton, setByResultButton]).then {

@@ -100,6 +100,8 @@ class AllKeywordsVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         foodTypeButton.isSelected = isFoodType
         nutritionButton.isSelected = !isFoodType
@@ -261,3 +263,8 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
 }
 
 
+extension AllKeywordsVC: UIGestureRecognizerDelegate {
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return self.navigationController?.viewControllers.count ?? 0 > 1
+    }
+}

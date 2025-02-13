@@ -5,11 +5,12 @@ import Then
 import SnapKit
 
 class FilteredStoresVC: UIViewController {
+    public var searchRequest: CSearchRequest?
     public var filteredData: HomeResponse?
     public var storeData: [StoreResponse] = []
     public let storeview = FilteredStoresView()
     private var isFetchingData = false
-    var currentPage = 1
+    var currentPage = 2
     var isLastPage = false
     private var currentLatitude: Double = 37.550874837441
     private var currentLongitude: Double = 126.925554591431
@@ -21,6 +22,8 @@ class FilteredStoresVC: UIViewController {
         storeview.isUserInteractionEnabled = true
         setupCollectionView()
         storeview.filterButton.addTarget(self, action: #selector(goToFilterVC), for: .touchUpInside)
+        storeview.setByUserInfoButton.addTarget(self, action: #selector(sortByUserInfo(_:)), for: .touchUpInside)
+        storeview.setByResultButton.addTarget(self, action: #selector(sortByResult(_:)), for: .touchUpInside)
         
         if storeData.isEmpty {
             //storeview.showEmptyState() // ✅ 예시 함수 (필요하면 추가)
@@ -38,11 +41,13 @@ class FilteredStoresVC: UIViewController {
     func updateLocation(lat: Double, lon: Double) {
         self.currentLatitude = lat
         self.currentLongitude = lon
+        //MARK: 주의!! 너무 자주 호출되지 않나 확인
         fetchStoreData(reset: true)
     }
     
     private func fetchStoreData(reset: Bool = false) {
         guard !isLastPage else { return }
+        guard let searchRequest = searchRequest else { return }
         
         if reset {
             storeData.removeAll()
@@ -52,20 +57,13 @@ class FilteredStoresVC: UIViewController {
 
         isFetchingData = true // API 호출 시작
         
-        // 현재 위치를 사용하여 API 요청을 보냄 -> MARK: search로 수정 필요
-        APIManager.HomeProvider.request(.getStores(lon: currentLongitude, lat: currentLatitude, radius: 1000, page: currentPage)) { result in
+        APIManager.CSearchProvider.request(.search(page: currentPage, param: searchRequest)) { result in
             self.isFetchingData = false
 
             switch result {
             case .success(let response):
                 do {
                     let decodedData = try JSONDecoder().decode(DefaultResponse<HomeResponse>.self, from: response.data)
-                    
-                    let memberName = decodedData.result?.searchInfo?.memberName ?? "힐릿"
-                        DispatchQueue.main.async {
-                            //self.storeview.setUserRecommendLabel(name: memberName)
-                    }
-                    
                     if let storeList = decodedData.result?.storeList {
                         if reset {
                             self.storeData = storeList
@@ -115,12 +113,60 @@ class FilteredStoresVC: UIViewController {
         let bottomSheet = ChangeFilterVC()
         if let sheet = bottomSheet.sheetPresentationController {
             sheet.detents = [.custom(resolver: { context in
-                return context.maximumDetentValue * 0.55 // ✅ 화면 높이의 30% 크기로 설정
+                return context.maximumDetentValue * 0.45 // ✅ 화면 높이의 30% 크기로 설정
             })]
             sheet.prefersGrabberVisible = false
         }
         present(bottomSheet, animated: true)
     }
+    
+    @objc private func sortByUserInfo(_ sender: UIButton) {
+        let arr = SortBy.allItems
+        showSortingDropdown(filters: arr, sender: sender, isSortBy: true)
+    }
+    @objc private func sortByResult(_ sender: UIButton) {
+        let arr = SearchBy.allItems
+        showSortingDropdown(filters: arr, sender: sender, isSortBy: false)
+    }
+    
+    
+    private func showSortingDropdown(filters: [String], sender: UIButton, isSortBy: Bool) {
+        let sortingVC = SortingDropdownVC()
+        sortingVC.delegate = self
+        sortingVC.sortingOptions = filters
+        sortingVC.isSortBy = isSortBy
+        
+        sortingVC.modalPresentationStyle = .popover
+        sortingVC.modalTransitionStyle = .crossDissolve
+        
+        if let popover = sortingVC.popoverPresentationController {
+            let button = sender
+            popover.sourceView = button
+            
+            // ✅ 버튼의 실제 화면 위치를 가져옴
+            if let superview = button.superview {
+                let buttonFrameInSuperview = superview.convert(button.frame, to: view)
+                
+                // ✅ 버튼의 오른쪽 끝 + 5pt만큼 이동
+                popover.sourceRect = CGRect(
+                    x: buttonFrameInSuperview.width + 60, // 버튼 오른쪽 바깥쪽에 위치
+                    y: buttonFrameInSuperview.height / 2, // 버튼 중앙 높이 맞추기
+                    width: 0,
+                    height: 0
+                )
+            }
+            
+            popover.permittedArrowDirections = [] // 화살표 없애기
+            popover.delegate = self
+            popover.backgroundColor = .white
+        }
+        
+        //sortingVC.preferredContentSize = CGSize(width: 122, height: 158) // ✅ 작은 크기로 표시
+        present(sortingVC, animated: true)
+    }
+
+    
+
 
     
 }
@@ -155,3 +201,21 @@ extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate
 }
 
 
+
+// MARK: - Sorting Delegate
+extension FilteredStoresVC: SortingDropdownDelegate {
+    func didSelectSortingOption(_ option: String, isSortBy: Bool) {
+        if isSortBy {
+            storeview.setByUserInfoButton.buttonLabel.text = option
+        } else {
+            storeview.setByResultButton.buttonLabel.text = option
+        }
+    }
+}
+
+// MARK: - Popover Delegate (화면 터치 시 닫힘)
+extension FilteredStoresVC: UIPopoverPresentationControllerDelegate {
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none // ✅ iPhone에서도 popover 스타일 유지
+    }
+}
