@@ -19,7 +19,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
     var _auth: Bool
     var _appear: Bool
     
-    public lazy var searchBar = MapSearchBar().then {
+    public lazy var searchBar = CustomSearchBar().then {
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.healeatGray5,
             .font: UIFont.systemFont(ofSize: 16, weight: .regular)
@@ -54,7 +54,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         super.viewDidLoad()
         setupMapView()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
-        
+        setupUI()
     }
     
     private func setupMapView() {
@@ -169,6 +169,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         mapController.addView(mapviewInfo)
         
         createCurrentLocationMarker()
+        
         
     }
     

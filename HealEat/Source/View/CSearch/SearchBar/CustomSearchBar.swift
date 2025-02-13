@@ -15,8 +15,6 @@ class CustomSearchBar: UIView, UITextFieldDelegate {
         $0.backgroundColor = .white
         $0.layer.cornerRadius = 12
         $0.clipsToBounds = true
-        $0.layer.borderColor = UIColor.healeatGray4.cgColor
-        $0.layer.borderWidth = 1
     }
     
     lazy var searchBar = UITextField().then {
@@ -29,16 +27,15 @@ class CustomSearchBar: UIView, UITextFieldDelegate {
     }
 
 
-        
     public lazy var searchButton = UIButton().then {
         let image = UIImage(named: "magnifyingGlass")?.withRenderingMode(.alwaysTemplate)
         $0.setImage(image, for: .normal)
-        $0.tintColor = UIColor.healeatGray4
+        $0.tintColor = .black
     }
     private lazy var mikeButton = UIButton().then {
         let image = UIImage(systemName: "microphone")?.withRenderingMode(.alwaysTemplate)
         $0.setImage(image, for: .normal)
-        $0.tintColor = UIColor.healeatGray4
+        $0.tintColor = .black
     }
     
     // MARK: - Lifecycle
@@ -65,19 +62,20 @@ class CustomSearchBar: UIView, UITextFieldDelegate {
     private func setupConstraints() {
         background.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-        }
-        searchBar.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview()
-            make.leading.equalToSuperview().offset(5)
-            make.trailing.equalTo(searchButton.snp.leading).offset(-5)
+            make.height.equalTo(45)
         }
         searchButton.snp.makeConstraints { make in
             make.width.height.equalTo(22)
             make.centerY.equalToSuperview()
-            make.trailing.equalTo(mikeButton.snp.leading).offset(-10)
+            make.leading.equalToSuperview().offset(10)
+        }
+        searchBar.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.leading.equalTo(searchButton.snp.leading).offset(6)
+            make.trailing.equalTo(mikeButton.snp.leading).offset(-6)
         }
         mikeButton.snp.makeConstraints { make in
-            make.width.equalTo(20)
+            make.width.equalTo(23)
             make.height.equalTo(25)
             make.centerY.equalToSuperview()
             make.trailing.equalToSuperview().offset(-10)

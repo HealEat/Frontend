@@ -37,7 +37,7 @@ class StoreView: UIView {
     
     public lazy var healthsettingButton = UIButton().then {
         $0.layer.cornerRadius = 10
-        $0.layer.borderWidth = 0.5
+        $0.layer.borderWidth = 0.7
         $0.layer.borderColor = UIColor(red: 0.51, green: 0.51, blue: 0.51, alpha: 1.00).cgColor
         $0.backgroundColor = .clear
         $0.setTitle("건강 정보 설정하기", for: .normal)
@@ -72,7 +72,7 @@ class StoreView: UIView {
         healthsettingButton.snp.makeConstraints {
             $0.top.equalToSuperview().offset(27)
             $0.trailing.equalToSuperview().offset(-19)
-            $0.height.equalTo(18)
+            $0.height.equalTo(20)
             $0.width.equalTo(80)
         }
         
