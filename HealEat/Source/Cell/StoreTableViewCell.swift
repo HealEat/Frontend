@@ -148,19 +148,19 @@ class StoreTableViewCell: UITableViewCell {
         })
     }
     
-    func configure(storeResponseModel: StoreResponseModel) {
-        mainImageView.kf.setImage(with: storeResponseModel.imageUrls.first)
-        titleLabel.text = storeResponseModel.placeName
-        subtitleLabel.text = storeResponseModel.categoryName
-        starsView.star = storeResponseModel.totalScore
-        scoreLabel.text = "\(storeResponseModel.totalScore) (\(storeResponseModel.reviewCount))"
-        detailRatingHorizontalCollectionViewHandler.detailRatings = [
-            ("질병 관리", storeResponseModel.sickScore, storeResponseModel.sickCount),
-            ("베지터리언", storeResponseModel.vegetScore, storeResponseModel.vegetCount),
-            ("다이어트", storeResponseModel.dietScore, storeResponseModel.dietCount),
-        ]
-        detailScoreCollectionView.reloadData()
-        featureCollectionViewHandler.features = storeResponseModel.features
-        featureCollectionView.reloadData()
-    }
+//    func configure(storeResponseModel: StoreResponseModel) {
+//        mainImageView.kf.setImage(with: storeResponseModel.imageUrls.first)
+//        titleLabel.text = storeResponseModel.placeName
+//        subtitleLabel.text = storeResponseModel.categoryName
+//        starsView.star = storeResponseModel.totalScore
+//        scoreLabel.text = "\(storeResponseModel.totalScore) (\(storeResponseModel.reviewCount))"
+//        detailRatingHorizontalCollectionViewHandler.detailRatings = [
+//            ("질병 관리", storeResponseModel.sickScore, storeResponseModel.sickCount),
+//            ("베지터리언", storeResponseModel.vegetScore, storeResponseModel.vegetCount),
+//            ("다이어트", storeResponseModel.dietScore, storeResponseModel.dietCount),
+//        ]
+//        detailScoreCollectionView.reloadData()
+//        featureCollectionViewHandler.features = storeResponseModel.features
+//        featureCollectionView.reloadData()
+//    }
 }

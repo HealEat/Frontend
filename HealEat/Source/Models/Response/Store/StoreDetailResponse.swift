@@ -104,7 +104,7 @@ struct StoreDetailResponseModel: Codable {
     let storeInfoDto: StoreInfoDto
     let isInDBDto: IsInDBDto
     let totalStatDto: TotalStatDto
-    let bookmarkId: Int?
+    var bookmarkId: Int?
     
     init(storeDetailResponseEntity: StoreDetailResponseEntity) {
         self.storeId = storeDetailResponseEntity.storeId ?? 0

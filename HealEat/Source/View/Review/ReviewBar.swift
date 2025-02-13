@@ -87,7 +87,7 @@ class ReviewBar: UIView {
         let expressionStyle = NSMutableParagraphStyle()
         expressionStyle.alignment = .right
         let whiteAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 6, weight: .semibold),
+            .font: UIFont.systemFont(ofSize: 10, weight: .semibold),
             .paragraphStyle: expressionStyle,
             .foregroundColor: expressionColor.withAlphaComponent(process)
         ]

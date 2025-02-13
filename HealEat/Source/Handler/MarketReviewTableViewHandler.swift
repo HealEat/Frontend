@@ -3,6 +3,29 @@
 import Foundation
 import UIKit
 
+enum SortEnum: String, CaseIterable {
+    case latest = "LATEST"
+    case asc = "ASC"
+    case desc = "DESC"
+    
+    var title: String {
+        switch self {
+        case .latest:
+            return "최신 순"
+        case .asc:
+            return "별점 높은 순"
+        case .desc:
+            return "별점 낮은 순"
+        }
+    }
+}
+
+enum FilterEnum: String {
+    case sick = "SICK"
+    case veget = "VEGET"
+    case diet = "DIET"
+}
+
 class MarketReviewTableViewHandler: NSObject, UITableViewDataSource, UITableViewDelegate {
     private enum SectionEnum: CaseIterable {
         case writeReview
@@ -10,7 +33,12 @@ class MarketReviewTableViewHandler: NSObject, UITableViewDataSource, UITableView
         case userReview
     }
     
+    var storeDetailResponseModel: StoreDetailResponseModel?
+    var reviewModels: [ReviewsResponseModel.ReviewList] = []
+    
     var pushWriteReviewVC: (() -> Void)?
+    var reloadData: (() -> Void)?
+    var getNextPage: (() -> Void)?
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return SectionEnum.allCases.count
@@ -23,7 +51,39 @@ class MarketReviewTableViewHandler: NSObject, UITableViewDataSource, UITableView
         case .ratingReview:
             return nil
         case .userReview:
-            return UserReviewHeaderView()
+            let headerView = UserReviewHeaderView()
+            headerView.sortButton.configuration?.attributedTitle = AttributedString(UserDefaultsManager.shared.reviewSort.title, attributes: AttributeContainer([
+                .font: UIFont.systemFont(ofSize: 11),
+                .foregroundColor: UIColor.healeatGray6,
+            ]))
+            headerView.sortButton.menu = UIMenu(identifier: nil, options: .displayInline, children:
+                SortEnum.allCases.map({ [weak self] sortEnum in
+                    UIAction(title: sortEnum.title, image: UserDefaultsManager.shared.reviewSort == sortEnum ? UIImage(resource: .check) : nil, handler: { _ in
+                        UserDefaultsManager.shared.reviewSort = sortEnum
+                        tableView.reloadData()
+                        self?.reloadData?()
+                    })
+                })
+            )
+            headerView.sickButton.configuration?.attributedTitle = AttributedString("질병관리", attributes: AttributeContainer([
+                .font: UIFont.systemFont(ofSize: 12),
+                .foregroundColor: UserDefaultsManager.shared.reviewFilters.contains(.sick) ? UIColor.healeatGreen1 : UIColor.healeatGray6,
+            ]))
+            headerView.vegetButton.configuration?.attributedTitle = AttributedString("베지테리언", attributes: AttributeContainer([
+                .font: UIFont.systemFont(ofSize: 12),
+                .foregroundColor: UserDefaultsManager.shared.reviewFilters.contains(.veget) ? UIColor.healeatGreen1 : UIColor.healeatGray6,
+            ]))
+            headerView.dietButton.configuration?.attributedTitle = AttributedString("다이어트", attributes: AttributeContainer([
+                .font: UIFont.systemFont(ofSize: 12),
+                .foregroundColor: UserDefaultsManager.shared.reviewFilters.contains(.diet) ? UIColor.healeatGreen1 : UIColor.healeatGray6,
+            ]))
+            headerView.sickButton.configuration?.image = UserDefaultsManager.shared.reviewFilters.contains(.sick) ? UIImage(resource: .check) : UIImage(resource: .nocheck)
+            headerView.vegetButton.configuration?.image = UserDefaultsManager.shared.reviewFilters.contains(.veget) ? UIImage(resource: .check) : UIImage(resource: .nocheck)
+            headerView.dietButton.configuration?.image = UserDefaultsManager.shared.reviewFilters.contains(.diet) ? UIImage(resource: .check) : UIImage(resource: .nocheck)
+            headerView.sickButton.addTarget(self, action: #selector(onClickSick), for: .touchUpInside)
+            headerView.vegetButton.addTarget(self, action: #selector(onClickVeget), for: .touchUpInside)
+            headerView.dietButton.addTarget(self, action: #selector(onClickDiet), for: .touchUpInside)
+            return headerView
         }
     }
     
@@ -45,7 +105,7 @@ class MarketReviewTableViewHandler: NSObject, UITableViewDataSource, UITableView
         case .ratingReview:
             return 1
         case .userReview:
-            return 25
+            return max(1, reviewModels.count)
         }
     }
     
@@ -53,37 +113,66 @@ class MarketReviewTableViewHandler: NSObject, UITableViewDataSource, UITableView
         switch SectionEnum.allCases[indexPath.section] {
         case .writeReview:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: WriteReviewTableViewCell.self), for: indexPath) as? WriteReviewTableViewCell else { return UITableViewCell() }
-            cell.reviewTitleLabel.text = "'본죽&비빔밥cafe 홍대점'의\n건강 평점을 남겨주세요!"
+            guard let storeDetailResponseModel = storeDetailResponseModel else { return cell }
+            cell.reviewTitleLabel.text = "'\(storeDetailResponseModel.storeInfoDto.placeName)'의\n건강 평점을 남겨주세요!"
             cell.reviewMoreButton.addTarget(self, action: #selector(onClickReviewMore), for: .touchUpInside)
             return cell
         case .ratingReview:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: RatingReviewTableViewCell.self), for: indexPath) as? RatingReviewTableViewCell else { return UITableViewCell() }
+            guard let storeDetailResponseModel = storeDetailResponseModel else { return cell }
             cell.ratingReviewView.isUserInteractionEnabled = false
-            cell.ratingReviewView.initializeView(totalScore: 3.6, totalCount: 23, tasteScore: 1.6, cleanScore: 4.2, freshScore: 3.5, nutritionScore: 2.6)
+            cell.ratingReviewView.initializeView(
+                totalScore: storeDetailResponseModel.isInDBDto.totalScore,
+                totalCount: storeDetailResponseModel.isInDBDto.reviewCount,
+                tasteScore: storeDetailResponseModel.totalStatDto.tastyScore,
+                cleanScore: storeDetailResponseModel.totalStatDto.cleanScore,
+                freshScore: storeDetailResponseModel.totalStatDto.freshScore,
+                nutritionScore: storeDetailResponseModel.totalStatDto.nutrScore
+            )
             return cell
         case .userReview:
-            if false {
-                
+            if reviewModels.count == 0 {
+                guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: NoReviewTableViewCell.self), for: indexPath) as? NoReviewTableViewCell else { return UITableViewCell() }
+                return cell
             }
-            
             guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: UserReviewTableViewCell.self), for: indexPath) as? UserReviewTableViewCell else { return UITableViewCell() }
-            cell.profileImageView.kf.setImage(with: URL(string: "https://lv2-cdn.azureedge.net/jypark/f8ba911ed379439fbe831212be8701f9-231103%206PM%20%EB%B0%95%EC%A7%84%EC%98%81%20Conceptphoto03(Clean).jpg")!)
-            cell.profileNameLabel.text = "사무엘"
-            cell.profilePurposeLabel.text = "과민성 대장 증후군"
-            cell.reviewStarsView.star = 3.5
-            cell.reviewDateLabel.text = "2024.12.25"
-            cell.reviewLabel.text = "배 아프면 꼭 죽집을 찾게 되는데 집 근처에 괜찮은 죽집이 있어서 좋아요. 또 방문하려고요."
+            cell.profileImageView.kf.setImage(with: reviewModels[indexPath.row].reviewerInfo.profileImageUrl, placeholder: UIImage(resource: .defaultProfile))
+            cell.profileNameLabel.text = reviewModels[indexPath.row].reviewerInfo.name
+            cell.profilePurposeLabel.text = reviewModels[indexPath.row].reviewerInfo.currentPurposes.joined(separator: ", ")
+            cell.reviewStarsView.star = reviewModels[indexPath.row].totalScore
+            cell.reviewDateLabel.text = reviewModels[indexPath.row].createdAt.toStringYYYYMMDD
+            cell.reviewLabel.text = reviewModels[indexPath.row].body
             cell.photoStackView.clearSubViews()
             
-            if indexPath.row % 2 == 0 {
-                cell.addImage(url: URL(string: "https://lv2-cdn.azureedge.net/jypark/0.jpg")!)
-                cell.addImage(url: URL(string: "https://lv2-cdn.azureedge.net/jypark/gallery_150125165011.jpg")!)
-            }
+            reviewModels[indexPath.row].imageUrls.forEach({
+                cell.addImage(url: $0)
+            })
             return cell
         }
     }
     
     @objc private func onClickReviewMore() {
         pushWriteReviewVC?()
+    }
+    
+    private func onClickFilter(filterEnum: FilterEnum) {
+        var filters = UserDefaultsManager.shared.reviewFilters
+        if filters.contains(filterEnum) {
+            filters.remove(filterEnum)
+        } else {
+            filters.insert(filterEnum)
+        }
+        UserDefaultsManager.shared.reviewFilters = filters
+        reloadData?()
+        print(UserDefaultsManager.shared.reviewFilters)
+    }
+    @objc private func onClickSick() {
+        onClickFilter(filterEnum: .sick)
+    }
+    @objc private func onClickVeget() {
+        onClickFilter(filterEnum: .veget)
+    }
+    @objc private func onClickDiet() {
+        onClickFilter(filterEnum: .diet)
     }
 }

@@ -7,8 +7,6 @@ class MarketReviewVC: UIViewController {
     
     var onGesture: ((UIPanGestureRecognizer) -> Void)?
     
-    private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         

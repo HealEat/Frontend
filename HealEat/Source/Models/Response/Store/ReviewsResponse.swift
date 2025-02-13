@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct ReviewGetResponseEntity: Codable {
+struct ReviewsResponseEntity: Codable {
     struct ReviewList: Codable {
         struct ReviewerInfo: Codable {
             let name: String?
@@ -24,14 +24,14 @@ struct ReviewGetResponseEntity: Codable {
     let isLast: Bool?
 }
 
-struct ReviewGetResponseModel: Codable {
+struct ReviewsResponseModel: Codable {
     struct ReviewList: Codable {
         struct ReviewerInfo: Codable {
             let name: String
             let profileImageUrl: URL?
             let currentPurposes: [String]
             
-            init(reviewerInfo: ReviewGetResponseEntity.ReviewList.ReviewerInfo?) {
+            init(reviewerInfo: ReviewsResponseEntity.ReviewList.ReviewerInfo?) {
                 self.name = reviewerInfo?.name ?? ""
                 self.profileImageUrl = URL(string: reviewerInfo?.profileImageUrl ?? "")
                 self.currentPurposes = reviewerInfo?.currentPurposes ?? []
@@ -44,7 +44,7 @@ struct ReviewGetResponseModel: Codable {
         let body: String
         let createdAt: Date
         
-        init(reviewList: ReviewGetResponseEntity.ReviewList) {
+        init(reviewList: ReviewsResponseEntity.ReviewList) {
             self.reviewerInfo = ReviewerInfo(reviewerInfo: reviewList.reviewerInfo)
             self.reviewId = reviewList.reviewId ?? 0
             self.totalScore = reviewList.totalScore ?? 0
@@ -61,12 +61,12 @@ struct ReviewGetResponseModel: Codable {
     let isFirst: Bool
     let isLast: Bool
     
-    init(reviewGetResponseEntity: ReviewGetResponseEntity) {
-        self.reviewList = reviewGetResponseEntity.reviewList?.map({ ReviewList(reviewList: $0) }) ?? []
-        self.listSize = reviewGetResponseEntity.listSize ?? 0
-        self.totalPage = reviewGetResponseEntity.totalPage ?? 0
-        self.totalElements = reviewGetResponseEntity.totalElements ?? 0
-        self.isFirst = reviewGetResponseEntity.isFirst ?? false
-        self.isLast = reviewGetResponseEntity.isLast ?? false
+    init(reviewsResponseEntity: ReviewsResponseEntity) {
+        self.reviewList = reviewsResponseEntity.reviewList?.map({ ReviewList(reviewList: $0) }) ?? []
+        self.listSize = reviewsResponseEntity.listSize ?? 0
+        self.totalPage = reviewsResponseEntity.totalPage ?? 0
+        self.totalElements = reviewsResponseEntity.totalElements ?? 0
+        self.isFirst = reviewsResponseEntity.isFirst ?? false
+        self.isLast = reviewsResponseEntity.isLast ?? false
     }
 }

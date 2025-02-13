@@ -28,9 +28,13 @@ class MarketVC: UIViewController {
     // MARK: - API
     private var storeDetailResponseModel: StoreDetailResponseModel?
     private var imageModels: [ImageModel] = []
+    private var reviewModels: [ReviewsResponseModel.ReviewList] = []
     
-    private var page: Int = 1
-    private var isLast: Bool = false
+    private var imagePage: Int = 1
+    private var imageIsLast: Bool = false
+    
+    private var reviewPage: Int = 1
+    private var reviewIsLast: Bool = false
     
     // MARK: - PageViewControllers
     private let marketHomeVC: MarketHomeVC = {
@@ -59,8 +63,14 @@ class MarketVC: UIViewController {
         initializeGestures()
         initializeHandlers()
         
-        getStoreDetail()
-        getReviewImgs()
+        getStoreDetail(placeId: param.placeId)
+        getReviewImgs(placeId: param.placeId, page: imagePage)
+        getReviews(reviewsRequest: ReviewsRequest(
+            placeId: param.placeId,
+            page: reviewPage,
+            sortBy: UserDefaultsManager.shared.reviewSort,
+            filters: UserDefaultsManager.shared.reviewFilters
+        ))
     }
     
     // MARK: - Func
@@ -104,6 +114,16 @@ class MarketVC: UIViewController {
             let viewController = WriteReviewVC()
             self?.navigationController?.pushViewController(viewController, animated: true)
         }
+        marketReviewTableViewHandler.reloadData = { [weak self] in
+            guard let self = self else { return }
+            reviewPage = 1
+            getReviews(reviewsRequest: ReviewsRequest(
+                placeId: param.placeId,
+                page: reviewPage,
+                sortBy: UserDefaultsManager.shared.reviewSort,
+                filters: UserDefaultsManager.shared.reviewFilters
+            ))
+        }
         marketReviewVC.marketReviewView.reviewTableView.delegate = marketReviewTableViewHandler
         marketReviewVC.marketReviewView.reviewTableView.dataSource = marketReviewTableViewHandler
     }
@@ -129,6 +149,13 @@ class MarketVC: UIViewController {
         marketView.previewCollectionView.reloadData()
         marketHomeVC.marketHomeView.mainTableView.reloadData()
         marketImageVC.marketImageView.imageCollectionView.reloadData()
+    }
+    
+    private func setReviewsToHandler() {
+        marketReviewTableViewHandler.reviewModels = reviewModels
+        marketReviewTableViewHandler.storeDetailResponseModel = storeDetailResponseModel
+        
+        marketReviewVC.marketReviewView.reviewTableView.reloadData()
     }
     
     private func initializeView(storeDetailResponseModel: StoreDetailResponseModel) {
@@ -178,7 +205,12 @@ class MarketVC: UIViewController {
     
     @objc private func onClickBookmark() {
         marketView.bookmarkButton.isSelected.toggle()
-        
+        if marketView.bookmarkButton.isSelected {
+            postBookmark(placeId: param.placeId)
+        } else {
+            guard let bookmarkId = storeDetailResponseModel?.bookmarkId else { return }
+            deleteBookmark(placeId: param.placeId, bookmarkId: bookmarkId)
+        }
     }
     
     // MARK: - PanGesture
@@ -211,15 +243,9 @@ class MarketVC: UIViewController {
     }
     
     // MARK: - Network
-    private func getStoreDetail() {
-        StoreRepository.shared.getStoreDetail(placeId: param.placeId)
-            .sink(receiveCompletion: { completion in
-                switch completion {
-                case .finished: break
-                case .failure(let error):
-                    print(error.description)
-                }
-            }, receiveValue: { [weak self] storeDetailResponseModel in
+    private func getStoreDetail(placeId: Int) {
+        StoreRepository.shared.getStoreDetail(placeId: placeId)
+            .sinkHandledCompletion(receiveValue: { [weak self] storeDetailResponseModel in
                 self?.storeDetailResponseModel = storeDetailResponseModel
                 self?.initializeView(storeDetailResponseModel: storeDetailResponseModel)
                 self?.setStoreToHandlers(storeDetailResponseModel: storeDetailResponseModel)
@@ -227,37 +253,25 @@ class MarketVC: UIViewController {
             .store(in: &cancellable)
     }
     
-    private func getReviewImgs() {
-        StoreRepository.shared.getReviewImgs(placeId: param.placeId, page: page)
-            .sink(receiveCompletion: { completion in
-                switch completion {
-                case .finished: break
-                case .failure(let error):
-                    print(error.description)
-                }
-            }, receiveValue: { [weak self] reviewImagesResponseModel in
+    private func getReviewImgs(placeId: Int, page: Int) {
+        StoreRepository.shared.getReviewImgs(placeId: placeId, page: page)
+            .sinkHandledCompletion(receiveValue: { [weak self] reviewImagesResponseModel in
                 reviewImagesResponseModel.reviewImageDtoList.forEach({
                     self?.imageModels.append(ImageModel(reviewImage: $0))
                 })
-                self?.isLast = reviewImagesResponseModel.isLast
-                self?.page += 1
+                self?.imageIsLast = reviewImagesResponseModel.isLast
+                self?.imagePage += 1
                 if reviewImagesResponseModel.totalElements < 10 {
-                    self?.getDaumImgs()
+                    self?.getDaumImgs(placeId: placeId)
                 }
                 self?.setImagesToHandlers()
             })
             .store(in: &cancellable)
     }
     
-    private func getDaumImgs() {
-        StoreRepository.shared.getDaumImgs(placeId: param.placeId)
-            .sink(receiveCompletion: { completion in
-                switch completion {
-                case .finished: break
-                case .failure(let error):
-                    print(error.description)
-                }
-            }, receiveValue: { [weak self] daumImageResponseModels in
+    private func getDaumImgs(placeId: Int) {
+        StoreRepository.shared.getDaumImgs(placeId: placeId)
+            .sinkHandledCompletion(receiveValue: { [weak self] daumImageResponseModels in
                 daumImageResponseModels.forEach({
                     self?.imageModels.append(ImageModel(daumImage: $0))
                 })
@@ -266,6 +280,32 @@ class MarketVC: UIViewController {
             .store(in: &cancellable)
     }
     
+    private func getReviews(reviewsRequest: ReviewsRequest) {
+        StoreRepository.shared.getReviews(reviewsRequest: reviewsRequest)
+            .sinkHandledCompletion(receiveValue: { [weak self] reviewsResponseModel in
+                self?.reviewModels = reviewsResponseModel.reviewList
+                self?.reviewIsLast = reviewsResponseModel.isLast
+                self?.reviewPage += 1
+                self?.setReviewsToHandler()
+            })
+            .store(in: &cancellable)
+    }
+    
+    private func postBookmark(placeId: Int) {
+        StoreRepository.shared.postBookmark(placeId: placeId)
+            .sinkHandledCompletion(receiveValue: { [weak self] bookmarkResponseModel in
+                self?.storeDetailResponseModel?.bookmarkId = bookmarkResponseModel.bookmarkId
+            })
+            .store(in: &cancellable)
+    }
+    
+    private func deleteBookmark(placeId: Int, bookmarkId: Int) {
+        StoreRepository.shared.deleteBookmark(placeId: placeId, bookmarkId: bookmarkId)
+            .sinkHandledCompletion(receiveValue: { [weak self] bookmarkResponseModel in
+                self?.storeDetailResponseModel?.bookmarkId = nil
+            })
+            .store(in: &cancellable)
+    }
 }
 
 // MARK: - Delegate

@@ -12,6 +12,24 @@ class StoreRepository {
     
     private let provider = APIManager.StoreProvider
     
+    func getReviews(reviewsRequest: ReviewsRequest) -> AnyPublisher<ReviewsResponseModel, HealEatError> {
+        return provider.requestPublisher(.getReviews(param: reviewsRequest))
+            .extractResult(ReviewsResponseEntity.self)
+            .map({ ReviewsResponseModel(reviewsResponseEntity: $0) })
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+    
+    func postBookmark(placeId: Int) -> AnyPublisher<BookmarkResponseModel, HealEatError> {
+        return provider.requestPublisher(.postBookmark(placeId: placeId))
+            .extractResult(BookmarkResponseEntity.self)
+            .map({ BookmarkResponseModel(bookmarkResponseEntity: $0) })
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+    
     func getStoreDetail(placeId: Int) -> AnyPublisher<StoreDetailResponseModel, HealEatError> {
         return provider.requestPublisher(.getStoreDetail(placeId: placeId))
             .extractResult(StoreDetailResponseEntity.self)
@@ -41,10 +59,10 @@ class StoreRepository {
             .eraseToAnyPublisher()
     }
     
-    func getReview(reviewGetRequest: ReviewGetRequest) -> AnyPublisher<ReviewGetResponseModel, HealEatError> {
-        return provider.requestPublisher(.getReview(param: reviewGetRequest))
-            .extractResult(ReviewGetResponseEntity.self)
-            .map({ ReviewGetResponseModel(reviewGetResponseEntity: $0) })
+    func deleteBookmark(placeId: Int, bookmarkId: Int) -> AnyPublisher<BookmarkResponseModel, HealEatError> {
+        return provider.requestPublisher(.deleteBookmark(placeId: placeId, bookmarkId: bookmarkId))
+            .extractResult(BookmarkResponseEntity.self)
+            .map({ BookmarkResponseModel(bookmarkResponseEntity: $0) })
             .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()

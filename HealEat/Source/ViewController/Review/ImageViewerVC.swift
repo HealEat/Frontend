@@ -58,11 +58,7 @@ class ImageViewerVC: UIViewController {
                 .font: UIFont.systemFont(ofSize: 12, weight: .light),
                 .foregroundColor: UIColor.healeatGray1,
             ]))
-            if let url = param.imageModels[param.index].info.url {
-                imageViewerView.profileImageView.kf.setImage(with: url)
-            } else {
-                imageViewerView.profileImageView.image = UIImage(resource: .defaultProfile)
-            }
+            imageViewerView.profileImageView.kf.setImage(with: param.imageModels[param.index].info.url, placeholder: UIImage(resource: .defaultProfile))
         case .daum:
             imageViewerView.purposeButton.configuration?.attributedTitle = AttributedString(param.imageModels[param.index].info.url?.absoluteString ?? "", attributes: AttributeContainer([
                 .font: UIFont.systemFont(ofSize: 12, weight: .light),
