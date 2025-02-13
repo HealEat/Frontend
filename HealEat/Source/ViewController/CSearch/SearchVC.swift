@@ -62,21 +62,22 @@ class SearchVC: UIViewController {
         $0.tag = 1
     }
     private lazy var foodTypeButton =  UIButton().then {
-        $0.setTitle("+15", for: .normal)
+        $0.setTitle("+\(foodTypeList.count)", for: .normal)
         $0.setTitleColor(UIColor.healeatGreen1, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         $0.backgroundColor = .healeatLightGreen
         $0.layer.cornerRadius = 12
         $0.layer.masksToBounds = true
+        $0.addTarget(self, action: #selector(showKeywords), for: .touchUpInside)
     }
     private lazy var nutritionButton =  UIButton().then {
-        $0.setTitle("+12", for: .normal)
+        $0.setTitle("+\(nutritionList.count)", for: .normal)
         $0.setTitleColor(UIColor.healeatGreen1, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         $0.backgroundColor = .healeatLightGreen
         $0.layer.cornerRadius = 12
         $0.layer.masksToBounds = true
-        $0.addTarget(self, action: #selector(goToFilteredSearch), for: .touchUpInside)
+        $0.addTarget(self, action: #selector(showNutritionKeywords), for: .touchUpInside)
     }
     
     private lazy var selectedKeywordCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then({
@@ -135,6 +136,7 @@ class SearchVC: UIViewController {
         keywordBackground.addSubview(nutritionButton)
         view.addSubview(selectedKeywordCollectionView)
         view.addSubview(tableview)
+        searchBar.searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
         
         setupConstraints()
     }
@@ -215,18 +217,37 @@ class SearchVC: UIViewController {
 
     
     
-    
     //MARK: Setup Actions
     @objc private func showKeywords() {
         let keywordVC = AllKeywordsVC()
         navigationController?.pushViewController(keywordVC, animated: true)
     }
     
-    @objc private func goToFilteredSearch() {
+    @objc private func showNutritionKeywords() {
+        let keywordVC = AllKeywordsVC()
+        keywordVC.isFoodType = false
+        navigationController?.pushViewController(keywordVC, animated: true)
+    }
+    
+    
+    private func goToFilteredSearch(searchResults: HomeResponse) {
         let filteredSearchVC = FilteredSearchVC()
+        filteredSearchVC.filteredStoresVC.filteredData = searchResults
+        filteredSearchVC.filteredStoresVC.storeData = searchResults.storeList
         filteredSearchVC.hidesBottomBarWhenPushed = true // 탭바 숨겨주기
         navigationController?.pushViewController(filteredSearchVC, animated: true)
     }
+    
+    @objc private func searchButtonClicked() {
+        let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
+        let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
+        let query = searchBar.searchBar.text ?? ""
+        search(query: query, foodTypeList: foodList, nutritionList: nutritionList)
+        print("\(foodList) and \(nutritionList)")
+        
+    }
+    
+    
     
     //MARK: API call
     private func getRecentSearches() {
@@ -260,19 +281,21 @@ class SearchVC: UIViewController {
         }
     }
     
-    private func search() {
-        let param = CSearchRequest(query: "본죽", x: "37.5665", y: "126.978", categoryIdList: [], featureIdList: [], minRating: 0, searchBy: "DISTANCE", sortBy: "DIET")
-        CSearchManager.search(page: 1, param: param) { isSuccess, response in
-            if isSuccess {
-                print("맞춤 검색 요청 성공")
-            } else {
-                if let data = response?.data,
-                   let errorMessage = String(data: data, encoding: .utf8) {
-                    print("맞춤 검색 서버 에러 메시지: \(errorMessage)")
-                }
+    private func search(query: String, foodTypeList: [Int], nutritionList: [Int]) {
+        let param = CSearchRequest(query: query, x: "37.5665", y: "126.978", categoryIdList: foodTypeList, featureIdList: nutritionList, minRating: 0, searchBy: "DISTANCE", sortBy: "DIET")
+        
+        CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
+            guard isSuccess, let searchResults = searchResults else {
+                Toaster.shared.makeToast("검색 요청 실패")
+                return
             }
+            
+            print("맞춤 검색 요청 성공")
+            self.goToFilteredSearch(searchResults: searchResults)
         }
     }
+
+
 
 
 }

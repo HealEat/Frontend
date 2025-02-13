@@ -101,6 +101,8 @@ class AllKeywordsVC: UIViewController {
         super.viewDidLoad()
         setupUI()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
+        foodTypeButton.isSelected = isFoodType
+        nutritionButton.isSelected = !isFoodType
     }
     
 

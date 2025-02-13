@@ -30,14 +30,14 @@ class CustomSearchBar: UIView, UITextFieldDelegate {
 
 
         
-    private lazy var image = UIImageView().then {
+    public lazy var searchButton = UIButton().then {
         let image = UIImage(named: "magnifyingGlass")?.withRenderingMode(.alwaysTemplate)
-        $0.image = image
+        $0.setImage(image, for: .normal)
         $0.tintColor = UIColor.healeatGray4
     }
-    private lazy var mike = UIImageView().then {
-        let image = UIImage(named: "microphone")?.withRenderingMode(.alwaysTemplate)
-        $0.image = image
+    private lazy var mikeButton = UIButton().then {
+        let image = UIImage(systemName: "microphone")?.withRenderingMode(.alwaysTemplate)
+        $0.setImage(image, for: .normal)
         $0.tintColor = UIColor.healeatGray4
     }
     
@@ -55,8 +55,8 @@ class CustomSearchBar: UIView, UITextFieldDelegate {
     private func setupUI() {
         self.addSubview(background)
         background.addSubview(searchBar)
-        background.addSubview(image)
-        background.addSubview(mike)
+        background.addSubview(searchButton)
+        background.addSubview(mikeButton)
         
         setupConstraints()
         self.searchBar.delegate = self
@@ -68,19 +68,19 @@ class CustomSearchBar: UIView, UITextFieldDelegate {
         }
         searchBar.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview()
-            make.leading.equalTo(image.snp.trailing).offset(-5)
-            make.trailing.equalTo(mike.snp.leading).offset(-5)
+            make.leading.equalToSuperview().offset(5)
+            make.trailing.equalTo(searchButton.snp.leading).offset(-5)
         }
-        image.snp.makeConstraints { make in
+        searchButton.snp.makeConstraints { make in
             make.width.height.equalTo(22)
             make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().offset(15)
+            make.trailing.equalTo(mikeButton.snp.leading).offset(-10)
         }
-        mike.snp.makeConstraints { make in
+        mikeButton.snp.makeConstraints { make in
             make.width.equalTo(20)
             make.height.equalTo(25)
             make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().offset(-15)
+            make.trailing.equalToSuperview().offset(-10)
         }
     }
     

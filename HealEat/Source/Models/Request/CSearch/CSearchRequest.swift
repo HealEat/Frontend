@@ -3,7 +3,7 @@
 import Foundation
 
 struct CSearchRequest: Codable {
-    let query: String?
+    let query: String
     let x: String
     let y: String
     let categoryIdList: [Int]

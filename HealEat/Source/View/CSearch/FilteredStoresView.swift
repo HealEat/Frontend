@@ -4,7 +4,6 @@ import UIKit
 import SnapKit
 
 class FilteredStoresView: UIView {
-    private var storeCollectionViewHeightConstraint: Constraint?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -14,15 +13,12 @@ class FilteredStoresView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        DispatchQueue.main.async {
-            self.storeCollectionView.reloadData() // 강제 리로드
-            self.storeCollectionView.layoutIfNeeded() // 강제 레이아웃 업데이트
-            
-            let height = self.storeCollectionView.contentSize.height
-
-            self.storeCollectionViewHeightConstraint?.update(offset: height)
-            self.layoutIfNeeded()
-        }
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        layoutIfNeeded()
+        let height = storeCollectionView.contentSize.height + 100 // 버튼, 라벨 포함
+        return CGSize(width: UIView.noIntrinsicMetric, height: height)
     }
     
     required init?(coder: NSCoder) {
@@ -59,7 +55,7 @@ class FilteredStoresView: UIView {
         $0.scrollDirection = .vertical
     }).then {
         $0.backgroundColor = .clear
-        $0.isScrollEnabled = true
+        $0.isScrollEnabled = false
         $0.register(StoreCollectionViewCell.self, forCellWithReuseIdentifier: StoreCollectionViewCell.identifier)
     }
     
@@ -90,22 +86,10 @@ class FilteredStoresView: UIView {
         }
         
         storeCollectionView.snp.makeConstraints {
-            $0.top.equalTo(setButtonStack.snp.bottom).offset(7)
+            $0.top.equalTo(filterButton.snp.bottom).offset(7)
             $0.leading.trailing.equalToSuperview()
-            //storeCollectionViewHeightConstraint = $0.height.equalTo(1).constraint // 초기 높이를 1로 설정
-            storeCollectionViewHeightConstraint = $0.height.equalTo(UIScreen.main.bounds.height / 2).constraint // ✅ 초기 높이를 넉넉하게 설정
-
-        }
-    }
-
-    
-    
-    public func updateCollectionViewHeight() {
-        DispatchQueue.main.async {
-            let collectionHeight = self.storeCollectionView.contentSize.height
-
-            self.storeCollectionViewHeightConstraint?.update(offset: collectionHeight)
-            self.layoutIfNeeded()
+            $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
+            $0.height.greaterThanOrEqualTo(200)
         }
     }
 

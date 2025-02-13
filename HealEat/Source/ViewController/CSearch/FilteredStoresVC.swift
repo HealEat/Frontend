@@ -5,49 +5,78 @@ import Then
 import SnapKit
 
 class FilteredStoresVC: UIViewController {
-    weak var delegate: StoreVCDelegate?
-    private var storeData: [StoreResponse] = []
+    public var filteredData: HomeResponse?
+    public var storeData: [StoreResponse] = []
     public let storeview = FilteredStoresView()
     private var isFetchingData = false
     var currentPage = 1
     var isLastPage = false
+    private var currentLatitude: Double = 37.550874837441
+    private var currentLongitude: Double = 126.925554591431
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-            self.view = storeview
-            setupCollectionView()
-                
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.reloadCollectionView()
-            }
-                fetchStoreData()
-            
+        self.view = storeview
+        storeview.isUserInteractionEnabled = true
+        setupCollectionView()
         storeview.filterButton.addTarget(self, action: #selector(goToFilterVC), for: .touchUpInside)
         
+        if storeData.isEmpty {
+            //storeview.showEmptyState() // ✅ 예시 함수 (필요하면 추가)
+            print("검색 결과 없음..")
+        } else {
+            DispatchQueue.main.async {
+                self.reloadCollectionView()
+            }
+        }
+
     }
     
-    
-    private func fetchStoreData() {
-        guard !isLastPage else { return }
-        isFetchingData = true // API 호출 시작
 
-        APIManager.HomeProvider.request(.getStores(lat: 37.5665, lon: 126.978, radius: 1000, page: currentPage)) { result in
-            self.isFetchingData = false // API 응답 후 다시 API 요청 가능하게 변경
+    
+    func updateLocation(lat: Double, lon: Double) {
+        self.currentLatitude = lat
+        self.currentLongitude = lon
+        fetchStoreData(reset: true)
+    }
+    
+    private func fetchStoreData(reset: Bool = false) {
+        guard !isLastPage else { return }
+        
+        if reset {
+            storeData.removeAll()
+            currentPage = 1
+            isLastPage = false
+        }
+
+        isFetchingData = true // API 호출 시작
+        
+        // 현재 위치를 사용하여 API 요청을 보냄 -> MARK: search로 수정 필요
+        APIManager.HomeProvider.request(.getStores(lon: currentLongitude, lat: currentLatitude, radius: 1000, page: currentPage)) { result in
+            self.isFetchingData = false
 
             switch result {
             case .success(let response):
                 do {
                     let decodedData = try JSONDecoder().decode(DefaultResponse<HomeResponse>.self, from: response.data)
-                
+                    
+                    let memberName = decodedData.result?.searchInfo?.memberName ?? "힐릿"
+                        DispatchQueue.main.async {
+                            //self.storeview.setUserRecommendLabel(name: memberName)
+                    }
                     
                     if let storeList = decodedData.result?.storeList {
-                        self.storeData.append(contentsOf: storeList) // 기존 데이터에 추가
+                        if reset {
+                            self.storeData = storeList
+                        } else {
+                            self.storeData.append(contentsOf: storeList)
+                        }
                         self.currentPage += 1
                         self.isLastPage = decodedData.result?.isLast ?? false
-                        
+
                         DispatchQueue.main.async {
-                            
-                            self.reloadCollectionView()
+                            self.storeview.storeCollectionView.reloadData()
                         }
                     }
                 } catch {
@@ -61,7 +90,6 @@ class FilteredStoresVC: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        reloadCollectionView()
     }
 
     private func setupCollectionView() {
@@ -69,13 +97,16 @@ class FilteredStoresVC: UIViewController {
         storeview.storeCollectionView.delegate = self
         storeview.storeCollectionView.bounces = false
         storeview.storeCollectionView.contentInsetAdjustmentBehavior = .never
-        storeview.storeCollectionView.reloadData()
+        storeview.storeCollectionView.isScrollEnabled = true
+        storeview.storeCollectionView.canCancelContentTouches = false
+        storeview.storeCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 55, right: 0)
     }
-
+    
     public func reloadCollectionView() {
         DispatchQueue.main.async {
             self.storeview.storeCollectionView.reloadData()
-            self.storeview.updateCollectionViewHeight()
+            self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
+            self.storeview.storeCollectionView.layoutIfNeeded()
         }
     }
     
