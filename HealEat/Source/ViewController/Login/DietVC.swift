@@ -120,14 +120,28 @@ class DietVC: UIViewController {
             return
         }
 
+        // ✅ 선택한 다이어트 목적 저장
+        UserDefaults.standard.set(selectedOption, forKey: "dietPurpose")
+
         print("선택된 다이어트 목적: \(selectedOption)")
 
-        // 다음 화면으로 이동
-        let needDietVC = NeedDietVC()
-        needDietVC.delegate = delegate // 델리게이트 전달
-        needDietVC.modalPresentationStyle = .fullScreen
-        present(needDietVC, animated: true, completion: nil)
+        let hasDiseaseManagement = UserDefaults.standard.bool(forKey: "hasDiseaseManagement")
+
+        if selectedOption == "체중 감량" && !hasDiseaseManagement {
+            // ✅ 체중 감량 선택 & 질병 관리가 선택되지 않았다면 NeedDiet을 스킵
+            let needNutrientVC = NeedNutrientVC()
+            needNutrientVC.delegate = delegate
+            needNutrientVC.modalPresentationStyle = .fullScreen
+            present(needNutrientVC, animated: true, completion: nil)
+        } else {
+            // ✅ 기존 방식대로 NeedDietVC로 이동
+            let needDietVC = NeedDietVC()
+            needDietVC.delegate = delegate
+            needDietVC.modalPresentationStyle = .fullScreen
+            present(needDietVC, animated: true, completion: nil)
+        }
     }
+
 
     @objc private func optionButtonTapped(_ sender: UIButton) {
         // 모든 버튼 상태 초기화

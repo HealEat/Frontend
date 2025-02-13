@@ -13,6 +13,7 @@ class ProfileVC: UIViewController, UIImagePickerControllerDelegate, UINavigation
     override func viewDidLoad() {
         super.viewDidLoad()
         setupActions()
+        setupTextFieldObserver() // ✅ 닉네임 입력 감지 추가
     }
 
     // MARK: - Setup Actions
@@ -26,9 +27,33 @@ class ProfileVC: UIViewController, UIImagePickerControllerDelegate, UINavigation
         profileView.addButton.addGestureRecognizer(addButtonTapGesture)
     }
 
+    // ✅ 닉네임 입력 감지하여 nextButton 활성화
+    private func setupTextFieldObserver() {
+        profileView.nicknameTextField.addTarget(self, action: #selector(nicknameTextFieldChanged), for: .editingChanged)
+    }
+
+    @objc private func nicknameTextFieldChanged() {
+        let isNicknameEntered = !(profileView.nicknameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+        profileView.nextButton.isEnabled = isNicknameEntered
+        profileView.nextButton.alpha = isNicknameEntered ? 1.0 : 0.5
+    }
+
     // MARK: - Action Handlers
     @objc private func nextButtonTapped() {
-        print("다음 버튼 눌림")
+        guard let nickname = profileView.nicknameTextField.text, !nickname.isEmpty else {
+            DispatchQueue.main.async {
+                self.profileView.errorLabel.text = "닉네임을 입력해주세요."
+                self.profileView.errorLabel.isHidden = false
+                self.profileView.nicknameTextField.layer.borderColor = UIColor.red.cgColor // ✅ 테두리 빨간색 변경
+            }
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.profileView.errorLabel.isHidden = true
+            self.profileView.nicknameTextField.layer.borderColor = UIColor.lightGray.cgColor // ✅ 정상 상태로 변경
+        }
+
         let purposeVC = PurposeVC()
         purposeVC.modalPresentationStyle = .fullScreen
         purposeVC.modalTransitionStyle = .crossDissolve
@@ -52,6 +77,9 @@ class ProfileVC: UIViewController, UIImagePickerControllerDelegate, UINavigation
         if let selectedImage = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
             let resizedImage = cropToCircle(image: selectedImage, size: profileView.profileImageView.bounds.size)
             profileView.profileImageView.image = resizedImage
+
+            // ✅ 이미지 선택하면 addButton 숨기기
+            profileView.addButton.isHidden = true
         }
         dismiss(animated: true, completion: nil)
     }

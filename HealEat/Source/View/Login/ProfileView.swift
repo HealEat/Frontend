@@ -13,17 +13,17 @@ class ProfileView: UIView {
     }
 
     let profileImageView = UIImageView().then {
-        $0.image = UIImage(named: "ProfileImage") // 기본 이미지
+        $0.image = UIImage(named: "ProfileImage")
         $0.contentMode = .scaleAspectFill
-        $0.clipsToBounds = true // 이미지가 원형 안에 들어오도록 설정
-        $0.isUserInteractionEnabled = true // 사용자 인터랙션 활성화
+        $0.clipsToBounds = true
+        $0.isUserInteractionEnabled = true
         $0.backgroundColor = .lightGray
     }
 
     let addButton = UIImageView().then {
-        $0.image = UIImage(named: "PlusCircle") // Assets에 추가된 PlusCircle 이미지
+        $0.image = UIImage(named: "PlusCircle")
         $0.contentMode = .scaleAspectFit
-        $0.isUserInteractionEnabled = true // 사용자 인터랙션 활성화
+        $0.isUserInteractionEnabled = true
     }
 
     let nicknameTextField = UITextField().then {
@@ -36,6 +36,15 @@ class ProfileView: UIView {
         $0.layer.borderColor = UIColor.lightGray.cgColor
         $0.clipsToBounds = true
         $0.clearButtonMode = .whileEditing
+        $0.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged) // ✅ 추가
+    }
+
+    let errorLabel = UILabel().then {
+        $0.text = ""
+        $0.font = UIFont.systemFont(ofSize: 14)
+        $0.textAlignment = .center
+        $0.textColor = .red
+        $0.isHidden = true
     }
 
     let stackView = UIStackView().then {
@@ -46,16 +55,18 @@ class ProfileView: UIView {
     }
 
     let nextButton = UIButton().then {
-        $0.setTitle("다음", for: .normal)
-        $0.backgroundColor = UIColor(hex: "#009459")
-        $0.setTitleColor(.white, for: .normal)
-        $0.layer.cornerRadius = 10
+        $0.setTitle("저장", for: .normal)
+        $0.backgroundColor = UIColor(hex: "#E8F5E9")
+        $0.setTitleColor(UIColor(hex: "#009459"), for: .normal)
+        $0.layer.cornerRadius = 8
+        $0.isEnabled = false
+        $0.alpha = 0.5
     }
 
     // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .white //배경흰색
+        backgroundColor = .white
         setupLayout()
     }
 
@@ -67,11 +78,12 @@ class ProfileView: UIView {
     private func setupLayout() {
         addSubview(stackView)
         addSubview(nextButton)
-        addSubview(addButton) // addButton을 view에 직접 추가
+        addSubview(addButton)
 
         stackView.addArrangedSubview(titleLabel)
         stackView.addArrangedSubview(profileImageView)
         stackView.addArrangedSubview(nicknameTextField)
+        stackView.addArrangedSubview(errorLabel)
 
         stackView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -83,26 +95,42 @@ class ProfileView: UIView {
             make.centerX.equalToSuperview()
             make.width.height.equalTo(100)
         }
-        profileImageView.layer.cornerRadius = 50 // 원형으로 설정
+        profileImageView.layer.cornerRadius = 50
 
         addButton.snp.makeConstraints { make in
-            make.width.height.equalTo(30) // PlusButton 크기
-            make.trailing.equalTo(profileImageView.snp.trailing).offset(5) // 오른쪽 바깥
-            make.top.equalTo(profileImageView.snp.top).offset(-5) // 위쪽 바깥
-        }
-
-        nextButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(20)
-            make.bottom.equalToSuperview().inset(20)
-            make.width.equalTo(80)
-            make.height.equalTo(40)
+            make.width.height.equalTo(30)
+            make.trailing.equalTo(profileImageView.snp.trailing).offset(5)
+            make.top.equalTo(profileImageView.snp.top).offset(-5)
         }
 
         nicknameTextField.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalTo(profileImageView.snp.bottom).offset(40)
             make.width.equalToSuperview().multipliedBy(0.8)
             make.height.equalTo(40)
         }
+
+        errorLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.width.equalToSuperview().multipliedBy(0.8)
+        }
+
+        nextButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().inset(40)
+            make.width.equalTo(93)
+            make.height.equalTo(50)
+        }
+    }
+
+    // MARK: - TextField 변경 감지
+    @objc private func textFieldDidChange() {
+        updateNextButtonState()
+    }
+
+    // ✅ 닉네임 입력 여부에 따라 nextButton 상태 업데이트
+    func updateNextButtonState() {
+        let isNicknameEntered = !(nicknameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+        nextButton.isEnabled = isNicknameEntered
+        nextButton.alpha = isNicknameEntered ? 1.0 : 0.5
     }
 }

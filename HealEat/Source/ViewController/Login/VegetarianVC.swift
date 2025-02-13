@@ -145,14 +145,29 @@ class VegetarianVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        guard selectedOption != nil else {
+        guard let selectedOption = selectedOption else {
             print("옵션을 선택하세요")
             return
         }
-        
-        dismiss(animated: true) {
-            self.delegate?.didCompletePurpose()  // ✅ PurposeVC에서 올바른 순서로 다음 목적 실행
+
+        // ✅ 선택한 베지테리언 타입 저장
+        UserDefaults.standard.set(selectedOption, forKey: "vegetarianType")
+
+        print("선택된 베지테리언 타입: \(selectedOption)")
+
+        if selectedOption == "플렉시테리언" {
+            // ✅ 플렉시테리언이면 NEED 질문 진행
+            let needDietVC = NeedDietVC()
+            needDietVC.delegate = delegate
+            needDietVC.modalPresentationStyle = .fullScreen
+            present(needDietVC, animated: true, completion: nil)
+        } else {
+            // ✅ 플렉시테리언 제외 베지테리언이면 바로 FinalStep 이동
+            let finalStepVC = FinalStepVC()
+            finalStepVC.modalPresentationStyle = .fullScreen
+            present(finalStepVC, animated: true, completion: nil)
         }
     }
+
     
 }
