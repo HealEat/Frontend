@@ -24,7 +24,7 @@ extension HomeAPI: TargetType {
     var path: String {
         switch self {
         case .getStores:
-            return "/home"
+            return "/home/old"
         }
     }
 

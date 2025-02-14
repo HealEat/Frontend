@@ -59,6 +59,7 @@ class MarketVC: UIViewController {
         
         self.view = marketView
         self.navigationController?.navigationBar.isHidden = true
+        self.navigationController?.tabBarController?.tabBar.isHidden = true
         
         initializeGestures()
         initializeHandlers()
@@ -138,6 +139,7 @@ class MarketVC: UIViewController {
             ("다이어트", storeDetailResponseModel.isInDBDto.dietScore, storeDetailResponseModel.isInDBDto.dietCount),
         ]
         marketHomeTableViewHandler.storeDetailResponseModel = storeDetailResponseModel
+        marketReviewTableViewHandler.storeDetailResponseModel = storeDetailResponseModel
         
         marketView.featureCollectionView.reloadData()
         marketView.detailRatingCollectionView.reloadData()
@@ -155,7 +157,6 @@ class MarketVC: UIViewController {
     
     private func setReviewsToHandler() {
         marketReviewTableViewHandler.reviewModels = reviewModels
-        marketReviewTableViewHandler.storeDetailResponseModel = storeDetailResponseModel
         
         marketReviewVC.marketReviewView.reviewTableView.reloadData()
     }
@@ -165,7 +166,7 @@ class MarketVC: UIViewController {
         marketView.titleLabel.text = storeDetailResponseModel.storeInfoDto.placeName
         marketView.subtitleLabel.text = storeDetailResponseModel.storeInfoDto.categoryName
         marketView.ratingStarView.star = storeDetailResponseModel.isInDBDto.totalScore
-        marketView.ratingLabel.text = "\(storeDetailResponseModel.isInDBDto.totalScore) (\(storeDetailResponseModel.isInDBDto.reviewCount))"
+        marketView.ratingLabel.text = "\(storeDetailResponseModel.isInDBDto.reviewCount == 0 ? "리뷰 없음" : "\(storeDetailResponseModel.isInDBDto.totalScore)") (\(storeDetailResponseModel.isInDBDto.reviewCount))"
         marketView.openLabel.text = "영업 중"
         marketView.openHourLabel.text = "9:30 - 20:30"
     }
@@ -197,7 +198,7 @@ class MarketVC: UIViewController {
     }()
     
     @objc private func onClickNavBack() {
-        
+        navigationController?.popViewController(animated: true)
     }
     
     @objc private func onClickNaver() {

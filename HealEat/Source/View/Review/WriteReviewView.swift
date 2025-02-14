@@ -17,7 +17,7 @@ class WriteReviewView: UIView {
     
     lazy var navigationView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
         return view
     }()
     
@@ -28,8 +28,8 @@ class WriteReviewView: UIView {
     
     lazy var navigationBackButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "chevron.down"), for: .normal)
-        button.tintColor = .label
+        button.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+        button.tintColor = .healeatBlack
         return button
     }()
     
@@ -154,6 +154,7 @@ class WriteReviewView: UIView {
         button.layer.cornerRadius = 14
         button.setTitle("저장", for: .normal)
         button.setTitleColor(.healeatGreen1, for: .normal)
+        button.isHidden = true
         return button
     }()
     

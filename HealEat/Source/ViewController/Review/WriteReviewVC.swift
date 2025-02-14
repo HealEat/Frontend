@@ -38,6 +38,7 @@ class WriteReviewVC: UIViewController {
         view.addImageButton.addTarget(self, action: #selector(onClickAddImage), for: .touchUpInside)
         view.imageCollectionView.delegate = reviewImageCollectionViewHandler
         view.imageCollectionView.dataSource = reviewImageCollectionViewHandler
+        view.reviewTextView.delegate = self
         return view
     }()
     
@@ -72,5 +73,11 @@ extension WriteReviewVC: PHPickerViewControllerDelegate {
                 }
             }
         }
+    }
+}
+
+extension WriteReviewVC: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        writeReviewView.submitButton.isHidden = textView.text == ""
     }
 }
