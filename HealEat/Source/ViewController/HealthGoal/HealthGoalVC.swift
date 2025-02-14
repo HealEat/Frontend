@@ -50,6 +50,13 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         
         navigationController?.navigationBar.isHidden = true
         fetchUserProfile()
+        
+        if let image1 = UIImage(named: "example1"),
+           let image2 = UIImage(named: "example2" ) {
+            uploadImages(planId: 1, images: [image1, image2])
+        }
+        
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -166,6 +173,18 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
                    let errorMessage = String(data: data, encoding: .utf8) {
                     print("건강목표 저장 서버 에러 메시지: \(errorMessage)")
                 }
+            }
+        }
+    }
+    
+    private func uploadImages(planId: Int, images: [UIImage]) {
+        HealthGoalManager.uploadImage(planId: planId, images: images) { isSuccess, response in
+            if isSuccess {
+                print("이미지 업로드 성공")
+                self.fetchHealthGoalData()
+            } else {
+                print("🎨 이미지 업로드 서버 에러: \(response ?? "response 없음")")
+            
             }
         }
     }

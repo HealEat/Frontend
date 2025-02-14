@@ -7,8 +7,6 @@ import Moya
 
 class MapsVC: UIViewController, MapControllerDelegate {
     
-    var onLocationUpdate: ((Double, Double) -> Void)? // (latitude, longitude)
-    var locationManager : CLLocationManager!
     var la : Double!
     var lo : Double!
     var currentPositionMarker: Poi? // 현재 위치 마커
@@ -23,10 +21,10 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     public lazy var searchBar = CustomSearchBar().then {
         let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.black.withAlphaComponent(0.5),
-            .font: UIFont.systemFont(ofSize: 12, weight: .regular)
+            .foregroundColor: UIColor.healeatGray5,
+            .font: UIFont.systemFont(ofSize: 16, weight: .regular)
         ]
-        $0.searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: "음식, 매장, 주소 검색", attributes: attributes)
+        $0.searchBar.attributedPlaceholder = NSAttributedString(string: "검색", attributes: attributes)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -55,8 +53,9 @@ class MapsVC: UIViewController, MapControllerDelegate {
         
         super.viewDidLoad()
         setupMapView()
-        setupSearchBar()
-        
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        setupUI()
+        setupLocationManager()
     }
     
     private func setupMapView() {
@@ -77,20 +76,10 @@ class MapsVC: UIViewController, MapControllerDelegate {
             }
             
             mapController?.delegate = self
-            setupLocationManager()
+            
             // 지도 추가
             addViews()
-    }
-    
-    private func setupSearchBar() {
-            // 검색창 추가
-            view.addSubview(searchBar)
             
-            // 오토레이아웃 설정
-            searchBar.snp.makeConstraints { make in
-                make.horizontalEdges.equalToSuperview().inset(10) // 좌우 여백 10
-                make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -174,7 +163,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         }
         
         //여기에서 그릴 View(KakaoMap, Roadview)들을 추가한다.
-        let defaultPosition: MapPoint = MapPoint(longitude: 127.10980993945, latitude: 37.34698042338)
+        let defaultPosition: MapPoint = MapPoint(longitude: 126.925554591431, latitude: 37.550874837441)
         //지도(KakaoMap)를 그리기 위한 viewInfo를 생성
         let mapviewInfo: MapviewInfo = MapviewInfo(viewName: "mapview", viewInfoName: "map", defaultPosition: defaultPosition, defaultLevel: 16)
         
@@ -182,6 +171,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         mapController.addView(mapviewInfo)
         
         createCurrentLocationMarker()
+        
         
     }
     
@@ -222,21 +212,39 @@ class MapsVC: UIViewController, MapControllerDelegate {
     }
     
     func setupLocationManager() {
-        locationManager = CLLocationManager()
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-        locationManager.startUpdatingHeading()
+        LocationManager.shared.requestAuthorization()
+        LocationManager.shared.startUpdatingLocation()
+        LocationManager.shared.startUpdatingHeading()
+
+        // ✅ 권한 변경 감지
+        LocationManager.shared.onAuthorizationChange = { [weak self] status in
+
+            self?.handleAuthorizationChange(status)
+        }
+
+        // ✅ 위치 오류 처리
+        LocationManager.shared.onLocationError = { [weak self] error in
+            self?.showLocationError(error)
+        }
+
+
+        // ✅ 방향 업데이트 처리
+        LocationManager.shared.onHeadingUpdate = { [weak self] heading in
+            self?.updateHeading(heading)
+        }
+        
         
     }
     
+    
     func startTracking() {
         isTracking = true
-        locationManager.startUpdatingLocation()
+        LocationManager.shared.startUpdatingLocation()
     }
     
     private func moveCameraToCurrentLocation(_ coordinate: CLLocationCoordinate2D) {
         let currentPosition = MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude)
+        
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
             mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 16, mapView: mapView))
         }
@@ -267,10 +275,11 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     private func setupConstraints() {
         searchBar.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(10)
+            make.horizontalEdges.equalToSuperview().inset(15)
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
     }
+    
     
    
     
@@ -305,72 +314,61 @@ class MapsVC: UIViewController, MapControllerDelegate {
     }
     
     
-}
-
-extension MapsVC:CLLocationManagerDelegate {
     
     
-    
-    func getLocationUsagePermission() {
-        self.locationManager.requestWhenInUseAuthorization()
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        switch status {
-        case .authorizedAlways, .authorizedWhenInUse:
-            print("GPS 권한 설정됨")
-        case .restricted, .notDetermined:
-            print("GPS 권한 설정되지 않음")
-            getLocationUsagePermission()
-        case .denied:
-            print("GPS 권한 요청 거부됨")
-            getLocationUsagePermission()
-        default:
-            print("GPS: Default")
-        }
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let currentLocation = locations.last else {
-                print("현재 위치를 가져올 수 없습니다.")
-                return
-        }
-            
-        print("현재 위치: \(currentLocation.coordinate.latitude), \(currentLocation.coordinate.longitude)")
-            
+    public func updateMapPosition(lat: Double, lon: Double) {
         // 지도 중심 이동
-        let currentPosition = MapPoint(longitude: currentLocation.coordinate.longitude, latitude: currentLocation.coordinate.latitude)
+        
+        let currentPosition = MapPoint(longitude: lon, latitude: lat)
+        
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
             mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 16, mapView: mapView))
         }
-        
-        moveCameraToCurrentLocation(currentLocation.coordinate)
         startTracking()
-        onLocationUpdate?(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude)
     }
-    
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("위치 정보를 가져오는데 실패했습니다: \(error.localizedDescription)")
-            
-        // 사용자에게 오류 메시지를 표시
-        showToast(self.view, message: "위치 정보를 가져오는데 실패했습니다.")
-        // CLError 타입으로 다운캐스팅하여 구체적인 에러 처리
-        if let clError = error as? CLError {
-            switch clError.code {
-            case .denied:
-                print("위치 서비스가 비활성화되었습니다. 설정에서 활성화해주세요.")
-            case .network:
-                print("네트워크 오류가 발생했습니다.")
-            default:
-                print("알 수 없는 오류가 발생했습니다.")
-            }
+
+    private func handleAuthorizationChange(_ status: CLAuthorizationStatus) {
+        switch status {
+        case .authorizedAlways, .authorizedWhenInUse:
+            print("GPS 권한 승인됨")
+        case .restricted, .notDetermined:
+            print("GPS 권한 설정되지 않음")
+            LocationManager.shared.requestAuthorization()
+        case .denied:
+            print("GPS 권한 요청 거부됨")
+        default:
+            break
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        currentHeading = newHeading.trueHeading * Double.pi / 180.0
-        currentDirectionArrow?.rotateAt(currentHeading, duration: 100)
+    private func showLocationError(_ error: Error) {
+        print("🚨 위치 오류 발생: \(error.localizedDescription)")
+        showToast(self.view, message: "위치 정보를 가져오는데 실패했습니다.")
+
+        // ✅ CLError 타입으로 다운캐스팅하여 상세 오류 처리
+        if let clError = error as? CLError {
+            switch clError.code {
+            case .denied:
+                print("❌ 위치 서비스가 비활성화되었습니다. 설정에서 활성화해주세요.")
+                showToast(self.view, message: "위치 서비스가 꺼져 있습니다. 설정에서 활성화해주세요.")
+
+            case .network:
+                print("🌐 네트워크 오류 발생")
+                showToast(self.view, message: "네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.")
+
+            case .locationUnknown:
+                print("📍 위치 정보를 찾을 수 없습니다.")
+                showToast(self.view, message: "위치 정보를 찾을 수 없습니다. 잠시 후 다시 시도해주세요.")
+
+            default:
+                print("⚠️ 알 수 없는 오류 발생")
+                showToast(self.view, message: "알 수 없는 오류가 발생했습니다.")
+            }
+        }
     }
-    
-    
+
+    private func updateHeading(_ heading: Double) {
+        print("🧭 방향 업데이트: \(heading)")
+        currentDirectionArrow?.rotateAt(heading, duration: 100)
+    }
 }

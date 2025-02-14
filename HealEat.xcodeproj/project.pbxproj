@@ -61,7 +61,6 @@
 				13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */,
 				968AF0382D4BD1E900F0221B /* Kingfisher in Frameworks */,
 				7CA784752D4108B700041779 /* SDWebImage in Frameworks */,
-				96DB35F42D2E4C40001FE074 /* SnapKit in Frameworks */,
 				968AF03B2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout in Frameworks */,
 				7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */,
 				96DB35EE2D2E4C2A001FE074 /* RxMoya in Frameworks */,
@@ -227,23 +226,29 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CACTN7F6PL;
+				DEVELOPMENT_TEAM = Y4WKL32C5C;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealEat/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "사용자의 위치를 기반으로 정보를 제공하기 위해 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "사용자의 위치를 기반으로 정보를 제공하기 위해 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "앱을 사용하는 동안 위치 정보 허용";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.umc.HealEat;
+				PRODUCT_BUNDLE_IDENTIFIER = com.taerim.HealEat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -255,23 +260,29 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CACTN7F6PL;
+				DEVELOPMENT_TEAM = Y4WKL32C5C;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealEat/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "사용자의 위치를 기반으로 정보를 제공하기 위해 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "사용자의 위치를 기반으로 정보를 제공하기 위해 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "앱을 사용하는 동안 위치 정보 허용";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.umc.HealEat;
+				PRODUCT_BUNDLE_IDENTIFIER = com.taerim.HealEat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -407,7 +418,7 @@
 				96DB35902D2E4B85001FE074 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		96DB358C2D2E4B85001FE074 /* Build configuration list for PBXNativeTarget "HealEat" */ = {
 			isa = XCConfigurationList;
@@ -416,7 +427,7 @@
 				96DB358E2D2E4B85001FE074 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 
