@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct SaveStoreRequest: Codable {
+struct StoreSaveRequest: Codable {
     let placeId: String
     let placeName: String
     let categoryName: String

@@ -5,21 +5,11 @@ import UIKit
 import Kingfisher
 import CHTCollectionViewWaterfallLayout
 
-struct ImageModel {
-    let url: URL
-    var size: CGSize?
-}
-
 class ImageCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout {
     
-    private var imageModels: [ImageModel]
+    var imageModels: [ImageModel] = []
     
-    var presentImageViewer: ((ImageModel) -> Void)?
-    
-    init(urls: [URL]) {
-        self.imageModels = urls.map({ ImageModel(url: $0) })
-        super.init()
-    }
+    var presentImageViewer: (([ImageModel], Int) -> Void)?
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return imageModels.count
@@ -29,14 +19,8 @@ class ImageCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollecti
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: PreviewCollectionViewCell.self), for: indexPath) as? PreviewCollectionViewCell else {
             return UICollectionViewCell()
         }
-        cell.previewImageView.kf.setImage(with: imageModels[indexPath.row].url) { [weak self] result in
-            switch result {
-            case .success(let value):
-                self?.imageModels[indexPath.row].size = value.image.size
-            case .failure(let error):
-                print(error)
-            }
-        }
+        cell.previewImageView.kf.setImage(with: imageModels[indexPath.row].imageUrl)
+        cell.previewImageView.layer.cornerRadius = 12
         return cell
     }
     
@@ -49,7 +33,6 @@ class ImageCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(indexPath.row)
-        self.presentImageViewer?(imageModels[indexPath.row])
+        self.presentImageViewer?(imageModels, indexPath.row)
     }
 }

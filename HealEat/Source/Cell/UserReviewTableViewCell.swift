@@ -32,21 +32,21 @@ class UserReviewTableViewCell: UITableViewCell {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 15
+        imageView.layer.cornerRadius = 18
         return imageView
     }()
     
     lazy var profileNameLabel: UILabel = {
         let label = UILabel()
         label.textColor = .healeatBlack
-        label.font = UIFont.systemFont(ofSize: 12)
+        label.font = UIFont.systemFont(ofSize: 15)
         return label
     }()
     
     lazy var profilePurposeLabel: UILabel = {
         let label = UILabel()
         label.textColor = .healeatBlack
-        label.font = UIFont.systemFont(ofSize: 10, weight: .light)
+        label.font = UIFont.systemFont(ofSize: 13, weight: .light)
         return label
     }()
     
@@ -57,13 +57,14 @@ class UserReviewTableViewCell: UITableViewCell {
     
     lazy var reviewStarsView: StarsView = {
         let starsView = StarsView(accentColor: .healeatGreen2, baseColor: .healeatGray4)
+        starsView.isUserInteractionEnabled = false
         return starsView
     }()
     
     lazy var reviewDateLabel: UILabel = {
         let label = UILabel()
         label.textColor = .healeatGray5
-        label.font = UIFont.systemFont(ofSize: 9, weight: .light)
+        label.font = UIFont.systemFont(ofSize: 12, weight: .light)
         return label
     }()
     
@@ -71,7 +72,7 @@ class UserReviewTableViewCell: UITableViewCell {
         let label = UILabel()
         label.numberOfLines = 0
         label.textColor = .healeatBlack
-        label.font = UIFont.systemFont(ofSize: 11, weight: .light)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .light)
         return label
     }()
     
@@ -100,7 +101,7 @@ class UserReviewTableViewCell: UITableViewCell {
         imageView.kf.setImage(with: url)
         
         imageView.snp.makeConstraints({ make in
-            make.width.height.equalTo(50)
+            make.width.height.equalTo(108)
         })
         
         photoStackView.addArrangedSubview(imageView)
@@ -131,7 +132,7 @@ class UserReviewTableViewCell: UITableViewCell {
         })
         profileImageView.snp.makeConstraints({ make in
             make.leading.top.bottom.equalToSuperview()
-            make.width.height.equalTo(30)
+            make.width.height.equalTo(36)
         })
         profileNameLabel.snp.makeConstraints({ make in
             make.leading.equalTo(profileImageView.snp.trailing).offset(5)

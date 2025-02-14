@@ -11,14 +11,12 @@ class ReviewBar: UIView {
     private let baseColor: UIColor = .healeatLightGreen3
     private let accentColor: UIColor = .healeatGreen2
     private let borderColor: UIColor = .healeatGreen1
+    private var expressionColor: UIColor = .healeatGreen1
     
     private var expression: String {
         get {
             switch field {
             case .taste:
-                if process < 0.5 {
-                    return "맛없어요"
-                }
                 return "맛있어요"
             case .clean:
                 return "깨끗해요"
@@ -37,7 +35,7 @@ class ReviewBar: UIView {
         
         super.init(frame: .zero)
         
-        self.layer.cornerRadius = 12
+        self.layer.cornerRadius = 16
         self.layer.borderWidth = 1
         self.layer.borderColor = borderColor.cgColor
         self.layer.masksToBounds = true
@@ -89,9 +87,9 @@ class ReviewBar: UIView {
         let expressionStyle = NSMutableParagraphStyle()
         expressionStyle.alignment = .right
         let whiteAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 6, weight: .semibold),
+            .font: UIFont.systemFont(ofSize: 10, weight: .semibold),
             .paragraphStyle: expressionStyle,
-            .foregroundColor: borderColor
+            .foregroundColor: expressionColor.withAlphaComponent(process)
         ]
         let expressionSize = expression.size(withAttributes: whiteAttributes)
         

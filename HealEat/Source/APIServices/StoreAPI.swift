@@ -3,12 +3,15 @@
 import Foundation
 import Moya
 
+/// Store-Controller API
 enum StoreAPI {
-    case getStoreDetail(storeId: Int)
-    case saveStore(param: SaveStoreRequest)
-//    case getReview(storeId: Int)
-//    case postBookmark(storeId: Int)
-//    case deleteBookmark(storeId: Int)
+    case getReviews(param: ReviewsRequest)
+    case postReview(placeId: Int)
+    case postBookmark(placeId: Int)
+    case getStoreDetail(placeId: Int)
+    case getReviewImgs(placeId: Int, page: Int)
+    case getDaumImgs(placeId: Int)
+    case deleteBookmark(placeId: Int, bookmarkId: Int)
 }
 
 extension StoreAPI: TargetType {
@@ -18,36 +21,53 @@ extension StoreAPI: TargetType {
         }
         return url
     }
-
+    
     var path: String {
         switch self {
-        case .getStoreDetail(let storeId):
-            return "/stores/\(storeId)"
-        case .saveStore(let param):
-            return "/stores/\(param.placeId)"
-//        case .postBookmark(let storeId):
-//            return "/stores/\(storeId)/bookmarks"
-        }
-    }
-
-    var method: Moya.Method {
-        switch self {
-        case .getStoreDetail:
-            return .get
-        case .saveStore:
-            return . post
-        }
-    }
-
-    var task: Moya.Task {
-        switch self {
-        case .getStoreDetail:
-            return .requestPlain
-        case .saveStore(let param):
-            return .requestJSONEncodable(param)
+        case .getReviews(let param):
+            return "/stores/\(param.placeId)/reviews"
+        case .postReview(placeId: let placeId):
+            return "/stores/\(placeId)/reviews"
+        case .postBookmark(placeId: let placeId):
+            return "/stores/\(placeId)/bookmarks"
+        case .getStoreDetail(let placeId):
+            return "/stores/\(placeId)"
+        case .getReviewImgs(let placeId, let page):
+            return "/stores/\(placeId)/reviewImgs"
+        case .getDaumImgs(let placeId):
+            return "/stores/\(placeId)/daumImgs"
+        case .deleteBookmark(let placeId, let bookmarkId):
+            return "/stores/\(placeId)/bookmarks/\(bookmarkId)"
         }
     }
     
+    var method: Moya.Method {
+        switch self {
+        case .getStoreDetail, .getReviewImgs, .getDaumImgs, .getReviews:
+            return .get
+        case .postReview, .postBookmark:
+            return .post
+        case .deleteBookmark:
+            return .delete
+        }
+    }
+    
+    var task: Moya.Task {
+        switch self {
+        case .getStoreDetail, .getDaumImgs, .postBookmark, .deleteBookmark:
+            return .requestPlain
+        case .getReviewImgs(let placeId, let page):
+            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
+        case .getReviews(let param):
+            return .requestParameters(parameters: [
+                "page": param.page,
+                "sortBy": param.sortBy.rawValue,
+                "filters": param.filters.map({ $0.rawValue }),
+            ], encoding: URLEncoding.queryString)
+        case .postReview:
+            return .requestPlain
+        }
+    }
     
     var headers: [String : String]? {
         return ["Content-Type": "application/json"]
