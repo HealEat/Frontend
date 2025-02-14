@@ -55,6 +55,7 @@ class HomeVC: UIViewController {
         
         LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
             self?.storeVC.updateLocation(lat: lat, lon: lon)
+            self?.mapsVC?.updateMapPosition(lat: lat, lon: lon)
         }
     }
         

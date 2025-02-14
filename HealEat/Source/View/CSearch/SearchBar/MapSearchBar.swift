@@ -5,11 +5,11 @@ import UIKit
 import SnapKit
 import Then
 
-class MapSearchBar: UIView {
+class MapSearchBar: UIView, UITextFieldDelegate {
     
     // MARK: - Properties
     
-    var onTextDidChange: ((String) -> Void)? // 텍스트 변경 시 호출될 클로저
+    var returnKeyPressed: ((String?) -> Void)? // 텍스트 변경 시 호출될 클로저
     
     private lazy var background = UIView().then {
         $0.backgroundColor = .white
@@ -55,6 +55,9 @@ class MapSearchBar: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.setupUI()
+        
+        searchBar.delegate = self
+        searchBar.returnKeyType = .search
     }
     
     required init?(coder: NSCoder) {
@@ -69,7 +72,6 @@ class MapSearchBar: UIView {
         background.addSubview(dismissButton)
         background.addSubview(image)
         background.addSubview(mike)
-        
         setupConstraints()
     }
     
@@ -99,5 +101,13 @@ class MapSearchBar: UIView {
             make.centerY.equalToSuperview()
             make.trailing.equalToSuperview().offset(-15)
         }
+    }
+    
+    
+    // MARK: - Action Function
+    func textFieldShouldReturn(_ textfield: UITextField) -> Bool {
+        returnKeyPressed?(textfield.text)  // 클로저 실행
+        textfield.resignFirstResponder()   // 키보드 내리기
+        return true
     }
 }

@@ -161,7 +161,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         }
         
         //여기에서 그릴 View(KakaoMap, Roadview)들을 추가한다.
-        let defaultPosition: MapPoint = MapPoint(longitude: 126.925554591431, latitude: 37.550874837441)
+        let defaultPosition: MapPoint = MapPoint(longitude: 126.9255545914, latitude: 37.550874837)
         //지도(KakaoMap)를 그리기 위한 viewInfo를 생성
         let mapviewInfo: MapviewInfo = MapviewInfo(viewName: "mapview", viewInfoName: "map", defaultPosition: defaultPosition, defaultLevel: 16)
         
@@ -212,25 +212,23 @@ class MapsVC: UIViewController, MapControllerDelegate {
         LocationManager.shared.requestAuthorization()
         LocationManager.shared.startUpdatingLocation()
         LocationManager.shared.startUpdatingHeading()
-        
-        // ✅ 위치 업데이트를 콜백으로 받아 처리
-        LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
-            self?.updateMapPosition(lat: lat, lon: lon)
-        }
 
         // ✅ 권한 변경 감지
         LocationManager.shared.onAuthorizationChange = { [weak self] status in
+            print("onAuthorization change 콜백")
             self?.handleAuthorizationChange(status)
         }
 
         // ✅ 위치 오류 처리
         LocationManager.shared.onLocationError = { [weak self] error in
+            print("onLocationError change 콜백")
             self?.showLocationError(error)
         }
 
 
         // ✅ 방향 업데이트 처리
         LocationManager.shared.onHeadingUpdate = { [weak self] heading in
+            //print("onHeadingUpdate change 콜백")
             self?.updateHeading(heading)
         }
     }
@@ -313,7 +311,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     
     
-    private func updateMapPosition(lat: Double, lon: Double) {
+    public func updateMapPosition(lat: Double, lon: Double) {
         print("현재 위치 업데이트됨: \(lat), \(lon)")
 
         // 지도 중심 이동
@@ -367,7 +365,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
     }
 
     private func updateHeading(_ heading: Double) {
-        print("🧭 방향 업데이트: \(heading)")
+        //print("🧭 방향 업데이트: \(heading)")
         currentDirectionArrow?.rotateAt(heading, duration: 100)
     }
 }

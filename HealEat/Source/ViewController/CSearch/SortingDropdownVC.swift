@@ -26,8 +26,6 @@ class SortingDropdownVC: UIViewController, UITableViewDelegate, UITableViewDataS
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        
-        selectedOption = getCurrentSelectedOption()
     }
     
     private func setupView() {
@@ -54,16 +52,18 @@ class SortingDropdownVC: UIViewController, UITableViewDelegate, UITableViewDataS
     }
     
     
-    // ✅ 현재 선택된 값을 UserDefaults에서 가져오기
-    private func getCurrentSelectedOption() -> String {
-        return SortSelectionManager.shared.sortBy.name // ✅ 저장된 값 가져오기
-    }
-    
     // ✅ UserDefaults에 새로운 값 저장
     private func saveSelectedOption(_ option: String) {
-        if let sortBy = SortBy.allCases.first(where: { $0.name == option }) {
-            SortSelectionManager.shared.sortBy = sortBy
+        if isSortBy {
+            if let sortBy = SortBy.allCases.first(where: { $0.name == option }) {
+                SortSelectionManager.shared.sortBy = sortBy
+            }
+        } else {
+            if let searchBy = SearchBy.allCases.first(where: { $0.name == option }) {
+                SortSelectionManager.shared.searchBy = searchBy
+            }
         }
+        
     }
     
     

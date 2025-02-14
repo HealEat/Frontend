@@ -2,6 +2,7 @@
 
 
 import UIKit
+import SwiftyToaster
 
 class FilteredSearchVC: UIViewController {
     // MARK: - UI Properties
@@ -33,7 +34,12 @@ class FilteredSearchVC: UIViewController {
                 .foregroundColor: UIColor.healeatGray5
             ])
             $0.searchBar.attributedPlaceholder = placeholder
+            $0.searchBar.text = SearchRequestManager.shared.query
             
+            $0.returnKeyPressed = { text in
+                SearchRequestManager.shared.updateFilters(query: text)
+                self.search()
+            }
         }
         
         view.addSubview(searchBar)
@@ -55,9 +61,9 @@ class FilteredSearchVC: UIViewController {
         mapsVC.view.frame = view.bounds
         mapsVC.didMove(toParent: self)
         
-        LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
+        /*LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
             self?.filteredStoresVC.updateLocation(lat: lat, lon: lon)
-        }
+        }*/
     }
     
     
@@ -157,8 +163,24 @@ class FilteredSearchVC: UIViewController {
 
     
     //MARK: - API call
-    
-    
+    private func search() {
+        let param = SearchRequestManager.shared.currentRequest
+        print("📡 검색 요청: \(param)")
+        
+        CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
+            guard isSuccess, let searchResults = searchResults else {
+                Toaster.shared.makeToast("검색 요청 실패")
+                return
+            }
+            print("✅ 검색 성공! 사용된 필터: \(param)")
+            print("🔍 받아온 검색 결과: \(searchResults)")
+            self.filteredStoresVC.filteredData = searchResults
+            self.filteredStoresVC.storeData = searchResults.storeList
+            self.filteredStoresVC.reloadCollectionView()
+        }
+        
+    }
+
   
 
 }

@@ -20,7 +20,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     private override init() { // ✅ private init()으로 외부에서 새 인스턴스 생성 방지
         super.init()
         locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
     }
     
     func requestAuthorization() {
@@ -49,7 +49,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     // ✅ 방향 업데이트 처리
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         currentHeading = newHeading.trueHeading * Double.pi / 180.0
-        print("🧭 방향 업데이트: \(currentHeading)")
+        //print("🧭 방향 업데이트: \(currentHeading)")
 
         // ✅ MapsVC에서 사용할 콜백 호출
         onHeadingUpdate?(currentHeading)
@@ -70,7 +70,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         // 업데이트된 위치 저장
         currentLatitude = newLat
         currentLongitude = newLon
-        print("📍 위치 업데이트: \(currentLatitude), \(currentLongitude)")
+        //print("📍 위치 업데이트: \(currentLatitude), \(currentLongitude)")
 
         // ✅ MapsVC에서 사용할 콜백 호출
         onLocationUpdate?(newLat, newLon)
