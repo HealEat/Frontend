@@ -38,11 +38,6 @@ class StoreVC: UIViewController {
                 storeview.storeCollectionView.isUserInteractionEnabled = true
                 setupCollectionView()
                 storeview.healthsettingButton.addTarget(self, action: #selector(healthsettingTapped), for: .touchUpInside)
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.reloadCollectionView()
-                }
-                fetchStoreData()
             }
             else {
                 self.view = healthsettingview

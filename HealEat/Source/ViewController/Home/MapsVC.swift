@@ -55,6 +55,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         setupMapView()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         setupUI()
+        setupLocationManager()
     }
     
     private func setupMapView() {
@@ -75,9 +76,10 @@ class MapsVC: UIViewController, MapControllerDelegate {
             }
             
             mapController?.delegate = self
-            setupLocationManager()
+            
             // 지도 추가
             addViews()
+            
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -213,14 +215,10 @@ class MapsVC: UIViewController, MapControllerDelegate {
         LocationManager.shared.requestAuthorization()
         LocationManager.shared.startUpdatingLocation()
         LocationManager.shared.startUpdatingHeading()
-        
-        // ✅ 위치 업데이트를 콜백으로 받아 처리
-        LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
-            self?.updateMapPosition(lat: lat, lon: lon)
-        }
 
         // ✅ 권한 변경 감지
         LocationManager.shared.onAuthorizationChange = { [weak self] status in
+
             self?.handleAuthorizationChange(status)
         }
 
@@ -234,6 +232,8 @@ class MapsVC: UIViewController, MapControllerDelegate {
         LocationManager.shared.onHeadingUpdate = { [weak self] heading in
             self?.updateHeading(heading)
         }
+        
+        
     }
     
     
@@ -244,6 +244,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     private func moveCameraToCurrentLocation(_ coordinate: CLLocationCoordinate2D) {
         let currentPosition = MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude)
+        
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
             mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 16, mapView: mapView))
         }
@@ -278,6 +279,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
     }
+    
     
    
     
@@ -314,16 +316,14 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     
     
-    private func updateMapPosition(lat: Double, lon: Double) {
-        print("현재 위치 업데이트됨: \(lat), \(lon)")
-
+    public func updateMapPosition(lat: Double, lon: Double) {
         // 지도 중심 이동
+        
         let currentPosition = MapPoint(longitude: lon, latitude: lat)
+        
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
             mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 16, mapView: mapView))
         }
-
-        moveCameraToCurrentLocation(CLLocationCoordinate2D(latitude: lat, longitude: lon))
         startTracking()
     }
 
@@ -372,4 +372,3 @@ class MapsVC: UIViewController, MapControllerDelegate {
         currentDirectionArrow?.rotateAt(heading, duration: 100)
     }
 }
-
