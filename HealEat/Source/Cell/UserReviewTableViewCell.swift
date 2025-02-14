@@ -50,6 +50,12 @@ class UserReviewTableViewCell: UITableViewCell {
         return label
     }()
     
+    lazy var profilePurposeButton: UIButton = {
+        let button = UIButton()
+        button.showsMenuAsPrimaryAction = true
+        return button
+    }()
+    
     lazy var reviewView: UIView = {
         let view = UIView()
         return view
@@ -117,6 +123,7 @@ class UserReviewTableViewCell: UITableViewCell {
         profileView.addSubview(profileImageView)
         profileView.addSubview(profileNameLabel)
         profileView.addSubview(profilePurposeLabel)
+        profileView.addSubview(profilePurposeButton)
         
         reviewView.addSubview(reviewStarsView)
         reviewView.addSubview(reviewDateLabel)
@@ -139,8 +146,13 @@ class UserReviewTableViewCell: UITableViewCell {
             make.top.equalToSuperview()
         })
         profilePurposeLabel.snp.makeConstraints({ make in
+            make.top.equalTo(profileNameLabel.snp.bottom).offset(3)
             make.leading.equalTo(profileImageView.snp.trailing).offset(5)
+            make.trailing.lessThanOrEqualToSuperview()
             make.bottom.equalToSuperview()
+        })
+        profilePurposeButton.snp.makeConstraints({ make in
+            make.edges.equalTo(profilePurposeLabel)
         })
         reviewStarsView.snp.makeConstraints({ make in
             make.top.bottom.equalToSuperview().inset(1)

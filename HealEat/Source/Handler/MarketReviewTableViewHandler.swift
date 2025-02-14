@@ -139,6 +139,9 @@ class MarketReviewTableViewHandler: NSObject, UITableViewDataSource, UITableView
             cell.profileImageView.kf.setImage(with: reviewModels[indexPath.row].reviewerInfo.profileImageUrl, placeholder: UIImage(resource: .defaultProfile))
             cell.profileNameLabel.text = reviewModels[indexPath.row].reviewerInfo.name
             cell.profilePurposeLabel.text = reviewModels[indexPath.row].reviewerInfo.currentPurposes.joined(separator: ", ")
+            cell.profilePurposeButton.menu = UIMenu(identifier: nil, options: .displayInline, children:
+                reviewModels[indexPath.row].reviewerInfo.currentPurposes.map({ UIAction(title: $0, handler: { _ in }) })
+            )
             cell.reviewStarsView.star = reviewModels[indexPath.row].totalScore
             cell.reviewDateLabel.text = reviewModels[indexPath.row].createdAt.toStringYYYYMMDD
             cell.reviewLabel.text = reviewModels[indexPath.row].body

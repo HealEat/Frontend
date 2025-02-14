@@ -30,7 +30,11 @@ class MarketHomeTableViewHandler: NSObject, UITableViewDataSource, UITableViewDe
         case .info:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: StoreInfoTableViewCell.self), for: indexPath) as? StoreInfoTableViewCell else { return UITableViewCell() }
             guard let storeDetailResponseModel = storeDetailResponseModel else { return cell }
-            cell.locationLabel.text = storeDetailResponseModel.storeInfoDto.roadAddressName
+            cell.locationButton.setTitle(storeDetailResponseModel.storeInfoDto.roadAddressName, for: .normal)
+            cell.locationButton.menu = UIMenu(identifier: nil, options: .displayInline, children: [
+                UIMenu(title: "도로명 주소",identifier: nil, options: .displayInline, children: [UIAction(title: storeDetailResponseModel.storeInfoDto.roadAddressName, handler: { _ in }) ]),
+                UIMenu(title: "지번 주소",identifier: nil, options: .displayInline, children: [UIAction(title: storeDetailResponseModel.storeInfoDto.addressName, handler: { _ in }) ]),
+            ])
             cell.phoneLabel.text = storeDetailResponseModel.storeInfoDto.phone
             cell.linkButton.addTarget(self, action: #selector(onClickLink), for: .touchUpInside)
             return cell
