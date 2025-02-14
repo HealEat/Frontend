@@ -1,7 +1,6 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
 
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -33,4 +32,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillEnterForeground(_ scene: UIScene) { }
 
     func sceneDidEnterBackground(_ scene: UIScene) { }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        // NAVER LOGIN
+        guard let url = URLContexts.first?.url, let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
+        let message = urlComponents.queryItems?.first(where: { $0.name == "message" })?.value
+        let accessToken = urlComponents.queryItems?.first(where: { $0.name == "accessToken" })?.value
+        
+        print(message)
+        print(accessToken)
+    }
 }

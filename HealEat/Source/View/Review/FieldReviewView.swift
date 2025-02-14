@@ -22,7 +22,7 @@ class FieldReviewView: UIView {
     lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = field.title
-        label.font = .systemFont(ofSize: 12)
+        label.font = .systemFont(ofSize: 15)
         label.textColor = .healeatBlack
         return label
     }()
@@ -37,7 +37,7 @@ class FieldReviewView: UIView {
     
     lazy var reviewLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12)
+        label.font = .systemFont(ofSize: 14)
         label.textColor = .healeatBlack
         return label
     }()
@@ -51,20 +51,20 @@ class FieldReviewView: UIView {
     
     private func setConstraints() {
         titleLabel.snp.makeConstraints({ make in
-            make.leading.equalToSuperview().inset(22)
-            make.width.equalTo(45)
+            make.leading.equalToSuperview().inset(20)
+            make.width.equalTo(60)
             make.centerY.equalToSuperview()
         })
         reviewBar.snp.makeConstraints({ make in
-            make.height.equalTo(22)
+            make.height.equalTo(30)
             make.top.bottom.equalToSuperview().inset(8)
-            make.leading.equalTo(titleLabel.snp.trailing).offset(16)
+            make.leading.equalTo(titleLabel.snp.trailing).offset(12)
         })
         reviewLabel.snp.makeConstraints({ make in
             make.centerY.equalToSuperview()
-            make.width.equalTo(20)
-            make.leading.equalTo(reviewBar.snp.trailing).offset(16)
-            make.trailing.equalToSuperview().inset(22)
+            make.width.equalTo(24)
+            make.leading.equalTo(reviewBar.snp.trailing).offset(20)
+            make.trailing.equalToSuperview().inset(20)
         })
     }
     

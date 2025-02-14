@@ -18,6 +18,7 @@ class MarketReviewView: UIView {
         let tableView = UITableView()
         tableView.register(WriteReviewTableViewCell.self, forCellReuseIdentifier: String(describing: WriteReviewTableViewCell.self))
         tableView.register(RatingReviewTableViewCell.self, forCellReuseIdentifier: String(describing: RatingReviewTableViewCell.self))
+        tableView.register(NoReviewTableViewCell.self, forCellReuseIdentifier: String(describing: NoReviewTableViewCell.self))
         tableView.register(UserReviewTableViewCell.self, forCellReuseIdentifier: String(describing: UserReviewTableViewCell.self))
         tableView.allowsSelection = false
         tableView.separatorColor = .healeatGray3P5

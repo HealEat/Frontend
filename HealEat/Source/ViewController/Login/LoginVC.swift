@@ -1,7 +1,6 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
 
-
 import UIKit
 
 class LoginVC: UIViewController {
@@ -28,6 +27,8 @@ class LoginVC: UIViewController {
 
     @objc private func naverLoginTapped() {
         print("네이버 로그인 버튼 눌림")
+        guard let url = URL(string: "https://healeatapp.com/auth/naver") else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
         navigateToAgreement()
     }
 

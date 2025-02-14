@@ -2,8 +2,26 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>naverlogin</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.umc7.healeat</string>
+			</array>
+		</dict>
+	</array>
 	<key>KAKAO_APP_KEY</key>
 	<string>826dcfc24d65718bf46f1655ed2a283d</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>naversearchapp</string>
+		<string>naversearchthirdlogin</string>
+	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>

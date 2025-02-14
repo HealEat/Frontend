@@ -3,7 +3,7 @@
 import UIKit
 import SnapKit
 
-class TypeCollectionViewCell: UICollectionViewCell {
+class FeatureCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -16,15 +16,17 @@ class TypeCollectionViewCell: UICollectionViewCell {
     
     lazy var baseView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 222/255, green: 222/255, blue: 222/255, alpha: 1)
-        view.layer.cornerRadius = 9
+        view.backgroundColor = .healeatGray2
+        view.layer.borderColor = UIColor.healeatGray4.cgColor
+        view.layer.borderWidth = 1
+        view.layer.cornerRadius = 14
         return view
     }()
     
     lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 8)
-        label.textColor = UIColor(red: 116/255, green: 116/255, blue: 116/255, alpha: 1)
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = .healeatGray6
         return label
     }()
     
@@ -39,8 +41,8 @@ class TypeCollectionViewCell: UICollectionViewCell {
             make.edges.equalToSuperview()
         })
         titleLabel.snp.makeConstraints({ make in
-            make.top.bottom.equalToSuperview().inset(4)
-            make.leading.trailing.equalToSuperview().inset(8)
+            make.top.bottom.equalToSuperview().inset(5)
+            make.leading.trailing.equalToSuperview().inset(10)
         })
     }
 }

@@ -13,6 +13,7 @@ xcuserdata/
 ## Obj-C/Swift specific
 *.hmap
 
+Secret.plist
 *.DS_Store
 
 ## App packaging
