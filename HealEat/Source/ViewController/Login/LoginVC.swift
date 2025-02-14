@@ -53,6 +53,9 @@ class LoginVC: UIViewController {
         let yesAction = UIAlertAction(title: "예", style: .default) { _ in
             print("로그인 없이 이용 선택됨")
             // 다음 화면으로 이동하거나 다른 로직 추가
+            self.dismiss(animated: true) {
+                self.gotoHome()
+            }
         }
         
         // "아니요" 버튼 추가
@@ -74,5 +77,14 @@ class LoginVC: UIViewController {
         profileVC.modalPresentationStyle = .fullScreen
         present(profileVC, animated: true, completion: nil)
     }
+    
+    private func gotoHome() {
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate,
+        let window = sceneDelegate.window else { return }
 
+        let baseVC = BaseVC()
+        window.rootViewController = baseVC
+        window.makeKeyAndVisible()
+    }
+    
 }

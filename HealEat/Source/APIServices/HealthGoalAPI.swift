@@ -10,19 +10,20 @@ enum HealthGoalAPI {
     case postHealthGoal(param: HealthGoalRequest)
     case deleteHealthGoal(planId: Int)
     case changeHealthGoal(planId: Int, param: HealthGoalRequest)
-    case uploadImage(planId: Int, image: UIImage, imageType: String, imageExtension: String)
+    case uploadImage(planId: Int, param: [MultipartFormData])
 }
 
 
 
 extension HealthGoalAPI: TargetType {
+    
     var baseURL: URL {
         guard let url = URL(string: Constants.NetworkManager.baseURL) else {
             fatalError("fatal error - invalid url")
         }
         return url
     }
-
+    
     var path: String {
         switch self {
         case .getHealthGoal: return "plans"
@@ -31,11 +32,11 @@ extension HealthGoalAPI: TargetType {
             
         case .deleteHealthGoal(let planId): return "plans/\(planId)"
         case .changeHealthGoal(let planId, let param): return "plans/\(planId)"
-        
-        case .uploadImage(let planId): return "plans/\(planId)/upload-images"
+            
+        case .uploadImage(let planId, _): return "plans/\(planId)/upload-images"
         }
     }
-
+    
     var method: Moya.Method {
         switch self {
         case .getHealthGoal:
@@ -51,7 +52,7 @@ extension HealthGoalAPI: TargetType {
             return .post
         }
     }
-
+    
     var task: Moya.Task {
         switch self {
         case .getHealthGoal :
@@ -64,34 +65,11 @@ extension HealthGoalAPI: TargetType {
             return .requestJSONEncodable(param)
             
             
-        case .uploadImage(let planId, let image, let imageType, let imageExtension):
-            var multipartData = [MultipartFormData]()
-            
-            // 1️⃣ 이미지 파일 추가 (files[])
-            if let imageData = image.jpegData(compressionQuality: 0.8) {
-                let imagePart = MultipartFormData(provider: .data(imageData), name: "files", fileName: "image.jpg", mimeType: "image/jpeg")
-                multipartData.append(imagePart)
-            }
-
-            // 2️⃣ JSON 데이터 추가 (requests[])
-            let jsonDict: [String: Any] = [
-                "requests": [
-                    [
-                        "imageType": imageType,
-                        "imageExtension": imageExtension
-                    ]
-                ]
-            ]
-            
-            if let jsonData = try? JSONSerialization.data(withJSONObject: jsonDict, options: []) {
-                let jsonPart = MultipartFormData(provider: .data(jsonData), name: "requests")
-                multipartData.append(jsonPart)
-            }
-
-            return .uploadMultipart(multipartData)
+        case .uploadImage(_, let param):
+            return .uploadMultipart(param)
         }
+        
     }
-    
     
     var headers: [String : String]? {
         switch self {
@@ -100,6 +78,6 @@ extension HealthGoalAPI: TargetType {
         default:
             return ["Content-Type": "application/json"]
         }
-    
+        
     }
 }

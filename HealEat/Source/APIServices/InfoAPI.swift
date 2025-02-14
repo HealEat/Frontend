@@ -4,7 +4,8 @@ import Foundation
 import Moya
 
 enum InfoAPI {
-    case postInfo(param: Int)
+    case postInfo(questionNum: Int, param: InfoAnswerRequest)
+    case postProfile(param: InfoProfileRequest)
 }
 
 
@@ -12,27 +13,30 @@ enum InfoAPI {
 extension InfoAPI: TargetType {
     var baseURL: URL {
         guard let url = URL(string: Constants.NetworkManager.baseURL) else {
-            fatalError("fatal error - invalid url")
+            fatalError("fatal error - invralid url")
         }
         return url
     }
 
     var path: String {
         switch self {
-        case .postInfo(let param): return "info"
+        case .postInfo(let questionNum, let param): return "info/\(questionNum)"
+        case .postProfile(_): return "info/profile"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .postInfo:
+        case .postInfo, .postProfile:
             return .post
         }
     }
 
     var task: Moya.Task {
         switch self {
-        case .postInfo(let param) :
+        case .postInfo(let questionNum, let param) :
+            return .requestJSONEncodable(param)
+        case .postProfile(let param):
             return .requestJSONEncodable(param)
         }
     }

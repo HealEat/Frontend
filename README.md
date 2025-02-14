@@ -91,7 +91,7 @@ var arr = [1, 2, 3, 4] //good
 │   └── Sources
 │       ├── Extensions
 │       └── Fonts
-├── DropDrug
+├── HealEat
 │   ├── Resources
 │   │   ├── Assets.xcassets
 │   │   └── Preview Content
@@ -105,22 +105,17 @@ var arr = [1, 2, 3, 4] //good
 │   │   ├── ViewControllers
 │   │   └── Views
 │   └── Tests
-│       └── DropDrugTests.swift
-├── DropDrug.xcodeproj
+│       └── HealEatTests.swift
+├── HealEat.xcodeproj
 │   ├── project.pbxproj
 │   ├── project.xcworkspace
 │   ├── xcshareddata
 │   │   └── xcschemes
 │   └── xcuserdata
-├── DropDrug.xcworkspace
+├── HealEat.xcworkspace
 │   ├── contents.xcworkspacedata
 │   ├── xcshareddata
 │   └── xcuserdata
 ├── Project.swift
-├── README.md
-└── Tuist
-    ├── Config.swift
-    ├── Package.resolved
-    └── Package.swift
 
 ```

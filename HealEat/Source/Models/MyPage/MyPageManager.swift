@@ -109,12 +109,12 @@ class MyPageManager {
     }
     
     static func getMyHealthInfo(completion: @escaping (Result<DefaultResponse<MyHealthInfoResponse> , Error>) -> Void) {
-        APIManager.MyPageProvider.request(.getReview) { result in
+        APIManager.MyPageProvider.request(.getHealthInfo) { result in
             switch result {
             case .success(let response):
                 do {
                     let data = try response.map(DefaultResponse<MyHealthInfoResponse>.self)
-                     print("success")
+                    print("success")
                     completion(.success(data))
                 } catch {
                     print(response)
