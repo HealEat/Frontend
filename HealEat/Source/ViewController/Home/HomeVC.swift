@@ -10,6 +10,7 @@ class HomeVC: UIViewController {
     private let storeview = StoreView()
     private let notloginview = NotloginView()
     private let healthsettingview = HealthInfoSettingView()
+    public var purposevc = PurposeVC()
     public var storeVC = StoreVC() // StoreVC 추가
     private var modalHeightConstraint: NSLayoutConstraint!
     private var storePanGesture: UIPanGestureRecognizer?
@@ -56,6 +57,7 @@ class HomeVC: UIViewController {
         LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
             self?.storeVC.updateLocation(lat: lat, lon: lon)
             self?.mapsVC?.updateMapPosition(lat: lat, lon: lon)
+            self?.mapsVC?.updateCurrentLocationMarker(lat: lat, lon: lon)
         }
     }
         
@@ -246,7 +248,7 @@ class HomeVC: UIViewController {
         }
                 
         buttonStackView.addArrangedSubview(yesButton)
-
+        yesButton.addTarget(self, action: #selector(tapyesButton), for: .touchUpInside)
         // "아니요" 버튼
         lazy var noButton = UIButton().then {
             $0.setTitle("아니요", for: .normal)
@@ -304,7 +306,11 @@ class HomeVC: UIViewController {
     @objc private func tapnoButton() {
         dismissAlert()
     }
-
+    
+    @objc private func tapyesButton() {
+        purposevc.modalPresentationStyle = .fullScreen
+        present(purposevc, animated: true, completion: nil)
+    }
 }
 
 extension HomeVC: StoreVCDelegate {

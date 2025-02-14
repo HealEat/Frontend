@@ -9,8 +9,9 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     var la : Double!
     var lo : Double!
-    var currentPositionMarker: Poi? // 현재 위치 마커
-    var currentDirectionArrow: Poi? // 방향 화살표
+    var currentPositionPoi: Poi? // 현재 위치 마커
+    var currentDirectionArrowPoi: Poi? // 방향 화살표
+    var currentDirectionPoi: Poi?
     var currentHeading: Double = 0.0 // 현재 방향 (라디안)
     var isTracking: Bool = false // 추적 모드 여부
     var mapContainer: KMViewContainer?
@@ -76,7 +77,6 @@ class MapsVC: UIViewController, MapControllerDelegate {
             }
             
             mapController?.delegate = self
-            
             // 지도 추가
             addViews()
             
@@ -170,9 +170,6 @@ class MapsVC: UIViewController, MapControllerDelegate {
         //KakaoMap 추가.
         mapController.addView(mapviewInfo)
         
-        createCurrentLocationMarker()
-        
-        
     }
     
     func viewInit(viewName: String) {
@@ -184,6 +181,8 @@ class MapsVC: UIViewController, MapControllerDelegate {
         let view = mapController?.getView("mapview") as! KakaoMap
         view.viewRect = mapContainer!.bounds    //뷰 add 도중에 resize 이벤트가 발생한 경우 이벤트를 받지 못했을 수 있음. 원하는 뷰 사이즈로 재조정.
         viewInit(viewName: viewName)
+        createCurrentLocationMarker()
+
     }
     
     //addView 실패 이벤트 delegate. 실패에 대한 오류 처리를 진행한다.
@@ -252,20 +251,68 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     
     func createCurrentLocationMarker() {
+
         guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
-        _ = mapView.getLabelManager()
-
-        // 현재 위치 마커
-        let markerOptions = PoiOptions(styleID: "positionMarkerStyle", poiID: "currentPosition")
-        markerOptions.rank = 1
-        _ = MapPoint(longitude: 127.10980993945, latitude: 37.34698042338)
-
-        // 방향 화살표
+        let manager = mapView.getLabelManager()
+        
+        let positionLayerOption = LabelLayerOptions(layerID: "PositionPoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 5000)
+        let directionLayerOption = LabelLayerOptions(layerID: "DirectionPoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 5010)
+            
+        let positionLayer = manager.addLabelLayer(option: positionLayerOption)
+        let directionLayer = manager.addLabelLayer(option: directionLayerOption)
+            
+        // 마커 스타일 추가
+        let marker = PoiIconStyle(symbol: UIImage(named: "map_ico_marker"))
+        let markerStyle = PoiStyle(styleID: "positionMarkerStyle", styles: [PerLevelPoiStyle(iconStyle: marker, level: 0)])
+        
+        let directionArrow = PoiIconStyle(symbol: UIImage(named: "map_ico_marker_direction"), anchorPoint: CGPoint(x: 0.5, y: 0.995))
+        let directionStyle = PoiStyle(styleID: "directionArrowStyle", styles: [PerLevelPoiStyle(iconStyle: directionArrow, level: 0)])
+        
+        let area = PoiIconStyle(symbol: UIImage(named: "map_ico_direction_area"), anchorPoint: CGPoint(x: 0.5, y: 0.995))
+        let areaStyle = PoiStyle(styleID: "directionPoiStyle", styles: [PerLevelPoiStyle(iconStyle: area, level: 0)])
+        
+        manager.addPoiStyle(markerStyle)
+        manager.addPoiStyle(directionStyle)
+        manager.addPoiStyle(areaStyle)
+        // POI 추가
+        let positionOptions = PoiOptions(styleID: "positionMarkerStyle", poiID: "currentPosition")
+        positionOptions.rank = 1
+        let initialPosition = MapPoint(longitude: LocationManager.shared.currentLongitude, latitude: LocationManager.shared.currentLatitude)
+        currentPositionPoi = positionLayer?.addPoi(option: positionOptions, at: initialPosition)
+        
         let arrowOptions = PoiOptions(styleID: "directionArrowStyle", poiID: "directionArrow")
         arrowOptions.rank = 2
+        currentDirectionArrowPoi = positionLayer?.addPoi(option: arrowOptions, at: initialPosition)
+        
+        let areaOptions = PoiOptions(styleID: "directionPoiStyle", poiID: "direction")
+        areaOptions.rank = 3
+        currentDirectionPoi = directionLayer?.addPoi(option: areaOptions, at: initialPosition)
+        
+        currentPositionPoi?.show()
+        currentDirectionArrowPoi?.show()
+        currentDirectionPoi?.show()
+        
+        // 마커와 화살표 동기화
+        currentPositionPoi?.shareTransformWithPoi(currentDirectionArrowPoi!)
+        currentDirectionArrowPoi?.shareTransformWithPoi(currentDirectionPoi!)
+    }
 
-        // 동기화
-        currentPositionMarker?.shareTransformWithPoi(currentDirectionArrow!)
+    func updateCurrentLocationMarker(lat: Double, lon: Double) {
+        let newPosition = MapPoint(longitude: lon, latitude: lat)
+        
+        // 현재 위치 마커 이동
+        currentPositionPoi?.moveAt(newPosition, duration: 150)
+        currentDirectionArrowPoi?.moveAt(newPosition, duration: 150)
+        currentDirectionPoi?.moveAt(newPosition, duration: 150)
+        
+        // 지도 카메라 이동 (추적 모드일 경우)
+        if isTracking {
+            moveCameraToCurrentLocation(CLLocationCoordinate2D(latitude: lat, longitude: lon))
+        }
+    }
+    
+    func updateCurrentDirectionMarker(heading: Double) {
+        currentDirectionArrowPoi?.rotateAt(heading, duration: 150)
     }
     
     private func setupUI() {
@@ -324,6 +371,9 @@ class MapsVC: UIViewController, MapControllerDelegate {
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
             mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 16, mapView: mapView))
         }
+        currentPositionPoi?.show()
+        currentDirectionArrowPoi?.show()
+
         startTracking()
     }
 
@@ -368,7 +418,6 @@ class MapsVC: UIViewController, MapControllerDelegate {
     }
 
     private func updateHeading(_ heading: Double) {
-        print("🧭 방향 업데이트: \(heading)")
-        currentDirectionArrow?.rotateAt(heading, duration: 100)
+        currentDirectionArrowPoi?.rotateAt(heading, duration: 100)
     }
 }
