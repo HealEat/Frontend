@@ -25,7 +25,6 @@ class StoreCollectionViewCell: UICollectionViewCell {
         scoreLabel.text = nil
         features = []
         alltagView.collectionview.reloadData()
-        
     }
     
     required init?(coder: NSCoder) {

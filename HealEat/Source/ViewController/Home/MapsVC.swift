@@ -19,15 +19,9 @@ class MapsVC: UIViewController, MapControllerDelegate {
     var _observerAdded: Bool
     var _auth: Bool
     var _appear: Bool
+    var storeview = StoreView()
     
-    public lazy var searchBar = CustomSearchBar().then {
-        let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.healeatGray5,
-            .font: UIFont.systemFont(ofSize: 16, weight: .regular)
-        ]
-        $0.searchBar.attributedPlaceholder = NSAttributedString(string: "검색", attributes: attributes)
-    }
-    
+   
     required init?(coder aDecoder: NSCoder) {
         _observerAdded = false
         _auth = false
@@ -55,7 +49,6 @@ class MapsVC: UIViewController, MapControllerDelegate {
         super.viewDidLoad()
         setupMapView()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
-        setupUI()
         setupLocationManager()
     }
     
@@ -304,7 +297,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         currentPositionPoi?.moveAt(newPosition, duration: 150)
         currentDirectionArrowPoi?.moveAt(newPosition, duration: 150)
         currentDirectionPoi?.moveAt(newPosition, duration: 150)
-        
+        isTracking = false
         // 지도 카메라 이동 (추적 모드일 경우)
         if isTracking {
             moveCameraToCurrentLocation(CLLocationCoordinate2D(latitude: lat, longitude: lon))
@@ -314,21 +307,6 @@ class MapsVC: UIViewController, MapControllerDelegate {
     func updateCurrentDirectionMarker(heading: Double) {
         currentDirectionArrowPoi?.rotateAt(heading, duration: 150)
     }
-    
-    private func setupUI() {
-        view.addSubview(searchBar)
-        setupConstraints()
-    }
-    
-    private func setupConstraints() {
-        searchBar.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(15)
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-        }
-    }
-    
-    
-   
     
     @objc func willResignActive(){
         mapController?.pauseEngine()  //뷰가 inactive 상태로 전환되는 경우 렌더링 중인 경우 렌더링을 중단.
@@ -360,23 +338,18 @@ class MapsVC: UIViewController, MapControllerDelegate {
                                     })
     }
     
-    
-    
-    
     public func updateMapPosition(lat: Double, lon: Double) {
         // 지도 중심 이동
         
         let currentPosition = MapPoint(longitude: lon, latitude: lat)
-        
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
-            mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 16, mapView: mapView))
+            if isTracking { // ✅ isTracking이 true일 때만 카메라 이동하도록 수정
+                mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 16, mapView: mapView))
+            }
         }
-        currentPositionPoi?.show()
-        currentDirectionArrowPoi?.show()
-
-        startTracking()
     }
-
+    
+    
     private func handleAuthorizationChange(_ status: CLAuthorizationStatus) {
         switch status {
         case .authorizedAlways, .authorizedWhenInUse:
@@ -421,3 +394,4 @@ class MapsVC: UIViewController, MapControllerDelegate {
         currentDirectionArrowPoi?.rotateAt(heading, duration: 100)
     }
 }
+
