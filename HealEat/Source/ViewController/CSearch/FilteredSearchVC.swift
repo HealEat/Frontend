@@ -4,7 +4,7 @@
 import UIKit
 import SwiftyToaster
 
-class FilteredSearchVC: UIViewController, MapsVCDelegate {
+class FilteredSearchVC: UIViewController {
     // MARK: - UI Properties
     private var mapsVC: MapsVC?
     private let filteredStoreView = FilteredStoresView()
@@ -58,14 +58,12 @@ class FilteredSearchVC: UIViewController, MapsVCDelegate {
     private func setupMapsVC() {
         let mapsVC = MapsVC()
         self.mapsVC = mapsVC
-        mapsVC.delegate = self
         addChild(mapsVC)
         view.addSubview(mapsVC.view)
         mapsVC.view.frame = view.bounds
         mapsVC.didMove(toParent: self)
-        /*LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
-            self?.filteredStoresVC.updateLocation(lat: lat, lon: lon)
-        }*/
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(mapsVCDidLoad), name: .mapsVCDidLoad, object: nil)
     }
     
     
@@ -123,9 +121,9 @@ class FilteredSearchVC: UIViewController, MapsVCDelegate {
     }
     
     // ✅ MapsVC가 완전히 로딩된 후 실행됨
-    func mapsVCDidFinishLoading(_ mapsVC: MapsVC) {
-        mapsVC.updateMapPosition(lat: avgY ?? LocationManager.shared.currentLatitude,
-                                    lon: avgX ?? LocationManager.shared.currentLongitude)
+    @objc private func mapsVCDidLoad() {
+        mapsVC?.updateMapPosition(lat: avgY ?? LocationManager.shared.currentLatitude,
+                                  lon: avgX ?? LocationManager.shared.currentLongitude)
     }
     
         
@@ -174,20 +172,24 @@ class FilteredSearchVC: UIViewController, MapsVCDelegate {
     //MARK: - API call
     private func search() {
         let param = SearchRequestManager.shared.currentRequest
-        print("📡 검색 요청: \(param)")
         
         CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
             guard isSuccess, let searchResults = searchResults else {
                 Toaster.shared.makeToast("검색 요청 실패")
                 return
             }
-            print("✅ 검색 성공! 사용된 필터: \(param)")
-            print("🔍 받아온 검색 결과: \(searchResults)")
             self.filteredStoresVC.filteredData = searchResults
             self.filteredStoresVC.storeData = searchResults.storeList
             self.filteredStoresVC.reloadCollectionView()
+            self.avgX = searchResults.searchInfo?.avgX
+            self.avgY = searchResults.searchInfo?.avgY
+            self.mapsVCDidLoad()
         }
         
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .mapsVCDidLoad, object: nil)
     }
 
   

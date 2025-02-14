@@ -19,7 +19,6 @@ class MapsVC: UIViewController, MapControllerDelegate {
     var _auth: Bool
     var _appear: Bool
     
-    weak var delegate: MapsVCDelegate?
     
     
     required init?(coder aDecoder: NSCoder) {
@@ -180,8 +179,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         view.viewRect = mapContainer!.bounds    //뷰 add 도중에 resize 이벤트가 발생한 경우 이벤트를 받지 못했을 수 있음. 원하는 뷰 사이즈로 재조정.
         viewInit(viewName: viewName)
         
-        // ✅ Delegate 호출 (뷰가 추가된 후)
-        delegate?.mapsVCDidFinishLoading(self)
+        NotificationCenter.default.post(name: .mapsVCDidLoad, object: nil)
     }
     
     //addView 실패 이벤트 delegate. 실패에 대한 오류 처리를 진행한다.
@@ -198,6 +196,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
     func addObservers(){
         NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateRequest(_:)), name: .updateMapsVC, object: nil)
     
         _observerAdded = true
     }
@@ -205,6 +204,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
     func removeObservers(){
         NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .updateMapsVC, object: nil)
 
         _observerAdded = false
     }
@@ -313,6 +313,13 @@ class MapsVC: UIViewController, MapControllerDelegate {
     }
     
     
+    @objc private func handleUpdateRequest(_ notification: Notification) {
+        if let coordinates = notification.userInfo,
+           let lat = coordinates["lat"] as? Double,
+           let lon = coordinates["lon"] as? Double {
+            updateMapPosition(lat: lat, lon: lon)
+        }
+    }
     
     
     public func updateMapPosition(lat: Double, lon: Double) {
@@ -372,6 +379,3 @@ class MapsVC: UIViewController, MapControllerDelegate {
 }
 
 
-protocol MapsVCDelegate: AnyObject {
-    func mapsVCDidFinishLoading(_ mapsVC: MapsVC)
-}

@@ -205,15 +205,12 @@ class AllKeywordsVC: UIViewController {
     
     private func search() {
         let param = SearchRequestManager.shared.currentRequest
-        print("📡 검색 요청: \(param)")
 
         CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
             guard isSuccess, let searchResults = searchResults else {
                 Toaster.shared.makeToast("검색 요청 실패")
                 return
             }
-            print("✅ 검색 성공! 사용된 필터: \(param)")
-            print("🔍 받아온 검색 결과: \(searchResults)")
             
             self.goToFilteredSearch(searchResults: searchResults)
         }

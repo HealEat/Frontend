@@ -48,7 +48,10 @@ class CSearchManager {
                 if response.statusCode == 200 {
                     do {
                         let decodedData = try JSONDecoder().decode(DefaultResponse<HomeResponse>.self, from: response.data)
+                        print("✅ 검색 성공! 사용된 필터: \(param)")
+                        print("🔍 받아온 검색 결과: \(decodedData.result)")
                         completion(true, decodedData.result) // ✅ 성공 시, 디코딩된 데이터 반환
+                        
                     } catch {
                         print("❌ JSON 디코딩 오류:", error)
                         completion(false, nil)

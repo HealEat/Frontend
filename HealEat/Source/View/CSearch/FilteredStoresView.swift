@@ -49,14 +49,26 @@ class FilteredStoresView: UIView {
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 10, weight: .regular)
     }
     
+    public let filterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
+        $0.minimumLineSpacing = 5
+        $0.scrollDirection = .horizontal
+    }).then {
+        $0.backgroundColor = .clear
+        $0.isScrollEnabled = false
+        $0.register(SmallFilterCell.self, forCellWithReuseIdentifier: SmallFilterCell.identifier)
+        $0.tag = 1
+    }
+    
     public let storeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width - 32, height: 123)
-        $0.minimumLineSpacing = 10
+        $0.minimumLineSpacing = 20
         $0.scrollDirection = .vertical
     }).then {
         $0.backgroundColor = .clear
         $0.isScrollEnabled = false
         $0.register(StoreCollectionViewCell.self, forCellWithReuseIdentifier: StoreCollectionViewCell.identifier)
+        $0.register(EmptyStateCell.self, forCellWithReuseIdentifier: EmptyStateCell.identifier)
+        $0.tag = 0
     }
     
     private func setViews() {
@@ -69,6 +81,7 @@ class FilteredStoresView: UIView {
         
         addSubview(setButtonStack)
         addSubview(filterButton)
+        addSubview(filterCollectionView)
         addSubview(storeCollectionView)
     }
     
@@ -83,6 +96,11 @@ class FilteredStoresView: UIView {
             $0.trailing.equalToSuperview().offset(-19)
             $0.height.equalTo(20)
             $0.width.equalTo(32)
+        }
+        
+        filterCollectionView.snp.makeConstraints { make in
+            make.height.equalTo(0)
+            make.leading.trailing.equalToSuperview().inset(15)
         }
         
         storeCollectionView.snp.makeConstraints {
