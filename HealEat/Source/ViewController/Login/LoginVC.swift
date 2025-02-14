@@ -29,16 +29,17 @@ class LoginVC: UIViewController {
         print("네이버 로그인 버튼 눌림")
         guard let url = URL(string: "https://healeatapp.com/auth/naver") else { return }
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        navigateToAgreement()
     }
 
     @objc private func kakaoLoginTapped() {
         print("카카오 로그인 버튼 눌림")
-        navigateToProfile()
+        navigateToAgreement()
     }
 
     @objc private func appleLoginTapped() {
         print("Apple 로그인 버튼 눌림")
-        navigateToProfile()
+        navigateToAgreement()
     }
 
     @objc private func skipLoginTapped() {
@@ -53,9 +54,8 @@ class LoginVC: UIViewController {
         let yesAction = UIAlertAction(title: "예", style: .default) { _ in
             print("로그인 없이 이용 선택됨")
             // 다음 화면으로 이동하거나 다른 로직 추가
-            self.dismiss(animated: true) {
-                self.gotoHome()
-            }
+
+            self.navigateToAgreement()
         }
         
         // "아니요" 버튼 추가
@@ -71,11 +71,11 @@ class LoginVC: UIViewController {
         present(alertController, animated: true, completion: nil)
     }
 
-    private func navigateToProfile() {
-        let profileVC = ProfileVC()
-        profileVC.modalTransitionStyle = .crossDissolve
-        profileVC.modalPresentationStyle = .fullScreen
-        present(profileVC, animated: true, completion: nil)
+    private func navigateToAgreement() {
+        let TermsAgreementVC = TermsAgreementVC()
+        TermsAgreementVC.modalTransitionStyle = .crossDissolve
+        TermsAgreementVC.modalPresentationStyle = .fullScreen
+        present(TermsAgreementVC, animated: true, completion: nil)
     }
     
     private func gotoHome() {

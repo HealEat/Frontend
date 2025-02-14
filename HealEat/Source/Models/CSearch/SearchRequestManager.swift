@@ -26,6 +26,7 @@
 
 
 
+
 class SearchRequestManager {
     static let shared = SearchRequestManager()
     
