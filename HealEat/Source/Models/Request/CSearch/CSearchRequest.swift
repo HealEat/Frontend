@@ -12,3 +12,12 @@ struct CSearchRequest: Codable {
     let searchBy: String
     let sortBy: String
 }
+
+
+struct CSearchRectRequest: Codable {
+    let query: String
+    let categoryIdList: [Int]
+    let featureIdList: [Int]
+    let minRating: Float
+    let sortBy: String
+}

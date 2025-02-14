@@ -5,8 +5,8 @@ import SwiftyToaster
 import UIKit
 
 class HealthGoalManager {
-    static func getHealthGoals(completion: @escaping (Result<DefaultResponse<HealthGoalResponse> , Error>) -> Void) {
-        APIManager.HealthGoalProvider.request(.getHealthGoal) {
+    static func getHealthGoals(page: Int, completion: @escaping (Result<DefaultResponse<HealthGoalResponse> , Error>) -> Void) {
+        APIManager.HealthGoalProvider.request(.getHealthGoal(page: page)) {
             result in
             switch result {
             case .success(let response):

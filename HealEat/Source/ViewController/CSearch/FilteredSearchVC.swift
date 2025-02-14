@@ -4,13 +4,15 @@
 import UIKit
 import SwiftyToaster
 
-class FilteredSearchVC: UIViewController {
+class FilteredSearchVC: UIViewController, MapsVCDelegate {
     // MARK: - UI Properties
     private var mapsVC: MapsVC?
     private let filteredStoreView = FilteredStoresView()
     private var modalHeightConstraint: NSLayoutConstraint!
     private var storePanGesture: UIPanGestureRecognizer?
     public var filteredStoresVC = FilteredStoresVC() // StoreVC 추가
+    public var avgX: Double?
+    public var avgY: Double?
     
     
     // MARK: - Life Cycle
@@ -56,11 +58,11 @@ class FilteredSearchVC: UIViewController {
     private func setupMapsVC() {
         let mapsVC = MapsVC()
         self.mapsVC = mapsVC
+        mapsVC.delegate = self
         addChild(mapsVC)
         view.addSubview(mapsVC.view)
         mapsVC.view.frame = view.bounds
         mapsVC.didMove(toParent: self)
-        
         /*LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
             self?.filteredStoresVC.updateLocation(lat: lat, lon: lon)
         }*/
@@ -102,6 +104,7 @@ class FilteredSearchVC: UIViewController {
         filteredStoresVC.didMove(toParent: self)
         
         filteredStoresVC.storeview.storeCollectionView.isScrollEnabled = true
+        
     }
     
     private func addGrabber() {
@@ -117,6 +120,12 @@ class FilteredSearchVC: UIViewController {
             $0.width.equalTo(40)
             $0.height.equalTo(6)
         }
+    }
+    
+    // ✅ MapsVC가 완전히 로딩된 후 실행됨
+    func mapsVCDidFinishLoading(_ mapsVC: MapsVC) {
+        mapsVC.updateMapPosition(lat: avgY ?? LocationManager.shared.currentLatitude,
+                                    lon: avgX ?? LocationManager.shared.currentLongitude)
     }
     
         
@@ -194,3 +203,5 @@ extension FilteredSearchVC: UIGestureRecognizerDelegate {
         return false
     }
 }
+
+

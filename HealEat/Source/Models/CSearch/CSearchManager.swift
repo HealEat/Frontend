@@ -5,8 +5,8 @@ import Moya
 import SwiftyToaster
 
 class CSearchManager {
-    static func recentSearches(page: Int, completion: @escaping (Result<DefaultResponse<RecentSearchResponse> , Error>) -> Void) {
-        APIManager.CSearchProvider.request(.searchRecent(page: page)) {
+    static func recentSearches(completion: @escaping (Result<DefaultResponse<RecentSearchResponse> , Error>) -> Void) {
+        APIManager.CSearchProvider.request(.searchRecent) {
             result in
             switch result {
             case .success(let response):

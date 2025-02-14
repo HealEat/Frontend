@@ -6,7 +6,7 @@ import UIKit
 
 
 enum HealthGoalAPI {
-    case getHealthGoal
+    case getHealthGoal(page: Int)
     case postHealthGoal(param: HealthGoalRequest)
     case deleteHealthGoal(planId: Int)
     case changeHealthGoal(planId: Int, param: HealthGoalRequest)
@@ -26,7 +26,7 @@ extension HealthGoalAPI: TargetType {
     
     var path: String {
         switch self {
-        case .getHealthGoal: return "plans"
+        case .getHealthGoal(let page): return "plans"
             
         case .postHealthGoal(let param): return "plans"
             
@@ -52,11 +52,14 @@ extension HealthGoalAPI: TargetType {
             return .post
         }
     }
+
     
     var task: Moya.Task {
         switch self {
-        case .getHealthGoal :
-            return .requestPlain
+        case .getHealthGoal(let page) :
+            let query: [String: Any] = ["page": page]
+            return .requestParameters(parameters: query, encoding: URLEncoding.default)
+            
         case .postHealthGoal(let param) :
             return .requestJSONEncodable(param)
         case .deleteHealthGoal :

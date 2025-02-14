@@ -3,6 +3,11 @@
 import Foundation
 
 struct HealthGoalResponse: Codable {
+    let listSize: Int
+    let totalPage: Int
+    let totalElements: Int
+    let isFirst: Bool
+    let isLast: Bool
     let healthPlanList: [HealthPlan]
 }
 
@@ -11,13 +16,13 @@ struct HealthPlan: Codable {
     let name: String
     let duration: String
     let goalNumber: Int
-    let count: Int
+    let status: String?
     let goal: String
     let memo: String?
-    let memoImages: [MemoImage]
+    let healthPlanImages: [MemoImage]
 }
 
 struct MemoImage: Codable {
     let id: Int
-    let filePath: String
+    let imageUrl: String
 }

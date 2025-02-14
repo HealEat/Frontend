@@ -19,13 +19,8 @@ class MapsVC: UIViewController, MapControllerDelegate {
     var _auth: Bool
     var _appear: Bool
     
-    public lazy var searchBar = CustomSearchBar().then {
-        let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.healeatGray5,
-            .font: UIFont.systemFont(ofSize: 16, weight: .regular)
-        ]
-        $0.searchBar.attributedPlaceholder = NSAttributedString(string: "검색", attributes: attributes)
-    }
+    weak var delegate: MapsVCDelegate?
+    
     
     required init?(coder aDecoder: NSCoder) {
         _observerAdded = false
@@ -54,7 +49,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         super.viewDidLoad()
         setupMapView()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
-        setupUI()
+        //setupUI()
         setupLocationManager()
     }
     
@@ -184,6 +179,9 @@ class MapsVC: UIViewController, MapControllerDelegate {
         let view = mapController?.getView("mapview") as! KakaoMap
         view.viewRect = mapContainer!.bounds    //뷰 add 도중에 resize 이벤트가 발생한 경우 이벤트를 받지 못했을 수 있음. 원하는 뷰 사이즈로 재조정.
         viewInit(viewName: viewName)
+        
+        // ✅ Delegate 호출 (뷰가 추가된 후)
+        delegate?.mapsVCDidFinishLoading(self)
     }
     
     //addView 실패 이벤트 delegate. 실패에 대한 오류 처리를 진행한다.
@@ -269,7 +267,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         currentPositionMarker?.shareTransformWithPoi(currentDirectionArrow!)
     }
     
-    private func setupUI() {
+    /*private func setupUI() {
         view.addSubview(searchBar)
         setupConstraints()
     }
@@ -279,7 +277,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
             make.horizontalEdges.equalToSuperview().inset(15)
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
-    }
+    }*/
     
     
    
@@ -319,7 +317,6 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     public func updateMapPosition(lat: Double, lon: Double) {
         // 지도 중심 이동
-        
         let currentPosition = MapPoint(longitude: lon, latitude: lat)
         
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
@@ -372,4 +369,9 @@ class MapsVC: UIViewController, MapControllerDelegate {
         //print("🧭 방향 업데이트: \(heading)")
         currentDirectionArrow?.rotateAt(heading, duration: 100)
     }
+}
+
+
+protocol MapsVCDelegate: AnyObject {
+    func mapsVCDidFinishLoading(_ mapsVC: MapsVC)
 }

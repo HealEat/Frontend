@@ -4,6 +4,9 @@ import UIKit
 import Then
 
 class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDelegate {
+    private var isFetchingData = false
+    private var currentPage = 2
+    private var isLastPage = false
     
     var userName: String?
     var healthGoalList: [HealthPlan] = []
@@ -56,11 +59,12 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
             uploadImages(planId: 1, images: [image1, image2])
         }
         
-        
+        scrollView.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        currentPage = 1
         fetchHealthGoalData()
     }
 
@@ -129,7 +133,6 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         fetchHealthGoalData()
     }
     
-
     
     
     //MARK: - API call
@@ -148,12 +151,15 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
     }
     
     private func fetchHealthGoalData() {
-        HealthGoalManager.getHealthGoals { result in
+        HealthGoalManager.getHealthGoals(page: currentPage) { result in
             switch result {
             case .success(let data):
-                self.healthGoalList = data.result?.healthPlanList ?? []
+                guard let result = data.result else { return }
+                self.healthGoalList = result.healthPlanList
+                self.isLastPage = result.isLast
+                self.currentPage += 1
                 DispatchQueue.main.async {
-                    self.goalSeparatorView.goalCount = data.result?.healthPlanList.count
+                    self.goalSeparatorView.goalCount = result.healthPlanList.count
                     self.collectionView.reloadData()
                     self.updateCollectionViewHeight() // 높이 업데이트
                 }
@@ -220,4 +226,20 @@ extension HealthGoalVC: UICollectionViewDelegate, UICollectionViewDataSource, UI
         return CGSize(width: width, height: 258) // 높이는 고정, 너비는 동적
     }
     
+}
+
+extension HealthGoalVC: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let frameHeight = scrollView.frame.height
+
+        // 🔥 scrollView가 끝까지 도달했을 때 API 호출
+        if offsetY > contentHeight - frameHeight - 10 {
+            guard !isFetchingData, !isLastPage else { return }
+            isFetchingData = true
+            fetchHealthGoalData()
+        }
+    }
 }

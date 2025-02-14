@@ -18,7 +18,7 @@ class AllKeywordsVC: UIViewController {
         $0.clipsToBounds = true
         $0.addTarget(self, action: #selector(goBack), for: .touchUpInside)
     }
-    private lazy var searchBar = CustomSearchBar().then {
+    private lazy var searchBar = CustomCSearchBar().then {
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.healeatGray5,
             .font: UIFont.systemFont(ofSize: 16, weight: .regular)

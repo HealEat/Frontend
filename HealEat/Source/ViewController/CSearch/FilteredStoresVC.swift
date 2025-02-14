@@ -41,17 +41,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         self.reloadCollectionView()
     }
     
-
-    
-   /* func updateLocation(lat: Double, lon: Double) {
-        self.currentLatitude = lat
-        self.currentLongitude = lon
-        //MARK: 주의!! 너무 자주 호출되지 않나 확인
-        fetchStoreData(reset: true)
-    }*/
-    
     private func fetchStoreData(reset: Bool = false) {
-        print("fetStoreData 대체 왜이렇게 많이?!?!?!?! 호출")
         guard !isLastPage else { return }
         let searchRequest = SearchRequestManager.shared.currentRequest
         
@@ -233,3 +223,5 @@ extension FilteredStoresVC: UIPopoverPresentationControllerDelegate {
         return .none // ✅ iPhone에서도 popover 스타일 유지
     }
 }
+
+

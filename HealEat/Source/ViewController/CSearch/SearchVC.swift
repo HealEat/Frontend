@@ -16,7 +16,7 @@ class SearchVC: UIViewController {
         
     
     // MARK: - UI Components
-    private lazy var searchBar = CustomSearchBar().then {
+    private lazy var searchBar = CustomCSearchBar().then {
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.healeatGray5,
             .font: UIFont.systemFont(ofSize: 16, weight: .regular)
@@ -237,6 +237,8 @@ class SearchVC: UIViewController {
         let filteredSearchVC = FilteredSearchVC()
         filteredSearchVC.filteredStoresVC.filteredData = searchResults
         filteredSearchVC.filteredStoresVC.storeData = searchResults.storeList
+        filteredSearchVC.avgX = searchResults.searchInfo?.avgX
+        filteredSearchVC.avgY = searchResults.searchInfo?.avgY
         filteredSearchVC.hidesBottomBarWhenPushed = true // 탭바 숨겨주기
         navigationController?.pushViewController(filteredSearchVC, animated: true)
     }
@@ -270,7 +272,7 @@ class SearchVC: UIViewController {
     
     //MARK: API call
     private func getRecentSearches() {
-        CSearchManager.recentSearches(page: 1) { result in
+        CSearchManager.recentSearches { result in
             switch result {
             case .success(let data):
                 guard let searchData = data.result?.recentSearchList else { return }
