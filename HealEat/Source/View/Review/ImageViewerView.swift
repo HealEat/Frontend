@@ -28,12 +28,14 @@ class ImageViewerView: UIView {
     lazy var previousButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(resource: .previous), for: .normal)
+        button.isHidden = true
         return button
     }()
     
     lazy var nextButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(resource: .next), for: .normal)
+        button.isHidden = true
         return button
     }()
     
