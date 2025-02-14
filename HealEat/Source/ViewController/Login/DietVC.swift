@@ -122,14 +122,40 @@ class DietVC: UIViewController {
             return
         }
 
-        print("선택된 다이어트 목적: \(selectedOption)")
+        // ✅ API 요청 실행 (선택한 다이어트 목적 PATCH 요청)
+        DietService.shared.updateDietType(type: selectedOption) { result in
+            switch result {
+            case .success:
+                print("✅ 다이어트 목적 업데이트 성공!")
+                DispatchQueue.main.async {
+                    // ✅ 선택한 다이어트 목적 저장
+                    UserDefaults.standard.set(selectedOption, forKey: "dietPurpose")
 
-        // 다음 화면으로 이동
-        let needDietVC = NeedDietVC()
-        needDietVC.delegate = delegate // 델리게이트 전달
-        needDietVC.modalPresentationStyle = .fullScreen
-        present(needDietVC, animated: true, completion: nil)
+                    print("선택된 다이어트 목적: \(selectedOption)")
+
+                    let hasDiseaseManagement = UserDefaults.standard.bool(forKey: "hasDiseaseManagement")
+
+                    if selectedOption == "체중 감량" && !hasDiseaseManagement {
+                        // ✅ 체중 감량 선택 & 질병 관리가 선택되지 않았다면 NeedDiet을 스킵
+                        let needNutrientVC = NeedNutrientVC()
+                        needNutrientVC.delegate = self.delegate
+                        needNutrientVC.modalPresentationStyle = .fullScreen
+                        self.present(needNutrientVC, animated: true, completion: nil)
+                    } else {
+                        // ✅ 기존 방식대로 NeedDietVC로 이동
+                        let needDietVC = NeedDietVC()
+                        needDietVC.delegate = self.delegate
+                        needDietVC.modalPresentationStyle = .fullScreen
+                        self.present(needDietVC, animated: true, completion: nil)
+                    }
+                }
+
+            case .failure(let error):
+                print("❌ 다이어트 목적 업데이트 실패: \(error.localizedDescription)")
+            }
+        }
     }
+
 
     @objc private func optionButtonTapped(_ sender: UIButton) {
         // 모든 버튼 상태 초기화

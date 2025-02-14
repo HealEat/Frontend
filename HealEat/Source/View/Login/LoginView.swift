@@ -6,44 +6,58 @@ import Then
 class LoginView: UIView {
     // MARK: - UI Elements
     let logoImageView = UIImageView().then {
-        $0.image = UIImage(named: "LogoImage") // 로고 이미지 설정
+        $0.image = UIImage(named: "LogoImage")
         $0.contentMode = .scaleAspectFit
     }
 
     let naverButton = UIButton().then {
-        $0.setTitle("네이버로 시작하기", for: .normal)
-        $0.backgroundColor = UIColor(hex: "#DEDEDE")
-        $0.setTitleColor(.black, for: .normal)
+        $0.setTitle(" 네이버 로그인", for: .normal)
+        $0.setTitleColor(.white, for: .normal)
+        $0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        $0.backgroundColor = UIColor(hex: "#03C75A")
         $0.layer.cornerRadius = 8
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 16)
+        $0.contentHorizontalAlignment = .center
+
+        let naverImage = UIImage(named: "NaverLogo")?.resize(to: CGSize(width: 18, height: 18))
+        $0.setImage(naverImage, for: .normal)
+        $0.imageEdgeInsets = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
     }
 
     let kakaoButton = UIButton().then {
-        $0.setTitle("카카오로 시작하기", for: .normal)
-        $0.backgroundColor = UIColor(hex: "#DEDEDE")
+        $0.setTitle(" 카카오 로그인", for: .normal)
         $0.setTitleColor(.black, for: .normal)
+        $0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        $0.backgroundColor = UIColor(hex: "#FEE500")
         $0.layer.cornerRadius = 8
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 16)
+        $0.contentHorizontalAlignment = .center
+
+        let kakaoImage = UIImage(named: "KakaoLogo")?.resize(to: CGSize(width: 21, height: 21))
+        $0.setImage(kakaoImage, for: .normal)
+        $0.imageEdgeInsets = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
     }
 
     let appleButton = UIButton().then {
-        $0.setTitle("apple로 시작하기", for: .normal)
-        $0.backgroundColor = UIColor(hex: "#DEDEDE")
-        $0.setTitleColor(.black, for: .normal)
+        $0.setTitle(" Sign in with Apple", for: .normal)
+        $0.setTitleColor(.white, for: .normal)
+        $0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        $0.backgroundColor = .black
         $0.layer.cornerRadius = 8
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 16)
+        $0.contentHorizontalAlignment = .center
+
+        let appleImage = UIImage(named: "AppleLogo")?.resize(to: CGSize(width: 21, height: 21))
+        $0.setImage(appleImage, for: .normal)
+        $0.imageEdgeInsets = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
     }
 
     let skipButton = UIButton().then {
         $0.setTitleColor(.gray, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 11)
-        
-        // 밑줄 추가
+
         let attributedString = NSAttributedString(
             string: "로그인 없이 이용하기",
             attributes: [
-                .underlineStyle: NSUnderlineStyle.single.rawValue, // 밑줄 스타일
-                .foregroundColor: UIColor.gray // 텍스트 색상 설정
+                .underlineStyle: NSUnderlineStyle.single.rawValue,
+                .foregroundColor: UIColor.gray
             ]
         )
         $0.setAttributedTitle(attributedString, for: .normal)
@@ -56,8 +70,8 @@ class LoginView: UIView {
         $0.distribution = .equalSpacing
     }
 
-    private let spacerView = UIView() // 로고와 첫 번째 버튼 사이에 간격을 추가할 뷰
-    
+    private let spacerView = UIView()
+
     // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -72,7 +86,6 @@ class LoginView: UIView {
     private func setupView() {
         addSubview(mainStackView)
 
-        // StackView에 로고 및 버튼 추가
         mainStackView.addArrangedSubview(logoImageView)
         mainStackView.addArrangedSubview(spacerView)
         mainStackView.addArrangedSubview(naverButton)
@@ -85,34 +98,38 @@ class LoginView: UIView {
 
     // MARK: - Setup Constraints
     private func setupConstraints() {
-        // 메인 스택뷰 중앙 정렬
         mainStackView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview() // X축 중앙 정렬
-            make.centerY.equalToSuperview() // Y축 중앙 정렬
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview()
         }
 
-        // 로고 이미지 크기 설정
         logoImageView.snp.makeConstraints { make in
-            make.height.equalTo(120) // 로고 높이
+            make.height.equalTo(120)
         }
 
-        // 버튼 높이 설정
         [naverButton, kakaoButton, appleButton].forEach { button in
             button.snp.makeConstraints { make in
-                make.height.equalTo(42) // 버튼 Y축 길이
+                make.height.equalTo(42)
                 make.width.equalTo(269)
             }
         }
 
-        // 스킵 버튼 높이 설정 (다른 버튼들과 차별화 가능)
         skipButton.snp.makeConstraints { make in
             make.height.equalTo(40)
         }
-        
+
         spacerView.snp.makeConstraints { make in
-            make.height.equalTo(36)
+            make.height.equalTo(20)
         }
-        
     }
-    
+}
+
+// MARK: - UIImage Resize Extension
+extension UIImage {
+    func resize(to size: CGSize) -> UIImage? {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
 }

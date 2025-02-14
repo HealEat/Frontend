@@ -6,7 +6,7 @@ import SnapKit
 class FinalStepVC: UIViewController {
     // MARK: - UI Elements
     private let messageLabel = UILabel().then {
-        $0.text = "김현우님을 위한 추천 매장을\n선정하고 있습니다."
+        $0.text = "김현우님을 위한 추천 매장을 선정하고 있습니다."
         $0.numberOfLines = 0
         $0.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         $0.textAlignment = .center
