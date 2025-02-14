@@ -50,8 +50,9 @@ class FilteredStoresView: UIView {
     }
     
     public let filterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
-        $0.minimumLineSpacing = 5
+        $0.minimumLineSpacing = 3
         $0.scrollDirection = .horizontal
+        $0.estimatedItemSize = .zero
     }).then {
         $0.backgroundColor = .clear
         $0.isScrollEnabled = false
@@ -99,12 +100,13 @@ class FilteredStoresView: UIView {
         }
         
         filterCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(filterButton.snp.bottom).offset(7)
             make.height.equalTo(0)
             make.leading.trailing.equalToSuperview().inset(15)
         }
         
         storeCollectionView.snp.makeConstraints {
-            $0.top.equalTo(filterButton.snp.bottom).offset(7)
+            $0.top.equalTo(filterCollectionView.snp.bottom).offset(7)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
             $0.height.greaterThanOrEqualTo(200)

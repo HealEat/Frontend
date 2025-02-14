@@ -100,7 +100,8 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
             self.isLastPage = searchResults.isLast ?? false
             
             DispatchQueue.main.async {
-                self.storeview.storeCollectionView.reloadData()
+                //self.storeview.storeCollectionView.reloadData()
+                self.reloadCollectionView()
             }
             NotificationCenter.default.post(
                 name: .updateMapsVC,
@@ -123,6 +124,8 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     private func setupCollectionView() {
         storeview.storeCollectionView.dataSource = self
         storeview.storeCollectionView.delegate = self
+        storeview.filterCollectionView.dataSource = self
+        storeview.filterCollectionView.delegate = self
         storeview.storeCollectionView.bounces = false
         storeview.storeCollectionView.contentInsetAdjustmentBehavior = .never
         storeview.storeCollectionView.isScrollEnabled = true
@@ -132,11 +135,16 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     
     public func reloadCollectionView() {
         DispatchQueue.main.async {
+            print("reloadCollectionView")
             self.storeview.storeCollectionView.reloadData()
             self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
             self.storeview.storeCollectionView.layoutIfNeeded()
+            
+            // ✅ 특정 필터가 선택된 경우에만 filteredCollectionView 표시
+            self.updateFilteredCollectionViewHeight()
         }
     }
+
     
     
     @objc private func goToFilterVC() {
@@ -200,15 +208,54 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         //sortingVC.preferredContentSize = CGSize(width: 122, height: 158) // ✅ 작은 크기로 표시
         present(sortingVC, animated: true)
     }
+    
+    
+    private func shouldShowFilteredCollectionView() -> Bool {
+        let foodList = CategorySelectionManager.shared.getSelectedItems(forCategory: 0)
+        let nutritionList = CategorySelectionManager.shared.getSelectedItems(forCategory: 1)
+        
+
+        return !foodList.isEmpty || !nutritionList.isEmpty
+    }
+    
+    private func updateFilteredCollectionViewHeight() {
+        let shouldShow = shouldShowFilteredCollectionView()
+        let targetHeight: CGFloat = shouldShow ? 30 : 0
+
+        // ✅ 높이가 변경될 때만 애니메이션 실행
+        guard storeview.filterCollectionView.frame.height != targetHeight else {
+            if shouldShow { storeview.filterCollectionView.reloadData() }
+            return
+        }
+
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
+            self.storeview.filterCollectionView.alpha = shouldShow ? 1 : 0
+            self.storeview.filterCollectionView.snp.updateConstraints {
+                $0.height.equalTo(targetHeight)
+            }
+            self.view.layoutIfNeeded()
+        }) { _ in
+            if shouldShow {
+                self.storeview.filterCollectionView.reloadData()
+            }
+        }
+    }
+
+
+
+
+
 
 }
 
-extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate {
+extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView.tag == 0 {
             return storeData.isEmpty ? 1 : storeData.count
-        } else {
+        } else if collectionView.tag == 1 {
             return filterArr.count
+        } else {
+            return 0
         }
         
     }
@@ -233,12 +280,30 @@ extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate
                 cell.storeconfigure(model: storeData[indexPath.row])
                 return cell
             }
-        } else {
+        } else if collectionView.tag == 1 {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SmallFilterCell.identifier,for: indexPath) as? SmallFilterCell else { return UICollectionViewCell() }
             cell.label.text = filterArr[indexPath.row]
+            cell.updateUI(isSelected: true)
             return cell
+        } else {
+            return UICollectionViewCell()
         }
-        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if collectionView.tag == 1 {
+            //let item = (collectionView.tag == 0) ? foodTypeList[indexPath.item].name : nutritionList[indexPath.item].name
+            let item = filterArr[indexPath.row]
+            
+            let label = UILabel()
+            label.font = .systemFont(ofSize: 14)
+            label.text = item
+            label.sizeToFit()
+            
+            return CGSize(width: label.frame.width + 13, height: label.frame.height + 8)
+        }
+        return (collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize ?? CGSize(width: UIScreen.main.bounds.width - 32, height: 123)
+            
     }
 
     

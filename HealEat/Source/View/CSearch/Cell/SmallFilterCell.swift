@@ -7,7 +7,7 @@ class SmallFilterCell: UICollectionViewCell {
     static let identifier = "SmallFilterCell"
     
     let label = UILabel().then {
-        $0.font = .systemFont(ofSize: 12, weight: .regular)
+        $0.font = .systemFont(ofSize: 12, weight: .medium)
         $0.textColor = UIColor.healeatGray6
     }
     
@@ -20,6 +20,17 @@ class SmallFilterCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // ✅ 프레임을 강제로 부모 뷰와 동일하게 설정
+        contentView.frame = bounds
+        contentView.layer.cornerRadius = 12 // ✅ 다시 설정
+        
+        print("🛠 layoutSubviews 호출됨! contentView.frame: \(contentView.frame)")
+    }
+
 
     private func setupView() {
         contentView.layer.cornerRadius = 12
