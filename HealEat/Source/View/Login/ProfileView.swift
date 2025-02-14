@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 import UIKit
 import SnapKit
 import Then
@@ -16,7 +9,7 @@ class ProfileView: UIView {
         $0.text = "어플 내에서 사용하실 프로필을 작성해주세요!"
         $0.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         $0.textAlignment = .center
-        $0.textColor = .black
+        $0.textColor = .black   
     }
 
     let profileImageView = UIImageView().then {
