@@ -24,6 +24,11 @@ class AllKeywordsVC: UIViewController {
             .font: UIFont.systemFont(ofSize: 16, weight: .regular)
         ]
         $0.searchBar.attributedPlaceholder = NSAttributedString(string: "음식, 매장, 주소 검색", attributes: attributes)
+        $0.searchBar.text = SearchRequestManager.shared.query
+        
+        $0.returnKeyPressed = { text in
+            self.searchButtonClicked()
+        }
     }
     private lazy var foodTypeButton = UIButton().then {
         let unselected = NSAttributedString(string: "음식 종류", attributes: [
@@ -105,6 +110,7 @@ class AllKeywordsVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         foodTypeButton.isSelected = isFoodType
         nutritionButton.isSelected = !isFoodType
+        searchBar.searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
     }
     
 
@@ -153,15 +159,65 @@ class AllKeywordsVC: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    private func goToFilteredSearch(searchResults: HomeResponse) {
+        let filteredSearchVC = FilteredSearchVC()
+        filteredSearchVC.filteredStoresVC.filteredData = searchResults
+        filteredSearchVC.filteredStoresVC.storeData = searchResults.storeList
+        filteredSearchVC.hidesBottomBarWhenPushed = true // 탭바 숨겨주기
+        navigationController?.pushViewController(filteredSearchVC, animated: true)
+    }
+    
     @objc private func toggleButtonState() {
         foodTypeButton.isSelected.toggle()
         nutritionButton.isSelected.toggle()
         isFoodType.toggle()
         allKeywordsView.collectionview.reloadData()
     }
+    
+    
+    @objc private func searchButtonClicked() {
+        let query = searchBar.searchBar.text ?? ""
+        let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
+        let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
+        let x = LocationManager.shared.currentLongitude
+        let y = LocationManager.shared.currentLatitude
+        let searchBy = SortSelectionManager.shared.searchBy
+        let sortBy = SortSelectionManager.shared.sortBy
+        
+        // ✅ `SearchRequestManager`에 업데이트
+        SearchRequestManager.shared.updateFilters(
+            query: query,
+            x: "\(x)",
+            y: "\(y)",
+            categoryIdList: foodList,
+            featureIdList: nutritionList,
+            minRating: 0.0,
+            searchBy: searchBy,
+            sortBy: sortBy
+        )
+        
+        // ✅ 검색 API 요청
+        search()
+    }
 
     
     //MARK: API call
+    
+    private func search() {
+        let param = SearchRequestManager.shared.currentRequest
+        print("📡 검색 요청: \(param)")
+
+        CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
+            guard isSuccess, let searchResults = searchResults else {
+                Toaster.shared.makeToast("검색 요청 실패")
+                return
+            }
+            print("✅ 검색 성공! 사용된 필터: \(param)")
+            print("🔍 받아온 검색 결과: \(searchResults)")
+            
+            self.goToFilteredSearch(searchResults: searchResults)
+        }
+    }
 
 }
 

@@ -27,7 +27,6 @@ class FilterButton: UIButton {
         super.init(frame: .zero)
         self.setTitle(title, for: .normal)
         self.layer.cornerRadius = 12
-        self.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
         updateStyle()
         
         self.snp.makeConstraints { make in
@@ -38,9 +37,5 @@ class FilterButton: UIButton {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc private func buttonTapped() {
-        isSelectedState.toggle()
     }
 }

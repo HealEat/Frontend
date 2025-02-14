@@ -4,8 +4,7 @@ import UIKit
 import Then
 import SnapKit
 
-class FilteredStoresVC: UIViewController {
-    public var searchRequest: CSearchRequest?
+class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     public var filteredData: HomeResponse?
     public var storeData: [StoreResponse] = []
     public let storeview = FilteredStoresView()
@@ -36,18 +35,25 @@ class FilteredStoresVC: UIViewController {
 
     }
     
+    func didReceiveSearchResults(_ results: HomeResponse) {
+        self.filteredData = results
+        self.storeData = results.storeList
+        self.reloadCollectionView()
+    }
+    
 
     
-    func updateLocation(lat: Double, lon: Double) {
+   /* func updateLocation(lat: Double, lon: Double) {
         self.currentLatitude = lat
         self.currentLongitude = lon
         //MARK: 주의!! 너무 자주 호출되지 않나 확인
         fetchStoreData(reset: true)
-    }
+    }*/
     
     private func fetchStoreData(reset: Bool = false) {
+        print("fetStoreData 대체 왜이렇게 많이?!?!?!?! 호출")
         guard !isLastPage else { return }
-        guard let searchRequest = searchRequest else { return }
+        let searchRequest = SearchRequestManager.shared.currentRequest
         
         if reset {
             storeData.removeAll()
@@ -69,6 +75,9 @@ class FilteredStoresVC: UIViewController {
                             self.storeData = storeList
                         } else {
                             self.storeData.append(contentsOf: storeList)
+                        }
+                        if storeList.isEmpty {
+                            self.isLastPage = true
                         }
                         self.currentPage += 1
                         self.isLastPage = decodedData.result?.isLast ?? false
@@ -117,6 +126,7 @@ class FilteredStoresVC: UIViewController {
             })]
             sheet.prefersGrabberVisible = false
         }
+        bottomSheet.delegate = self
         present(bottomSheet, animated: true)
     }
     
@@ -135,6 +145,11 @@ class FilteredStoresVC: UIViewController {
         sortingVC.delegate = self
         sortingVC.sortingOptions = filters
         sortingVC.isSortBy = isSortBy
+        if isSortBy {
+            sortingVC.selectedOption = SortSelectionManager.shared.sortBy.name
+        } else {
+            sortingVC.selectedOption = SortSelectionManager.shared.searchBy.name
+        }
         
         sortingVC.modalPresentationStyle = .popover
         sortingVC.modalTransitionStyle = .crossDissolve
@@ -165,10 +180,6 @@ class FilteredStoresVC: UIViewController {
         present(sortingVC, animated: true)
     }
 
-    
-
-
-    
 }
 
 extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -192,8 +203,11 @@ extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
+        
+        // 🔥 마지막 페이지이면 요청 중단
+        guard !isFetchingData, !isLastPage else { return }
 
-        if offsetY > contentHeight - height * 2, !isFetchingData {
+        if offsetY > contentHeight - height * 2 {
             isFetchingData = true
             fetchStoreData()
         }
