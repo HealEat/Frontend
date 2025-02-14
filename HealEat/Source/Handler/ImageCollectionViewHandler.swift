@@ -20,6 +20,7 @@ class ImageCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollecti
             return UICollectionViewCell()
         }
         cell.previewImageView.kf.setImage(with: imageModels[indexPath.row].imageUrl)
+        cell.previewImageView.layer.cornerRadius = 12
         return cell
     }
     

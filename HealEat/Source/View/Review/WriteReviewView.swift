@@ -103,8 +103,23 @@ class WriteReviewView: UIView {
     lazy var addImageButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(resource: .addPhoto), for: .normal)
-        button.tintColor = .red
         return button
+    }()
+    
+    lazy var reviewImageView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
+    lazy var imageCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.backgroundColor = .clear
+        collectionView.register(PreviewCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: PreviewCollectionViewCell.self))
+        return collectionView
     }()
     
     lazy var reviewView: UIView = {
@@ -161,12 +176,15 @@ class WriteReviewView: UIView {
         topStackView.addArrangedSubview(topStarsView)
         
         reviewStackView.addArrangedSubview(reviewTitleLabel)
-        reviewStackView.addArrangedSubview(addImageButton)
+        reviewStackView.addArrangedSubview(reviewImageView)
         reviewStackView.addArrangedSubview(reviewView)
         reviewStackView.addArrangedSubview(submitButton)
         
         reviewView.addSubview(reviewTextView)
         reviewView.addSubview(reviewSubLabel)
+        
+        reviewImageView.addSubview(addImageButton)
+        reviewImageView.addSubview(imageCollectionView)
         
         setConstraints()
     }
@@ -217,8 +235,20 @@ class WriteReviewView: UIView {
             make.leading.trailing.equalToSuperview().inset(16)
             make.top.equalTo(ratingReviewView.snp.bottom).offset(33)
         })
+        reviewImageView.snp.makeConstraints({ make in
+            make.leading.trailing.equalToSuperview()
+        })
         addImageButton.snp.makeConstraints({ make in
             make.width.height.equalTo(50)
+            make.centerX.lessThanOrEqualToSuperview()
+            make.centerX.equalToSuperview().priority(500)
+            make.leading.greaterThanOrEqualToSuperview()
+            make.top.bottom.equalToSuperview()
+        })
+        imageCollectionView.snp.makeConstraints({ make in
+            make.leading.equalTo(addImageButton.snp.trailing).offset(6)
+            make.top.bottom.trailing.equalToSuperview()
+            make.width.equalTo(imageCollectionView.collectionViewLayout.collectionViewContentSize.width).priority(600)
         })
         reviewView.snp.makeConstraints({ make in
             make.leading.trailing.equalToSuperview()
@@ -236,6 +266,13 @@ class WriteReviewView: UIView {
         submitButton.snp.makeConstraints({ make in
             make.height.equalTo(48)
             make.leading.trailing.equalToSuperview()
+        })
+    }
+    
+    func updateCollectionViewWidth() {
+        print(imageCollectionView.collectionViewLayout.collectionViewContentSize.width)
+        imageCollectionView.snp.updateConstraints({ make in
+            make.width.equalTo(imageCollectionView.collectionViewLayout.collectionViewContentSize.width).priority(600)
         })
     }
 }

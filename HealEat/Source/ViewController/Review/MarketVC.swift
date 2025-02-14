@@ -111,7 +111,9 @@ class MarketVC: UIViewController {
         
         
         marketReviewTableViewHandler.pushWriteReviewVC = { [weak self] in
+            guard let storeDetailResponseModel = self?.storeDetailResponseModel else { return }
             let viewController = WriteReviewVC()
+            viewController.param = WriteReviewVC.Param(storeDetailResponseModel: storeDetailResponseModel)
             self?.navigationController?.pushViewController(viewController, animated: true)
         }
         marketReviewTableViewHandler.reloadData = { [weak self] in

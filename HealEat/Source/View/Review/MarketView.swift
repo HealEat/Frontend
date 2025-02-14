@@ -31,7 +31,7 @@ class MarketView: UIView {
     lazy var navigationBackButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "chevron.down"), for: .normal)
-        button.tintColor = .label
+        button.tintColor = .healeatBlack
         return button
     }()
     
@@ -49,7 +49,7 @@ class MarketView: UIView {
         var configuration = UIButton.Configuration.plain()
         configuration.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 8, bottom: 5, trailing: 8)
         configuration.background.backgroundColor = UIColor.white
-        configuration.attributedTitle = AttributedString("네이버로 열기", attributes: AttributeContainer([
+        configuration.attributedTitle = AttributedString("카카오로 열기", attributes: AttributeContainer([
             .font: UIFont.systemFont(ofSize: 12),
             .foregroundColor: UIColor.healeatGray5,
         ]))
