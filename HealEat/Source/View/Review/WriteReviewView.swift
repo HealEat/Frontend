@@ -271,7 +271,6 @@ class WriteReviewView: UIView {
     }
     
     func updateCollectionViewWidth() {
-        print(imageCollectionView.collectionViewLayout.collectionViewContentSize.width)
         imageCollectionView.snp.updateConstraints({ make in
             make.width.equalTo(imageCollectionView.collectionViewLayout.collectionViewContentSize.width).priority(600)
         })
