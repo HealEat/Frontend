@@ -5,12 +5,7 @@ import UIKit
 
 class DetailRatingCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollectionViewDataSource {
     
-    private let detailRatings: [(String, Float, Int)]
-    
-    init(detailRatings: [(String, Float, Int)]) {
-        self.detailRatings = detailRatings
-        super.init()
-    }
+    var detailRatings: [(String, Float, Int)] = []
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return detailRatings.count

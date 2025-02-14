@@ -5,7 +5,6 @@ import UIKit
 class MarketHomeVC: UIViewController {
     
     var onGesture: ((UIPanGestureRecognizer) -> Void)?
-    var changePageTo: ((Int) -> Void)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -15,7 +14,7 @@ class MarketHomeVC: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         // imageCollectionView Cell의 너비 재설정
-        self.marketHomeView.imageCollectionView.reloadData()
+        self.marketHomeView.mainTableView.reloadData()
     }
     
     lazy var marketHomeView: MarketHomeView = {
@@ -23,26 +22,16 @@ class MarketHomeVC: UIViewController {
         
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panGestureHandler(recognizer: )))
         panGestureRecognizer.delegate = self
-        view.mainScrollView.addGestureRecognizer(panGestureRecognizer)
-        
-        view.imageMoreButton.addTarget(self, action: #selector(onClickImageMoreButton), for: .touchUpInside)
-        view.reviewMoreButton.addTarget(self, action: #selector(onClickReviewMoreButton), for: .touchUpInside)
+        view.mainTableView.addGestureRecognizer(panGestureRecognizer)
         
         return view
     }()
     
     @objc private func panGestureHandler(recognizer: UIPanGestureRecognizer) {
-        if marketHomeView.mainScrollView.contentOffset.y > 0 {
+        if marketHomeView.mainTableView.contentOffset.y > 0 {
             recognizer.state = .ended
         }
         onGesture?(recognizer)
-    }
-    
-    @objc private func onClickImageMoreButton() {
-        changePageTo?(1)
-    }
-    @objc private func onClickReviewMoreButton() {
-        changePageTo?(2)
     }
 }
 

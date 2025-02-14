@@ -8,10 +8,7 @@ extension String {
         let numberString = self.filter { $0.isNumber }  // 숫자만 남기기
         return Int(numberString)  // Int로 변환
     }
-}
-
-
-extension String {
+    
     // 2025-01-10T05:42:44.858Z
     func convertISO8601ToDate() -> Date? {
         let isoFormatter = ISO8601DateFormatter()
@@ -19,4 +16,3 @@ extension String {
         return isoFormatter.date(from: self)
     }
 }
-
