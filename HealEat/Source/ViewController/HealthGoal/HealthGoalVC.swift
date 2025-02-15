@@ -32,7 +32,6 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then({
         $0.scrollDirection = .vertical
         $0.minimumLineSpacing = 1
-        $0.minimumInteritemSpacing = 1
     })).then {
         $0.register(HealthGoalCell.self, forCellWithReuseIdentifier: HealthGoalCell.identifier)
         $0.register(NoHealthGoalCell.self, forCellWithReuseIdentifier: NoHealthGoalCell.identifier)
@@ -85,23 +84,23 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         makeGoalsView.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.width.equalTo(view.safeAreaLayoutGuide.snp.width)
-            make.height.equalTo(285)
+            make.height.equalTo(265)
         }
         goalSeparatorView.snp.makeConstraints { make in
             make.width.equalTo(view.safeAreaLayoutGuide.snp.width)
-            make.height.equalTo(65)
+            make.height.equalTo(43)
             make.top.equalTo(makeGoalsView.snp.bottom)
         }
         collectionView.snp.makeConstraints { make in
             make.width.equalTo(view.safeAreaLayoutGuide.snp.width)
             make.top.equalTo(goalSeparatorView.snp.bottom)
-            make.height.equalTo(max(258, healthGoalList.count * 258))
+            make.height.equalTo(max(335, healthGoalList.count * 335))
             make.bottom.equalToSuperview()
         }
     }
     
     private func updateCollectionViewHeight() {
-        let collectionViewHeight = max(258, healthGoalList.count * 258) // 최소 높이 보장
+        let collectionViewHeight = max(335, healthGoalList.count * 335) // 최소 높이 보장
         UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
             self.collectionView.snp.updateConstraints { make in
                 make.height.equalTo(collectionViewHeight)
@@ -142,7 +141,6 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
             case .success(let data):
                 DispatchQueue.main.async {
                     self.makeGoalsView.userName = data.result?.name ?? "이용자"
-                    self.goalSeparatorView.userName = data.result?.name ?? "이용자"
                 }
             case .failure(let error):
                 print("유저 프로필 조회 실패: \(error.localizedDescription)")
@@ -211,10 +209,10 @@ extension HealthGoalVC: UICollectionViewDelegate, UICollectionViewDataSource, UI
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HealthGoalCell.identifier, for: indexPath) as! HealthGoalCell
             cell.delegate = self
+            cell.configure(with: healthGoalList[indexPath.row])
             let data = healthGoalList[indexPath.row]
             cell.goalCountLabel.text = "목표\(indexPath.row + 1)"
-            let duration = TimeUnit(rawValue: data.duration) ?? .none
-            cell.periodTextLabel?.text = duration.inKorean
+            cell.periodTextLabel?.text = data.duration.title
             cell.countTextLabel?.text = "\(data.goalNumber)회"
             cell.goalTextLabel?.text = data.goal
             return cell
@@ -223,7 +221,7 @@ extension HealthGoalVC: UICollectionViewDelegate, UICollectionViewDataSource, UI
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = collectionView.bounds.width - collectionView.contentInset.left - collectionView.contentInset.right // 컬렉션 뷰의 너비에 맞춤
-        return CGSize(width: width, height: 258) // 높이는 고정, 너비는 동적
+        return CGSize(width: width, height: 335) // 높이는 고정, 너비는 동적
     }
     
 }

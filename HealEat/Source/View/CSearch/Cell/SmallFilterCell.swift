@@ -21,15 +21,6 @@ class SmallFilterCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        // ✅ 프레임을 강제로 부모 뷰와 동일하게 설정
-        contentView.frame = bounds
-        contentView.layer.cornerRadius = 12 // ✅ 다시 설정
-        
-        print("🛠 layoutSubviews 호출됨! contentView.frame: \(contentView.frame)")
-    }
 
 
     private func setupView() {
@@ -46,15 +37,29 @@ class SmallFilterCell: UICollectionViewCell {
     }
 
     // ✅ `isSelected` 상태가 아니라, `updateUI(isSelected:)`로 UI를 직접 업데이트
-    func updateUI(isSelected: Bool) {
-        if isSelected {
+    func updateUI(state: SmallFilterCellState) {
+        switch state {
+        case .filter:
             contentView.backgroundColor = .healeatLightGreen // 선택 배경색
             label.textColor = .healeatGreen1 // 선택 글씨색
             label.font = .systemFont(ofSize: 12, weight: .medium)
-        } else {
-            contentView.backgroundColor = .healeatGray2P5 // 원래 배경색
-            label.textColor = .healeatGray6 // 원래 글씨색
+        case .rating:
+            contentView.backgroundColor = .white // 선택 배경색
+            contentView.layer.borderWidth = 1
+            contentView.layer.borderColor = UIColor.healeatGray3.cgColor
+            label.textColor = .healeatGray5 // 선택 글씨색
+            label.font = .systemFont(ofSize: 12, weight: .medium)
+        case .recommended:
+            contentView.backgroundColor = .healeatGray2P5 // 선택 배경색
+            contentView.layer.borderWidth = 0
+            label.textColor = .healeatGray6 // 선택 글씨색
             label.font = .systemFont(ofSize: 12, weight: .regular)
         }
     }
+}
+
+enum SmallFilterCellState {
+    case filter
+    case rating
+    case recommended
 }

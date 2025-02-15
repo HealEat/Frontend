@@ -53,6 +53,7 @@ class FilteredStoresView: UIView {
         $0.minimumLineSpacing = 3
         $0.scrollDirection = .horizontal
         $0.estimatedItemSize = .zero
+        $0.minimumInteritemSpacing = 4
     }).then {
         $0.backgroundColor = .clear
         $0.isScrollEnabled = false

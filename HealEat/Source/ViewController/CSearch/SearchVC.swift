@@ -292,7 +292,7 @@ class SearchVC: UIViewController {
         CSearchManager.deleteRecentSearch(recentId: recentId) { isSuccess, response in
             if isSuccess {
                 self.getRecentSearches()
-                print("최근 검색 기록 삭제 성공하셧어염💓")
+                print("최근 검색 기록 삭제 성공")
             } else {
                 if let data = response?.data,
                    let errorMessage = String(data: data, encoding: .utf8) {

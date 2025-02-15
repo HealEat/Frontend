@@ -14,9 +14,9 @@ struct HealthGoalResponse: Codable {
 struct HealthPlan: Codable {
     let id: Int         // planId
     let name: String
-    let duration: String
+    let duration: HealthPlanDuration
     let goalNumber: Int
-    let status: String?
+    let status: HealthPlanStatus
     let goal: String
     let memo: String?
     let healthPlanImages: [MemoImage]

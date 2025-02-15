@@ -29,15 +29,15 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
     private lazy var goalLabel = UILabel().then {
         $0.textAlignment = .center
         $0.numberOfLines = 0
-        $0.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        $0.textColor = UIColor(hex: "#4E4E4E")
+        $0.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        $0.textColor = .healeatGray6
     }
     
     private lazy var goalBackground = UIView().then {
-        $0.backgroundColor = UIColor(hex: "#FBFBFB")
-        $0.layer.cornerRadius = 16
+        $0.backgroundColor = UIColor(hex: "#FBFBFB") ?? .gray
+        $0.layer.cornerRadius = 18
         $0.clipsToBounds = true
-        $0.layer.borderColor = UIColor(hex: "#CDCDCD")?.cgColor
+        $0.layer.borderColor = UIColor.healeatGray3.cgColor
         $0.layer.borderWidth = 1
     }
     
@@ -57,20 +57,20 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
     }
     
     private lazy var goalTextField = UITextField().then {
-        let fullText = "목표 (직접 작성)"
-        let attributedString = NSMutableAttributedString(string: fullText, attributes: [.foregroundColor: UIColor(hex: "#797979") ?? UIColor.gray, .font: UIFont.systemFont(ofSize: 10, weight: .medium)])
+        let fullText = "목표 (직접 입력)"
+        let attributedString = NSMutableAttributedString(string: fullText, attributes: [.foregroundColor: UIColor.healeatGray5, .font: UIFont.systemFont(ofSize: 13, weight: .medium)])
         let range = (fullText as NSString).range(of: "(직접 작성)")
-        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 7, weight: .medium), range: range)
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 10, weight: .medium), range: range)
         $0.attributedPlaceholder = attributedString
         
         $0.backgroundColor = .white
-        $0.layer.cornerRadius = 10
-        $0.clipsToBounds = true
-        $0.layer.borderColor = UIColor(hex: "#B5B5B5")?.cgColor
+        $0.layer.cornerRadius = 16
+        $0.layer.masksToBounds = true
+        $0.layer.borderColor = UIColor.healeatGray4.cgColor
         $0.layer.borderWidth = 1
         $0.addLeftPadding()
-        $0.textColor = UIColor(hex: "#797979")
-        $0.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        $0.textColor = .healeatGray5
+        $0.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         $0.textAlignment = .left
     }
     
@@ -119,20 +119,20 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
             make.center.equalToSuperview()
         }
         goalBackground.snp.makeConstraints { make in
-            make.width.equalTo(306)
+            make.horizontalEdges.equalTo(safeAreaLayoutGuide.snp.horizontalEdges).inset(25)
             make.height.equalTo(53)
         }
         dateButton.snp.makeConstraints { make in
-            make.width.equalTo(54)
-            make.height.equalTo(28)
+            make.width.equalTo(67)
+            make.height.equalTo(32)
         }
         countButton.snp.makeConstraints { make in
-            make.width.equalTo(54)
-            make.height.equalTo(28)
+            make.width.equalTo(67)
+            make.height.equalTo(32)
         }
         goalTextField.snp.makeConstraints { make in
             make.width.equalTo(146)
-            make.height.equalTo(28)
+            make.height.equalTo(32)
         }
         backgroundStack.snp.makeConstraints { make in
             make.center.equalToSuperview()
@@ -155,8 +155,8 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
         let fullText = "\(userName ?? "이용자") 님만의 건강 관리 목표를 세워보세요!"
         let attributedString = NSMutableAttributedString(string: fullText)
         let nameRange = (fullText as NSString).range(of: "\(userName ?? "이용자")")
-        attributedString.addAttribute(.foregroundColor, value: UIColor(hex: "#009459") ?? UIColor.green, range: nameRange)
-        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 16, weight: .medium), range: nameRange)
+        attributedString.addAttribute(.foregroundColor, value: UIColor.healeatGreen1.cgColor, range: nameRange)
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 18, weight: .semibold), range: nameRange)
         
         goalLabel.attributedText = attributedString
     }
@@ -205,7 +205,7 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
             Toaster.shared.makeToast("기간을 입력해주세요.")
             return false
         }
-        guard let durationEnum = TimeUnit.rawValue(fromKorean: duration) else {
+        guard let durationEnum = HealthPlanDuration.fromKorean(duration)?.rawValue else {
             Toaster.shared.makeToast("기간을 입력해주세요.")
             return false
         }

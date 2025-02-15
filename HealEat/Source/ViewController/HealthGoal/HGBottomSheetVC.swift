@@ -225,7 +225,7 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
             Toaster.shared.makeToast("기간을 입력해주세요.")
             return
         }
-        guard let durationEnum = TimeUnit.rawValue(fromKorean: duration) else {
+        guard let durationEnum = HealthPlanDuration.fromKorean(duration)?.rawValue else {
             Toaster.shared.makeToast("기간을 입력해주세요.")
             return
         }

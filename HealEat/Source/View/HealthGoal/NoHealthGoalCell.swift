@@ -13,7 +13,7 @@ final class NoHealthGoalCell: UICollectionViewCell {
     private lazy var label = UILabel().then {
         $0.text = "등록된 건강 관리 목표가 없습니다."
         $0.textColor = UIColor(hex: "656565")
-        $0.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        $0.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
     }
     
     

@@ -8,7 +8,8 @@ import SwiftyToaster
 class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     public var filteredData: HomeResponse?
     public var storeData: [StoreResponse] = []
-    var filterArr = ["속 편한 음식", "영업중", "죽"]
+    var filterArr: [String] = []
+    var finalArr: [String] = []
     public let storeview = FilteredStoresView()
     private var isFetchingData = false
     var currentPage = 2
@@ -135,7 +136,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     
     public func reloadCollectionView() {
         DispatchQueue.main.async {
-            print("reloadCollectionView")
+            print("reloadCollectionView 실행 - 데이터 개수: \(self.finalArr.count)")
             self.storeview.storeCollectionView.reloadData()
             self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
             self.storeview.storeCollectionView.layoutIfNeeded()
@@ -143,6 +144,36 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
             // ✅ 특정 필터가 선택된 경우에만 filteredCollectionView 표시
             self.updateFilteredCollectionViewHeight()
         }
+    }
+    
+    private func makeFilterArray() {
+        let foodIds = CategorySelectionManager.shared.getSelectedItems(forCategory: 0)
+        let selectedFood = FoodCategory.allItems.filter { foodIds.contains($0.id) }.map { $0.name }
+        let nutritionIds = CategorySelectionManager.shared.getSelectedItems(forCategory: 1)
+        let selectedNutrition = NutritionCategory.allItems.filter { nutritionIds.contains($0.id) }.map { $0.name }
+        
+        filterArr = selectedFood + selectedNutrition
+        
+        finalArr = filterArr
+        let minRating = SearchRequestManager.shared.minRating
+        if minRating >= 3.5 {
+            finalArr.append("별점 \(SearchRequestManager.shared.minRating)이상")
+        }
+        
+        // filterArr에 없는 값을 FoodCategory나 NutritionCategory에서 랜덤하게 추가
+        let allItems = FoodCategory.allItems.map { $0.name } + NutritionCategory.allItems.map { $0.name }
+        let availableItems = allItems.filter { !filterArr.contains($0) } // filterArr에 없는 값들
+        
+        if let randomItem = availableItems.randomElement() { // 랜덤으로 하나 선택
+            finalArr.append(randomItem)
+        }
+        DispatchQueue.main.async {
+            print("reloadData 실행 - 데이터 개수: \(self.finalArr.count)")
+            self.storeview.filterCollectionView.reloadData()
+            self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
+            self.storeview.storeCollectionView.layoutIfNeeded()
+        }
+        
     }
 
     
@@ -219,6 +250,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     }
     
     private func updateFilteredCollectionViewHeight() {
+        makeFilterArray()
         let shouldShow = shouldShowFilteredCollectionView()
         let targetHeight: CGFloat = shouldShow ? 30 : 0
 
@@ -253,7 +285,7 @@ extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate
         if collectionView.tag == 0 {
             return storeData.isEmpty ? 1 : storeData.count
         } else if collectionView.tag == 1 {
-            return filterArr.count
+            return finalArr.count
         } else {
             return 0
         }
@@ -282,8 +314,15 @@ extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate
             }
         } else if collectionView.tag == 1 {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SmallFilterCell.identifier,for: indexPath) as? SmallFilterCell else { return UICollectionViewCell() }
-            cell.label.text = filterArr[indexPath.row]
-            cell.updateUI(isSelected: true)
+            let item = finalArr[indexPath.row]
+            if filterArr.contains(item) {
+                cell.updateUI(state: .filter)  // ✅ 선택한 값은 selected 상태
+            } else if item.contains("별점") {
+                cell.updateUI(state: .rating)  // ✅ minRating 조건을 만족한 값은 highlighted 상태
+            } else {
+                cell.updateUI(state: .recommended)  // ✅ 랜덤 추가된 값은 random 상태
+            }
+            cell.label.text = finalArr[indexPath.row]
             return cell
         } else {
             return UICollectionViewCell()
@@ -292,15 +331,14 @@ extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView.tag == 1 {
-            //let item = (collectionView.tag == 0) ? foodTypeList[indexPath.item].name : nutritionList[indexPath.item].name
-            let item = filterArr[indexPath.row]
+            let item = finalArr[indexPath.row]
             
             let label = UILabel()
             label.font = .systemFont(ofSize: 14)
             label.text = item
             label.sizeToFit()
             
-            return CGSize(width: label.frame.width + 13, height: label.frame.height + 8)
+            return CGSize(width: label.frame.width + 12, height: label.frame.height + 7)
         }
         return (collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize ?? CGSize(width: UIScreen.main.bounds.width - 32, height: 123)
             
