@@ -3,6 +3,7 @@
 import UIKit
 import PhotosUI
 import SnapKit
+import Combine
 
 class WriteReviewVC: UIViewController {
     
@@ -13,6 +14,7 @@ class WriteReviewVC: UIViewController {
     var param: Param!
     
     private var images: [UIImage] = []
+    private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +24,7 @@ class WriteReviewVC: UIViewController {
     
     private lazy var writeReviewView: WriteReviewView = {
         let view = WriteReviewView()
+        view.topStarsView.delegate = self
         view.navigationTitleLabel.text = param.storeDetailResponseModel.storeInfoDto.placeName
         view.topTitleLabel.text = "'\(param.storeDetailResponseModel.storeInfoDto.placeName)'의\n건강 평점을 남겨주세요!"
         view.ratingReviewView.initializeView(
@@ -36,6 +39,7 @@ class WriteReviewVC: UIViewController {
         view.reviewSubLabel.text = "사진 최대 10장, 글자 최대 300자"
         view.navigationBackButton.addTarget(self, action: #selector(popViewController), for: .touchUpInside)
         view.addImageButton.addTarget(self, action: #selector(onClickAddImage), for: .touchUpInside)
+        view.submitButton.addTarget(self, action: #selector(onClickSubmit), for: .touchUpInside)
         view.imageCollectionView.delegate = self
         view.imageCollectionView.dataSource = self
         view.reviewTextView.delegate = self
@@ -55,6 +59,20 @@ class WriteReviewVC: UIViewController {
         let pickerViewController = PHPickerViewController(configuration: configuration)
         pickerViewController.delegate = self
         present(pickerViewController, animated: true, completion: nil)
+    }
+    
+    @objc private func onClickSubmit() {
+        let param = ReviewWriteRequest(
+            placeId: param.storeDetailResponseModel.storeInfoDto.placeId,
+            images: images.compactMap({ $0.pngData() }),
+            request: ReviewWriteRequest.Request(healthScore: writeReviewView.topStarsView.star, tastyScore: writeReviewView.ratingReviewView.tasteReviewView.value, cleanScore: writeReviewView.ratingReviewView.cleanReviewView.value, freshScore: writeReviewView.ratingReviewView.freshReviewView.value, nutrScore: writeReviewView.ratingReviewView.nutritionReviewView.value, body: writeReviewView.reviewTextView.text)
+        )
+        
+        StoreRepository.shared.postReview(reviewWriteRequest: param)
+            .sinkHandledCompletion(receiveValue: { reviewWriteResponseModel in
+                print(reviewWriteResponseModel)
+            })
+            .store(in: &cancellable)
     }
     
     private func reloadImageCollectionView() {
@@ -83,7 +101,7 @@ extension WriteReviewVC: PHPickerViewControllerDelegate {
 
 extension WriteReviewVC: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        writeReviewView.submitButton.isHidden = textView.text.isEmpty
+        writeReviewView.submitButton.isHidden = textView.text.isEmpty || writeReviewView.topStarsView.star == 0
         writeReviewView.reviewSubLabel.text = textView.text.isEmpty ? "사진 최대 10장, 글자 최대 300자" : "\(textView.text.count) / 300"
     }
     
@@ -123,5 +141,11 @@ extension WriteReviewVC: UICollectionViewDelegate, UICollectionViewDataSource, U
     @objc func onClickRemove(sender: UIButton) {
         images.remove(at: sender.tag)
         reloadImageCollectionView()
+    }
+}
+
+extension WriteReviewVC: StarsViewDelegate {
+    func onClicked() {
+        writeReviewView.submitButton.isHidden = writeReviewView.reviewTextView.text.isEmpty || writeReviewView.topStarsView.star == 0
     }
 }

@@ -7,7 +7,7 @@ class WriteReviewView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = .systemBackground
+        self.backgroundColor = .white
         addComponents()
     }
     
@@ -65,6 +65,7 @@ class WriteReviewView: UIView {
         label.font = UIFont.systemFont(ofSize: 14)
         label.numberOfLines = 0
         label.textAlignment = .center
+        label.textColor = .healeatBlack
         return label
     }()
     
@@ -132,6 +133,7 @@ class WriteReviewView: UIView {
     
     lazy var reviewTextView: UITextView = {
         let textView = UITextView()
+        textView.backgroundColor = .white
         textView.textColor = .healeatBlack
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0

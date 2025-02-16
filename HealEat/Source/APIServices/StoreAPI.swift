@@ -2,11 +2,12 @@
 
 import Foundation
 import Moya
+import UIKit
 
 /// Store-Controller API
 enum StoreAPI {
     case getReviews(param: ReviewsRequest)
-    case postReview(placeId: Int)
+    case postReview(param: ReviewWriteRequest)
     case postBookmark(placeId: Int)
     case getStoreDetail(placeId: Int)
     case getReviewImgs(placeId: Int, page: Int)
@@ -26,9 +27,9 @@ extension StoreAPI: TargetType {
         switch self {
         case .getReviews(let param):
             return "/stores/\(param.placeId)/reviews"
-        case .postReview(placeId: let placeId):
-            return "/stores/\(placeId)/reviews"
-        case .postBookmark(placeId: let placeId):
+        case .postReview(let param):
+            return "/stores/\(param.placeId)/reviews"
+        case .postBookmark(let placeId):
             return "/stores/\(placeId)/bookmarks"
         case .getStoreDetail(let placeId):
             return "/stores/\(placeId)"
@@ -62,14 +63,35 @@ extension StoreAPI: TargetType {
             return .requestParameters(parameters: [
                 "page": param.page,
                 "sortBy": param.sortBy.rawValue,
-                "filters": param.filters.map({ $0.rawValue }),
+                "filters": param.filters.map(\.rawValue),
             ], encoding: URLEncoding.queryString)
-        case .postReview:
-            return .requestPlain
+        case .postReview(let param):
+            var multipartFormDatas: [MultipartFormData] = []
+            let request: [String: Any] = [
+                "healthScore": param.request.healthScore,
+                "tastyScore": param.request.tastyScore,
+                "cleanScore": param.request.cleanScore,
+                "freshScore": param.request.freshScore,
+                "nutrScore": param.request.nutrScore,
+                "body": param.request.body,
+            ]
+            if let requestData = try? JSONSerialization.data(withJSONObject: request, options: []) {
+                multipartFormDatas.append(MultipartFormData(provider: .data(requestData), name: "request"))
+            }
+            param.images.enumerated().forEach({ i, image in
+                multipartFormDatas.append(MultipartFormData(provider: .data(image), name: "files", fileName: "\(i).png", mimeType: "image/png"))
+            })
+            print(multipartFormDatas)
+            return .uploadMultipart(multipartFormDatas)
         }
     }
     
     var headers: [String : String]? {
-        return ["Content-Type": "application/json"]
+        switch self {
+        case .postReview:
+            return ["Content-Type": "multipart/form-data"]
+        default:
+            return ["Content-Type": "application/json"]
+        }
     }
 }

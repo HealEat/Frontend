@@ -5,6 +5,8 @@ import SnapKit
 
 class StarsView: UIView {
     
+    weak var delegate: StarsViewDelegate?
+    
     private let accentColor: UIColor
     private let baseColor: UIColor
     
@@ -41,6 +43,7 @@ class StarsView: UIView {
     @objc private func onClickStar(_ gestureRecognizer: UITapGestureRecognizer) {
         guard let star = gestureRecognizer.view?.tag else { return }
         self.star = Float(star)
+        delegate?.onClicked()
     }
     
     override func layoutSubviews() {
@@ -126,4 +129,8 @@ class StarBackgroundView: UIView {
         accentColor.setFill()
         processPath.fill()
     }
+}
+
+protocol StarsViewDelegate: AnyObject {
+    func onClicked()
 }

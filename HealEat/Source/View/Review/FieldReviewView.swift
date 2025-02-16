@@ -5,6 +5,8 @@ import SnapKit
 
 class FieldReviewView: UIView {
     
+    var value: Float = 0.0
+    
     private let field: ReviewFieldEnum
     
     init(field: ReviewFieldEnum) {
@@ -30,7 +32,9 @@ class FieldReviewView: UIView {
     lazy var reviewBar: ReviewBar = {
         let view = ReviewBar(field: field)
         view.valueChanged = { [weak self] value in
-            self?.reviewLabel.text = value == 0 ? "-" : (Float(value) * Float(GlobalConst.maxRating)).oneDecimalString
+            self?.value = Float(value) * Float(GlobalConst.maxRating)
+//            self?.reviewLabel.text = value == 0 ? "-" : (Float(value) * Float(GlobalConst.maxRating)).oneDecimalString
+            self?.reviewLabel.text = (Float(value) * Float(GlobalConst.maxRating)).oneDecimalString
         }
         return view
     }()
