@@ -64,7 +64,7 @@ class WriteReviewVC: UIViewController {
     @objc private func onClickSubmit() {
         let param = ReviewWriteRequest(
             placeId: param.storeDetailResponseModel.storeInfoDto.placeId,
-            images: images.compactMap({ $0.pngData() }),
+            images: images.compactMap({ $0.jpegData(compressionQuality: 1.0) }),
             request: ReviewWriteRequest.Request(healthScore: writeReviewView.topStarsView.star, tastyScore: writeReviewView.ratingReviewView.tasteReviewView.value, cleanScore: writeReviewView.ratingReviewView.cleanReviewView.value, freshScore: writeReviewView.ratingReviewView.freshReviewView.value, nutrScore: writeReviewView.ratingReviewView.nutritionReviewView.value, body: writeReviewView.reviewTextView.text)
         )
         

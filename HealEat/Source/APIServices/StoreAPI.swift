@@ -67,19 +67,11 @@ extension StoreAPI: TargetType {
             ], encoding: URLEncoding.queryString)
         case .postReview(let param):
             var multipartFormDatas: [MultipartFormData] = []
-            let request: [String: Any] = [
-                "healthScore": param.request.healthScore,
-                "tastyScore": param.request.tastyScore,
-                "cleanScore": param.request.cleanScore,
-                "freshScore": param.request.freshScore,
-                "nutrScore": param.request.nutrScore,
-                "body": param.request.body,
-            ]
-            if let requestData = try? JSONSerialization.data(withJSONObject: request, options: []) {
+            if let requestData = try? JSONEncoder().encode(param.request) {
                 multipartFormDatas.append(MultipartFormData(provider: .data(requestData), name: "request"))
             }
             param.images.enumerated().forEach({ i, image in
-                multipartFormDatas.append(MultipartFormData(provider: .data(image), name: "files", fileName: "\(i).png", mimeType: "image/png"))
+                multipartFormDatas.append(MultipartFormData(provider: .data(image), name: "files", fileName: "\(i).jpg", mimeType: "image/jpeg"))
             })
             print(multipartFormDatas)
             return .uploadMultipart(multipartFormDatas)
