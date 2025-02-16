@@ -21,7 +21,7 @@ class DetailRatingHorizontalCollectionViewHandler: NSObject, UICollectionViewDel
             return UICollectionViewCell()
         }
         cell.titleLabel.text = detailRatings[indexPath.row].0
-        cell.scoreLabel.text = String(format: "%.1f", detailRatings[indexPath.row].1)
+        cell.scoreLabel.text = detailRatings[indexPath.row].1.oneDecimalString
         return cell
     }
     

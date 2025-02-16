@@ -83,7 +83,7 @@ class RatingReviewView: UIView {
     
     func initializeView(totalHealthScore: Float, totalCount: Int, tasteScore: Float, cleanScore: Float, freshScore: Float, nutritionScore: Float) {
         reviewStarsView.star = totalHealthScore
-        reviewLabel.text = "\(totalCount == 0 ? "리뷰 없음" : "\(totalHealthScore)") (\(totalCount))"
+        reviewLabel.text = "\(totalCount == 0 ? "리뷰 없음" : totalHealthScore.oneDecimalString) (\(totalCount))"
         tasteReviewView.reviewBar.drawProcess(process: CGFloat(tasteScore) / CGFloat(GlobalConst.maxRating))
         cleanReviewView.reviewBar.drawProcess(process: CGFloat(cleanScore) / CGFloat(GlobalConst.maxRating))
         freshReviewView.reviewBar.drawProcess(process: CGFloat(freshScore) / CGFloat(GlobalConst.maxRating))

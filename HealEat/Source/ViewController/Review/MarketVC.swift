@@ -126,7 +126,7 @@ class MarketVC: UIViewController {
         marketView.titleLabel.text = storeDetailResponseModel.storeInfoDto.placeName
         marketView.subtitleLabel.text = storeDetailResponseModel.storeInfoDto.categoryName
         marketView.ratingStarView.star = storeDetailResponseModel.isInDBDto.totalHealthScore
-        marketView.ratingLabel.text = "\(storeDetailResponseModel.isInDBDto.reviewCount == 0 ? "리뷰 없음" : "\(storeDetailResponseModel.isInDBDto.totalHealthScore)") (\(storeDetailResponseModel.isInDBDto.reviewCount))"
+        marketView.ratingLabel.text = "\(storeDetailResponseModel.isInDBDto.reviewCount == 0 ? "리뷰 없음" : storeDetailResponseModel.isInDBDto.totalHealthScore.oneDecimalString) (\(storeDetailResponseModel.isInDBDto.reviewCount))"
         marketView.openLabel.text = "영업 중"
         marketView.openHourLabel.text = "9:30 - 20:30"
     }

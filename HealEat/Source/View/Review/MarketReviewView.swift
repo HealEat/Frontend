@@ -28,6 +28,7 @@ class MarketReviewView: UIView {
         tableView.sectionFooterHeight = 0
         tableView.bouncesVertically = false
         tableView.showsVerticalScrollIndicator = false
+        tableView.backgroundColor = .white
         return tableView
     }()
     

@@ -30,7 +30,7 @@ class FieldReviewView: UIView {
     lazy var reviewBar: ReviewBar = {
         let view = ReviewBar(field: field)
         view.valueChanged = { [weak self] value in
-            self?.reviewLabel.text = value == 0 ? "-" : "\(String(format: "%.1f", value * CGFloat(GlobalConst.maxRating)))"
+            self?.reviewLabel.text = value == 0 ? "-" : (Float(value) * Float(GlobalConst.maxRating)).oneDecimalString
         }
         return view
     }()

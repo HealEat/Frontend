@@ -7,6 +7,7 @@ class WriteReviewTableViewCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        backgroundColor = .white
         addComponents()
     }
     
@@ -31,6 +32,7 @@ class WriteReviewTableViewCell: UITableViewCell {
     lazy var reviewTitleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
+        label.textColor = .healeatBlack
         label.numberOfLines = 0
         label.textAlignment = .center
         return label
