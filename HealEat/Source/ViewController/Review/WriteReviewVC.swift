@@ -25,7 +25,7 @@ class WriteReviewVC: UIViewController {
         view.navigationTitleLabel.text = param.storeDetailResponseModel.storeInfoDto.placeName
         view.topTitleLabel.text = "'\(param.storeDetailResponseModel.storeInfoDto.placeName)'의\n건강 평점을 남겨주세요!"
         view.ratingReviewView.initializeView(
-            totalScore: param.storeDetailResponseModel.isInDBDto.totalScore,
+            totalHealthScore: param.storeDetailResponseModel.isInDBDto.totalHealthScore,
             totalCount: param.storeDetailResponseModel.isInDBDto.reviewCount,
             tasteScore: param.storeDetailResponseModel.totalStatDto.tastyScore,
             cleanScore: param.storeDetailResponseModel.totalStatDto.cleanScore,

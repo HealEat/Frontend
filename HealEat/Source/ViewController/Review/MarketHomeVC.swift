@@ -87,7 +87,7 @@ extension MarketHomeVC: UITableViewDataSource, UITableViewDelegate {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: RatingReviewTableViewCell.self), for: indexPath) as? RatingReviewTableViewCell else { return UITableViewCell() }
             guard let storeDetailResponseModel = storeDetailResponseModel else { return cell }
             cell.ratingReviewView.isUserInteractionEnabled = false
-            cell.ratingReviewView.initializeView(totalScore: storeDetailResponseModel.isInDBDto.totalScore, totalCount: storeDetailResponseModel.isInDBDto.reviewCount, tasteScore: storeDetailResponseModel.totalStatDto.tastyScore, cleanScore: storeDetailResponseModel.totalStatDto.cleanScore, freshScore: storeDetailResponseModel.totalStatDto.freshScore, nutritionScore: storeDetailResponseModel.totalStatDto.nutrScore)
+            cell.ratingReviewView.initializeView(totalHealthScore: storeDetailResponseModel.isInDBDto.totalHealthScore, totalCount: storeDetailResponseModel.isInDBDto.reviewCount, tasteScore: storeDetailResponseModel.totalStatDto.tastyScore, cleanScore: storeDetailResponseModel.totalStatDto.cleanScore, freshScore: storeDetailResponseModel.totalStatDto.freshScore, nutritionScore: storeDetailResponseModel.totalStatDto.nutrScore)
             return cell
         case .image:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: ImageTableViewCell.self), for: indexPath) as? ImageTableViewCell else { return UITableViewCell() }

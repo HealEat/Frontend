@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let baseVC = BaseVC()
 //        window?.rootViewController = baseVC
         let marketVC = MarketVC()
-        marketVC.param = MarketVC.Param(placeId: 2057792795)
+        marketVC.param = MarketVC.Param(placeId: 13284457)
         window?.rootViewController = UINavigationController(rootViewController: marketVC)
         window?.makeKeyAndVisible()
     }

@@ -16,7 +16,7 @@ struct StoreDetailResponseEntity: Codable {
         let features: [String]?
     }
     struct IsInDBDto: Codable {
-        let totalScore: Float?
+        let totalHealthScore: Float?
         let reviewCount: Int?
         let sickScore: Float?
         let sickCount: Int?
@@ -66,7 +66,7 @@ struct StoreDetailResponseModel: Codable {
         }
     }
     struct IsInDBDto: Codable {
-        let totalScore: Float
+        let totalHealthScore: Float
         let reviewCount: Int
         let sickScore: Float
         let sickCount: Int
@@ -76,7 +76,7 @@ struct StoreDetailResponseModel: Codable {
         let dietCount: Int
         
         init(isInDBDto: StoreDetailResponseEntity.IsInDBDto?) {
-            self.totalScore = isInDBDto?.totalScore ?? 0
+            self.totalHealthScore = isInDBDto?.totalHealthScore ?? 0
             self.reviewCount = isInDBDto?.reviewCount ?? 0
             self.sickScore = isInDBDto?.sickScore ?? 0
             self.sickCount = isInDBDto?.sickCount ?? 0

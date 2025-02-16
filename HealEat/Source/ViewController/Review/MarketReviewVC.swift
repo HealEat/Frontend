@@ -41,6 +41,7 @@ class MarketReviewVC: UIViewController {
     private var page: Int = 1
     private var isLast: Bool = false
     
+    private var requestReviews: PassthroughSubject<Void, Never> = PassthroughSubject<Void, Never>()
     private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
     
     override func viewDidLoad() {
@@ -53,6 +54,22 @@ class MarketReviewVC: UIViewController {
             sortBy: UserDefaultsManager.shared.reviewSort,
             filters: UserDefaultsManager.shared.reviewFilters
         ))
+        bind()
+    }
+    
+    private func bind() {
+        requestReviews
+            .throttle(for: 1, scheduler: RunLoop.main, latest: false)
+            .sink(receiveValue: { [weak self] in
+                guard let self = self else { return }
+                getReviews(reviewsRequest: ReviewsRequest(
+                    placeId: param.placeId,
+                    page: page,
+                    sortBy: UserDefaultsManager.shared.reviewSort,
+                    filters: UserDefaultsManager.shared.reviewFilters
+                ))
+            })
+            .store(in: &cancellable)
     }
     
     lazy var marketReviewView: MarketReviewView = {
@@ -77,7 +94,7 @@ class MarketReviewVC: UIViewController {
     private func getReviews(reviewsRequest: ReviewsRequest) {
         StoreRepository.shared.getReviews(reviewsRequest: reviewsRequest)
             .sinkHandledCompletion(receiveValue: { [weak self] reviewsResponseModel in
-                self?.reviewModels = reviewsResponseModel.reviewList
+                self?.reviewModels.append(contentsOf: reviewsResponseModel.reviewList)
                 self?.isLast = reviewsResponseModel.isLast
                 self?.page += 1
                 self?.marketReviewView.reviewTableView.reloadData()
@@ -87,6 +104,7 @@ class MarketReviewVC: UIViewController {
     
     private func reloadData() {
         page = 1
+        reviewModels = []
         getReviews(reviewsRequest: ReviewsRequest(
             placeId: param.placeId,
             page: page,
@@ -103,10 +121,11 @@ extension MarketReviewVC: UIGestureRecognizerDelegate {
 }
 
 extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
-    private enum SectionEnum: CaseIterable {
-        case writeReview
+    private enum SectionEnum: Int, CaseIterable {
+        case writeReview = 0
         case ratingReview
         case userReview
+        case loading
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -153,6 +172,8 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
             headerView.vegetButton.addTarget(self, action: #selector(onClickVeget), for: .touchUpInside)
             headerView.dietButton.addTarget(self, action: #selector(onClickDiet), for: .touchUpInside)
             return headerView
+        case .loading:
+            return nil
         }
     }
     
@@ -164,6 +185,8 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
             return 0
         case .userReview:
             return 32
+        case .loading:
+            return 0
         }
     }
     
@@ -175,6 +198,8 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
             return 1
         case .userReview:
             return max(1, reviewModels.count)
+        case .loading:
+            return isLast ? 0 : 1
         }
     }
     
@@ -191,7 +216,7 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
             guard let storeDetailResponseModel = storeDetailResponseModel else { return cell }
             cell.ratingReviewView.isUserInteractionEnabled = false
             cell.ratingReviewView.initializeView(
-                totalScore: storeDetailResponseModel.isInDBDto.totalScore,
+                totalHealthScore: storeDetailResponseModel.isInDBDto.totalHealthScore,
                 totalCount: storeDetailResponseModel.isInDBDto.reviewCount,
                 tasteScore: storeDetailResponseModel.totalStatDto.tastyScore,
                 cleanScore: storeDetailResponseModel.totalStatDto.cleanScore,
@@ -218,10 +243,12 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
             cell.handler.images = reviewModels[indexPath.row].imageUrls
             cell.imageCollectionView.reloadData()
             return cell
+        case .loading:
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: LoadingTableViewCell.self), for: indexPath) as? LoadingTableViewCell else { return UITableViewCell() }
+            cell.mainIndicatorView.startAnimating()
+            return cell
         }
     }
-    
-    // TODO: 무한 스크롤
     
     @objc private func onClickReviewMore() {
         guard let storeDetailResponseModel = storeDetailResponseModel else { return }
@@ -239,7 +266,6 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
         }
         UserDefaultsManager.shared.reviewFilters = filters
         reloadData()
-        print(UserDefaultsManager.shared.reviewFilters)
     }
     @objc private func onClickSick() {
         onClickFilter(filterEnum: .sick)
@@ -249,5 +275,11 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
     }
     @objc private func onClickDiet() {
         onClickFilter(filterEnum: .diet)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard let isLoadingVisible = marketReviewView.reviewTableView.indexPathsForVisibleRows?.contains(where: { SectionEnum(rawValue: $0.section) == .loading }),
+              isLoadingVisible && !isLast else { return }
+        requestReviews.send(())
     }
 }
