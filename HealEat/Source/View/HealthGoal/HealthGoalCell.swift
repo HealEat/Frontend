@@ -13,8 +13,8 @@ class HealthGoalCell: UICollectionViewCell {
     private lazy var goalBackgroundStack = UIStackView().then {
         $0.axis = .horizontal
         $0.alignment = .center
-        $0.distribution = .equalSpacing
-        $0.spacing = 10
+        $0.distribution = .fill
+        $0.spacing = 9
     }
     
     private lazy var goalBackground = UIView().then {
@@ -133,8 +133,9 @@ class HealthGoalCell: UICollectionViewCell {
     
     private lazy var imageStackView = UIStackView().then {
         $0.axis = .horizontal
-        $0.spacing = 8
         $0.distribution = .fillProportionally
+        $0.alignment = .leading
+        $0.spacing = 5
     }
     
     private lazy var failButton = GoalStatusButton(title: "달성 실패", selectedBackground: .healeatGray3, selectedTitleColor: .healeatGray5)
@@ -177,6 +178,7 @@ class HealthGoalCell: UICollectionViewCell {
         [goalBackground, memoView, uploadImageButton, imageStackView, statusStack].forEach { addSubview($0) }
         
         settingButton.addTarget(self, action: #selector(settingButtonTapped), for: .touchUpInside)
+        uploadImageButton.addTarget(self, action: #selector(settingButtonTapped), for: .touchUpInside)
         [failButton, progressButton, completeButton].forEach {
             $0.addTarget(self, action: #selector(statusButtonTapped(_:)), for: .touchUpInside)
         }
@@ -189,7 +191,7 @@ class HealthGoalCell: UICollectionViewCell {
         goalBackgroundStack.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.leading.equalToSuperview().offset(15)
-            make.trailing.equalTo(settingButton.snp.leading).offset(-20)
+            make.trailing.equalTo(settingButton.snp.leading).offset(-15)
         }
         settingButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
@@ -204,7 +206,7 @@ class HealthGoalCell: UICollectionViewCell {
             make.height.equalTo(32)
         }
         goalLabel.snp.makeConstraints { make in
-            make.width.equalTo(89)
+            make.width.greaterThanOrEqualTo(89)
             make.height.equalTo(32)
         }
         settingButton.snp.makeConstraints { make in
@@ -233,7 +235,7 @@ class HealthGoalCell: UICollectionViewCell {
         }
         imageStackView.snp.makeConstraints { make in
             make.top.equalTo(memoView.snp.bottom).offset(15)
-            make.leading.equalToSuperview().inset(15)
+            make.horizontalEdges.equalToSuperview().inset(15)
         }
         statusStack.snp.makeConstraints { make in
             make.bottom.equalToSuperview().offset(-20)
@@ -297,23 +299,48 @@ class HealthGoalCell: UICollectionViewCell {
         memoTextView.text = data.memo
     }
     
-    
-    
     private func updateImageStack(with images: [MemoImage]) {
         imageStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+
+        let maxImages = 5
+        let screenWidth = UIScreen.main.bounds.width //  화면 너비 가져오기
+        let imageSize = (screenWidth - 50) / CGFloat(maxImages) //  동적 크기 조절 (양쪽 여백 고려)
         
-        for image in images {
-            let url = image.imageUrl
+        var displayedImages = images.map { $0.imageUrl }
+
+        // 🔹 부족한 개수만큼 빈 칸 추가
+        while displayedImages.count < maxImages {
+            displayedImages.append("") // 빈 칸 추가
+        }
+
+        for url in displayedImages.prefix(maxImages) {
             let imageView = UIImageView()
             imageView.contentMode = .scaleAspectFill
             imageView.clipsToBounds = true
             imageView.layer.cornerRadius = 9
             imageView.layer.masksToBounds = true
-            imageView.sd_setImage(with: URL(string: url))
-            imageView.snp.makeConstraints { $0.height.width.equalTo(70) }
+
+            if url.isEmpty {
+                // 🔹 빈 칸 처리 (흰 배경)
+                imageView.backgroundColor = .white
+            } else {
+                // 🔹 정상 이미지 로드
+                imageView.sd_setImage(with: URL(string: url))
+            }
+
+            // ✅ 크기를 화면 너비 기반으로 설정
+            imageView.snp.makeConstraints {
+                $0.width.equalTo(imageSize)
+                $0.height.equalTo(imageSize)
+            }
+            
             imageStackView.addArrangedSubview(imageView)
+
         }
     }
+
+
+
 }
 
 

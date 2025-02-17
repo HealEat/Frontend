@@ -57,7 +57,7 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         
         if let image1 = UIImage(named: "example1"),
            let image2 = UIImage(named: "example2" ) {
-            uploadImages(planId: 1, images: [image1, image2])
+            //uploadImages(planId: 1, images: [image1, image2])
         }
         
         scrollView.delegate = self
@@ -131,8 +131,12 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         
         let bottomSheet = HGBottomSheetVC()
+        let healthGoal = healthGoalList[indexPath.row]
+        bottomSheet.planId = healthGoal.id
+        bottomSheet.duration = healthGoal.duration.title
+        bottomSheet.count = healthGoal.goalNumber
+        bottomSheet.goal = healthGoal.goal
         bottomSheet.goalNum = indexPath.row + 1
-        bottomSheet.planId = healthGoalList[indexPath.row].id
         bottomSheet.existingImages = healthGoalList[indexPath.row].healthPlanImages
         bottomSheet.delegate = self
         bottomSheet.overrideUserInterfaceStyle = .dark
@@ -148,6 +152,8 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
     
     
     func didUpdateHealthGoal() {
+        self.currentPage = 1
+        self.isFirstUpdate = true
         fetchHealthGoalData()
     }
     
@@ -190,24 +196,14 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         HealthGoalManager.postHealthGoal(goal) { isSuccess, response in
             if isSuccess {
                 print("건강목표 저장 성공: \(response)")
+                self.currentPage = 1
+                self.isFirstUpdate = true
                 self.fetchHealthGoalData()
             } else {
                 if let data = response?.data,
                    let errorMessage = String(data: data, encoding: .utf8) {
                     print("건강목표 저장 서버 에러 메시지: \(errorMessage)")
                 }
-            }
-        }
-    }
-    
-    private func uploadImages(planId: Int, images: [UIImage]) {
-        HealthGoalManager.uploadImage(planId: planId, images: images) { isSuccess, response in
-            if isSuccess {
-                print("이미지 업로드 성공")
-                self.fetchHealthGoalData()
-            } else {
-                print("🎨 이미지 업로드 서버 에러: \(response ?? "response 없음")")
-            
             }
         }
     }

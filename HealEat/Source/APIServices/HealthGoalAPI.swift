@@ -9,8 +9,7 @@ enum HealthGoalAPI {
     case getHealthGoal(page: Int)
     case postHealthGoal(param: HealthGoalRequest)
     case deleteHealthGoal(planId: Int)
-    case changeHealthGoal(planId: Int, param: HealthGoalRequest)
-    case uploadImage(planId: Int, param: [MultipartFormData])
+    case changeHealthGoal(planId: Int, param: ChangeHealthGoalRequest)
     
     case uploadStatus(planId: Int, status: String)
     case uploadMemo(planId: Int, memo: String)
@@ -36,9 +35,6 @@ extension HealthGoalAPI: TargetType {
         case .deleteHealthGoal(let planId): return "plans/\(planId)"
         case .changeHealthGoal(let planId, let param): return "plans/\(planId)"
             
-        case .uploadImage(let planId, _): 
-            return "plans/\(planId)/upload-images"
-            
         case .uploadStatus(let planId, let status): 
             return "plans/\(planId)/status"
         case .uploadMemo(let planId, let memo):
@@ -55,10 +51,8 @@ extension HealthGoalAPI: TargetType {
         case .deleteHealthGoal:
             return .delete
         case .changeHealthGoal:
-            return .patch
-            
-        case .uploadImage:
             return .post
+            
         case .uploadStatus:
             return .patch
         case .uploadMemo:
@@ -75,14 +69,22 @@ extension HealthGoalAPI: TargetType {
             
         case .postHealthGoal(let param) :
             return .requestJSONEncodable(param)
+            
         case .deleteHealthGoal :
             return .requestPlain
+            
+            
         case .changeHealthGoal(let planId, let param) :
-            return .requestJSONEncodable(param)
+            var multipartFormDatas: [MultipartFormData] = []
+            if let requestData = try? JSONEncoder().encode(param.updateRequest) {
+                multipartFormDatas.append(MultipartFormData(provider: .data(requestData), name: "updateRequest"))
+            }
+            param.images.enumerated().forEach({ i, image in
+                multipartFormDatas.append(MultipartFormData(provider: .data(image), name: "files", fileName: "\(i).jpg", mimeType: "image/jpeg"))
+            })
+            print(multipartFormDatas)
+            return .uploadMultipart(multipartFormDatas)
             
-            
-        case .uploadImage(_, let param):
-            return .uploadMultipart(param)
             
         case .uploadStatus(let planId, let status):
             let requestBody: [String: Any] = ["status": status]
@@ -97,7 +99,7 @@ extension HealthGoalAPI: TargetType {
     
     var headers: [String : String]? {
         switch self {
-        case .uploadImage:
+        case .changeHealthGoal:
             return ["Content-Type": "multipart/form-data"]
         default:
             return ["Content-Type": "application/json"]

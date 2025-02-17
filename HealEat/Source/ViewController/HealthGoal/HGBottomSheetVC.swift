@@ -13,12 +13,15 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
     var planId: Int?
     var goalNum: Int?
     var duration: String?
-    var count: String?
+    var count: Int?
     var goal: String?
-    var existingImages : [MemoImage] = []
-    var imagesToShow: [UIImage] = []
-    var imageToSave: [UIImage] = []
-    var imageToDelete: [Int] = []
+    
+    var existingImages: [MemoImage] = [] // 기존 서버에서 받은 이미지 (URL + ID)
+    var existingImagesMap: [Int: UIImage] = [:] // 기존 이미지 ID와 UIImage를 매핑
+    var imagesToShow: [(id: Int?, image: UIImage)] = [] // 모든 이미지 저장 (기존 + 신규)
+    var imageToSave: [UIImage] = [] // 새로 추가된 이미지
+    var imageToDelete: [Int] = [] // 삭제할 기존 이미지 ID 리스트
+
     
     private let dateDataSource = DropDownDataSource(items: ["하루", "일주일", "열흘", "한달"])
     private let countDataSource = DropDownDataSource(items: ["1회", "2회", "3회", "4회", "5회", "6회", "7회", "8회", "9회", "10회"])
@@ -45,12 +48,17 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
         $0.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
     }
     private lazy var durationButton = DropDownButton().then {
-        $0.label.text = "기간을 선택하세요."
+        $0.label.text = duration ?? "기간"
     }
     private lazy var countButton = DropDownButton().then {
-        $0.label.text = "횟수를 선택하세요."
+        if let count = count {
+            $0.label.text = "\(count)회"
+        } else {
+            $0.label.text = "횟수를 선택하세요."
+        }
     }
     private lazy var goalTextField = UITextField().then {
+        $0.text = goal ?? "목표"
         $0.layer.borderColor = UIColor.healeatGray4.cgColor
         $0.backgroundColor = .white
         $0.layer.borderWidth = 1
@@ -208,30 +216,56 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
         imageSelectCollectionView.addImageHandler = { [weak self] in
             self?.presentImagePicker()
         }
+        imageSelectCollectionView.deleteImageHandler = { [weak self] index in
+            self?.deleteImage(at: index)
+        }
     }
 
     private func setImages() {
         imagesToShow.removeAll()
+        existingImagesMap.removeAll()
+        
         let dispatchGroup = DispatchGroup()
         let imageUrls = existingImages.map { $0.imageUrl }
 
-        for urlString in imageUrls {
-            guard let url = URL(string: urlString) else { continue }
+        for memoImage in existingImages {
+            guard let url = URL(string: memoImage.imageUrl) else { continue }
             
             dispatchGroup.enter()
             SDWebImageManager.shared.loadImage(with: url, options: .highPriority, progress: nil) { image, _, _, _, _, _ in
                 if let image = image {
-                    self.imagesToShow.append(image)
+                    self.imagesToShow.append((id: memoImage.id, image: image ))
+                    self.existingImagesMap[memoImage.id] = image
                 } else {
-                    self.imagesToShow.append(UIImage(named: "placeholder") ?? UIImage())  // 기본 이미지 처리
+                    self.imagesToShow.append((id: memoImage.id, image: UIImage(named: "placeholder") ?? UIImage()))  // 기본 이미지 처리
                 }
                 dispatchGroup.leave()
             }
         }
 
         dispatchGroup.notify(queue: .main) {
-            self.imageSelectCollectionView.updateImages(self.imagesToShow)  // 🔹 모든 이미지 로드 후 UI 업데이트
+            self.imageSelectCollectionView.updateImages(self.imagesToShow.map { $0.image })
         }
+    }
+    
+    private func deleteImage(at index: Int) {
+        let imageInfo = imagesToShow[index]
+
+        if let imageId = imageInfo.id {
+            // ✅ 기존 이미지 삭제 → ID를 imageToDelete 배열에 추가
+            imageToDelete.append(imageId)
+        } else {
+            // ✅ 새로 추가한 이미지 삭제 → imageToSave 배열에서 제거
+            if let indexInSave = imageToSave.firstIndex(of: imageInfo.image) {
+                imageToSave.remove(at: indexInSave)
+            }
+        }
+
+        // ✅ imagesToShow에서도 제거
+        imagesToShow.remove(at: index)
+
+        // ✅ UICollectionView 업데이트
+        imageSelectCollectionView.updateImages(imagesToShow.map { $0.image })
     }
 
     
@@ -273,6 +307,7 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
         present(picker, animated: true)
     }
     
+    
     @objc private func deleteBtnClicked() {
         guard let planId = planId else { return }
         deleteHealthGoalData(planId: planId)
@@ -287,11 +322,8 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
             Toaster.shared.makeToast("❌ 목표를 작성해주세요.")
             return
         }
-        guard let duration = duration else {
-            Toaster.shared.makeToast("기간을 입력해주세요.")
-            return
-        }
-        guard let durationEnum = HealthPlanDuration.fromKorean(duration)?.rawValue else {
+        guard let duration = duration, // 이거 아님!! 수정 필요
+              let durationEnum = HealthPlanDuration.fromKorean(duration) else {
             Toaster.shared.makeToast("기간을 입력해주세요.")
             return
         }
@@ -301,17 +333,24 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
             return
         }
         
-        guard let countInNum = count.extractNumber else {
-            Toaster.shared.makeToast("횟수를 입력해주세요.")
-            return
-        }
-
-        let healthgoal = HealthGoalRequest(duration: durationEnum, number: countInNum, goal: goal)
+        // ✅ 새로 추가한 이미지들을 Data로 변환
+        let newImageData = imageToSave.compactMap { $0.jpegData(compressionQuality: 0.8) }
+        
+        let healthgoal = ChangeHealthGoalRequest(
+            updateRequest: HealthGoalRequest(
+                duration: durationEnum.rawValue,
+                number: count,
+                goal: goal,
+                removeImageIds: imageToDelete),
+            images: newImageData
+        )
         
         changeHealthGoalData(planId: planId, goal: healthgoal)
         
         dismiss(animated: true) {  // ✅ 바텀시트가 완전히 닫힌 후 실행
-            self.delegate?.didUpdateHealthGoal()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.delegate?.didUpdateHealthGoal()
+            }
         }
     }
     
@@ -322,7 +361,7 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
             self.duration = item  // ✅ 날짜 선택
             durationButton.label.text = item
         case 1:
-            self.count = item  // ✅ 횟수 선택
+            self.count = item.extractNumber  // ✅ 횟수 선택
             countButton.label.text = item
         default:
             break
@@ -349,7 +388,7 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
         }
     }
     
-    private func changeHealthGoalData(planId: Int, goal: HealthGoalRequest) {
+    private func changeHealthGoalData(planId: Int, goal: ChangeHealthGoalRequest) {
         HealthGoalManager.changeHealthGoal(goal, planId: planId) { isSuccess, response in
             if isSuccess {
                 print("건강목표 수정 성공: \(response)")
@@ -375,8 +414,9 @@ extension HGBottomSheetVC: PHPickerViewControllerDelegate {
             itemProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
                 DispatchQueue.main.async {
                     guard let self = self, let selectedImage = image as? UIImage else { return }
-                    self.imagesToShow.append(selectedImage)
-                    self.imageSelectCollectionView.updateImages(self.imagesToShow)
+                    self.imageToSave.append(selectedImage)
+                    self.imagesToShow.append((id: nil, image: selectedImage))
+                    self.imageSelectCollectionView.updateImages(self.imagesToShow.map { $0.image })
                 }
             }
         }

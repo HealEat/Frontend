@@ -123,7 +123,7 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
             make.height.equalTo(53)
         }
         dateButton.snp.makeConstraints { make in
-            make.width.equalTo(67)
+            make.width.equalTo(72)
             make.height.equalTo(32)
         }
         countButton.snp.makeConstraints { make in
@@ -141,13 +141,13 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
             make.top.equalTo(dateButton.snp.bottom)
             make.leading.equalTo(dateButton.snp.leading)
             make.width.equalTo(dateButton.snp.width)
-            make.height.equalTo(100)  // 고정 높이
+            make.height.equalTo(80)  // 고정 높이
         }
         countDropDownTableView.snp.makeConstraints { make in
             make.top.equalTo(countButton.snp.bottom)
             make.leading.equalTo(countButton.snp.leading)
             make.width.equalTo(countButton.snp.width)
-            make.height.equalTo(100)  // 고정 높이
+            make.height.equalTo(80)  // 고정 높이
         }
     }
 
@@ -224,10 +224,25 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
             Toaster.shared.makeToast("작성된 목표가 없습니다.")
             return false
         }
-        vc?.healthGoalRequest = HealthGoalRequest(duration: durationEnum, number: countInNum, goal: goal)
+        vc?.healthGoalRequest = HealthGoalRequest(duration: durationEnum, number: countInNum, goal: goal, removeImageIds: [])
         textField.resignFirstResponder() // 키보드 닫기
         return true
     }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if let markedTextRange = textField.markedTextRange {
+            return true // 한글 조합 중이면 그대로 허용
+        }
+
+        let currentText = textField.text ?? ""
+        guard let textRange = Range(range, in: currentText) else { return false }
+
+        let updatedText = currentText.replacingCharacters(in: textRange, with: string)
+
+        //  유니코드로 문자열 길이 확인 (한글 받침 포함 정확한 개수 계산)
+        return updatedText.precomposedStringWithCanonicalMapping.count <= 11
+    }
+
     
     
 

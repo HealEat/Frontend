@@ -11,6 +11,7 @@ class ImageSelectionCollectionView: UICollectionView, UICollectionViewDelegate, 
     }
     
     var addImageHandler: (() -> Void)?
+    var deleteImageHandler: ((Int) -> Void)?
     
     
     init() {
@@ -42,7 +43,7 @@ class ImageSelectionCollectionView: UICollectionView, UICollectionViewDelegate, 
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemoImageCell.identifier, for: indexPath) as? MemoImageCell else { return UICollectionViewCell() }
             cell.configure(with: images[indexPath.item])
             cell.deleteHandler = { [weak self] in
-                self?.images.remove(at: indexPath.item)  // 삭제
+                self?.deleteImageHandler?(indexPath.item)
             }
             return cell
         } else if indexPath.item == images.count {

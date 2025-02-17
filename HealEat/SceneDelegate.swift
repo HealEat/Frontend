@@ -16,13 +16,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
 
         // SplashVC를 초기화면으로 설정
-//        let splashVC = SplashVC() // SplashViewController -> SplashVC로 변경
-//        window?.rootViewController = splashVC
-//        let baseVC = BaseVC()
-//        window?.rootViewController = baseVC
+        let splashVC = SplashVC() // SplashViewController -> SplashVC로 변경
+        window?.rootViewController = splashVC
+        let baseVC = BaseVC()
+   //     window?.rootViewController = baseVC
         let marketVC = MarketVC()
         marketVC.param = MarketVC.Param(placeId: 13284457)
-        window?.rootViewController = UINavigationController(rootViewController: marketVC)
+        //window?.rootViewController = UINavigationController(rootViewController: marketVC)
         window?.makeKeyAndVisible()
     }
 
