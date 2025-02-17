@@ -35,7 +35,7 @@ class WriteReviewView: UIView {
     
     lazy var navigationTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textColor = .healeatBlack
         return label
     }()
@@ -62,7 +62,7 @@ class WriteReviewView: UIView {
     
     lazy var topTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.font = UIFont.systemFont(ofSize: 16)
         label.numberOfLines = 0
         label.textAlignment = .center
         label.textColor = .healeatBlack
@@ -223,7 +223,7 @@ class WriteReviewView: UIView {
             make.centerX.equalToSuperview()
         })
         topStarsView.snp.makeConstraints({ make in
-            make.height.equalTo(13)
+            make.height.equalTo(24)
         })
         separatorView1.snp.makeConstraints({ make in
             make.top.equalTo(topReviewView.snp.bottom)

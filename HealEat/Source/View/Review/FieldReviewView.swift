@@ -33,8 +33,8 @@ class FieldReviewView: UIView {
         let view = ReviewBar(field: field)
         view.valueChanged = { [weak self] value in
             self?.value = Float(value) * Float(GlobalConst.maxRating)
-//            self?.reviewLabel.text = value == 0 ? "-" : (Float(value) * Float(GlobalConst.maxRating)).oneDecimalString
-            self?.reviewLabel.text = (Float(value) * Float(GlobalConst.maxRating)).oneDecimalString
+            self?.reviewLabel.text = value == 0 ? "-" : (Float(value) * Float(GlobalConst.maxRating)).oneDecimalString
+//            self?.reviewLabel.text = (Float(value) * Float(GlobalConst.maxRating)).oneDecimalString
         }
         return view
     }()

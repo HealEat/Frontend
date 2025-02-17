@@ -105,8 +105,9 @@ class ImageViewerView: UIView {
             make.trailing.equalToSuperview()
         })
         profileView.snp.makeConstraints({ make in
-            make.top.equalTo(mainImageView.snp.bottom).offset(13)
+            make.top.equalTo(mainImageView.snp.bottom).offset(13).priority(500)
             make.leading.trailing.equalToSuperview().inset(17)
+            make.bottom.lessThanOrEqualToSuperview().inset(32)
         })
         profileImageView.snp.makeConstraints({ make in
             make.width.height.equalTo(30)

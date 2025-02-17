@@ -30,10 +30,10 @@ class WriteReviewVC: UIViewController {
         view.ratingReviewView.initializeView(
             totalHealthScore: param.storeDetailResponseModel.isInDBDto.totalHealthScore,
             totalCount: param.storeDetailResponseModel.isInDBDto.reviewCount,
-            tasteScore: param.storeDetailResponseModel.totalStatDto.tastyScore,
-            cleanScore: param.storeDetailResponseModel.totalStatDto.cleanScore,
-            freshScore: param.storeDetailResponseModel.totalStatDto.freshScore,
-            nutritionScore: param.storeDetailResponseModel.totalStatDto.nutrScore
+            tasteScore: 0,
+            cleanScore: 0,
+            freshScore: 0,
+            nutritionScore: 0
         )
         view.reviewTitleLabel.text = "후기를 작성해주세요!"
         view.reviewSubLabel.text = "사진 최대 10장, 글자 최대 300자"

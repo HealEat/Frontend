@@ -55,13 +55,13 @@ class ImageViewerVC: UIViewController {
         switch param.imageModels[param.index].type {
         case .review:
             imageViewerView.purposeButton.configuration?.attributedTitle = AttributedString(param.imageModels[param.index].info.currentPurposes.joined(separator: ", "), attributes: AttributeContainer([
-                .font: UIFont.systemFont(ofSize: 12, weight: .light),
+                .font: UIFont.systemFont(ofSize: 10, weight: .light),
                 .foregroundColor: UIColor.healeatGray1,
             ]))
             imageViewerView.profileImageView.kf.setImage(with: param.imageModels[param.index].info.url, placeholder: UIImage(resource: .defaultProfile))
         case .daum:
             imageViewerView.purposeButton.configuration?.attributedTitle = AttributedString(param.imageModels[param.index].info.url?.absoluteString ?? "", attributes: AttributeContainer([
-                .font: UIFont.systemFont(ofSize: 12, weight: .light),
+                .font: UIFont.systemFont(ofSize: 10, weight: .light),
                 .foregroundColor: UIColor.healeatGray1,
             ]))
             imageViewerView.profileImageView.image = UIImage(resource: .defaultProfile)

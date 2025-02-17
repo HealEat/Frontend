@@ -85,7 +85,7 @@ class WriteReviewTableViewCell: UITableViewCell {
             make.centerX.equalToSuperview()
         })
         reviewStarsView.snp.makeConstraints({ make in
-            make.height.equalTo(18)
+            make.height.equalTo(24)
         })
     }
 }
