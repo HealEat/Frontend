@@ -7,6 +7,7 @@ struct HealthGoalRequest: Codable {
     let duration: String
     let number: Int
     let goal: String
+    let imageIds: [Int]
 }
 
 

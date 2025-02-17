@@ -4,9 +4,11 @@ import UIKit
 import Then
 
 class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDelegate {
+    
     private var isFetchingData = false
     private var currentPage = 2
     private var isLastPage = false
+    private var isFirstUpdate = true
     
     var userName: String?
     var healthGoalList: [HealthPlan] = []
@@ -63,6 +65,7 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        isFirstUpdate = true
         currentPage = 1
         fetchHealthGoalData()
     }
@@ -98,35 +101,51 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
             make.bottom.equalToSuperview()
         }
     }
-    
+
     private func updateCollectionViewHeight() {
         let collectionViewHeight = max(335, healthGoalList.count * 335) // 최소 높이 보장
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+        
+        if isFirstUpdate {
+            // ✅ 첫 번째 업데이트만 애니메이션 적용
+            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+                self.collectionView.snp.updateConstraints { make in
+                    make.height.equalTo(collectionViewHeight)
+                }
+                self.view.layoutIfNeeded()
+            })
+            isFirstUpdate = false
+        } else {
+            // ✅ 이후에는 애니메이션 없이 즉시 업데이트
             self.collectionView.snp.updateConstraints { make in
                 make.height.equalTo(collectionViewHeight)
             }
-            self.view.layoutIfNeeded() // 레이아웃 업데이트
-        })
+            self.view.layoutIfNeeded()
+        }
     }
+
     
     
     
     //MARK: - Setup Actions
-    func didTapButton(in cell: HealthGoalCell) {
+    func didTapSettingButton(in cell: HealthGoalCell) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         
         let bottomSheet = HGBottomSheetVC()
         bottomSheet.goalNum = indexPath.row + 1
         bottomSheet.planId = healthGoalList[indexPath.row].id
+        bottomSheet.existingImages = healthGoalList[indexPath.row].healthPlanImages
         bottomSheet.delegate = self
+        bottomSheet.overrideUserInterfaceStyle = .dark
         if let sheet = bottomSheet.sheetPresentationController {
             sheet.detents = [.custom(resolver: { context in
-                return context.maximumDetentValue * 0.3 // ✅ 화면 높이의 30% 크기로 설정
+                return context.maximumDetentValue * 0.7
             })]
-            sheet.prefersGrabberVisible = true
+            sheet.prefersGrabberVisible = false
+            sheet.preferredCornerRadius = 20
         }
         present(bottomSheet, animated: true)
     }
+    
     
     func didUpdateHealthGoal() {
         fetchHealthGoalData()
@@ -189,6 +208,44 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
             } else {
                 print("🎨 이미지 업로드 서버 에러: \(response ?? "response 없음")")
             
+            }
+        }
+    }
+    
+    func didTapStatusButton(in cell: HealthGoalCell, status: HealthPlanStatus) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        let planId = healthGoalList[indexPath.row].id
+        let statusInString = status.rawValue
+        HealthGoalManager.uploadHealthGoalStatus(planId: planId, status: statusInString) { isSuccess, response in
+            if isSuccess {
+                print("진행 상태 수정 성공: \(response)")
+                self.currentPage = 1
+                self.isFirstUpdate = false
+                self.fetchHealthGoalData()
+            } else {
+                if let data = response?.data,
+                   let errorMessage = String(data: data, encoding: .utf8) {
+                    print("진행 상태 수정 실패: \(errorMessage)")
+                }
+            }
+        }
+    }
+    
+    func didSubmitMemo(in cell: HealthGoalCell, memo: String) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        let planId = healthGoalList[indexPath.row].id
+        print("memo란 이것이다: \(memo)")
+        HealthGoalManager.uploadHealthGoalMemo(planId: planId, memo: memo) { isSuccess, response in
+            if isSuccess {
+                print("메모 업로드 성공: \(response)")
+                self.currentPage = 1
+                self.isFirstUpdate = false
+                self.fetchHealthGoalData()
+            } else {
+                if let data = response?.data,
+                   let errorMessage = String(data: data, encoding: .utf8) {
+                    print("진행 상태 수정 실패: \(errorMessage)")
+                }
             }
         }
     }

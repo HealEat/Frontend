@@ -31,7 +31,7 @@ class DropDownButton: UIButton {
     private func setUp() {
         backgroundColor = .white
         layer.cornerRadius = 16
-        clipsToBounds = true
+        layer.masksToBounds = true
         layer.borderColor = UIColor.healeatGray4.cgColor
         layer.borderWidth = 1
         

@@ -11,6 +11,9 @@ enum HealthGoalAPI {
     case deleteHealthGoal(planId: Int)
     case changeHealthGoal(planId: Int, param: HealthGoalRequest)
     case uploadImage(planId: Int, param: [MultipartFormData])
+    
+    case uploadStatus(planId: Int, status: String)
+    case uploadMemo(planId: Int, memo: String)
 }
 
 
@@ -33,7 +36,13 @@ extension HealthGoalAPI: TargetType {
         case .deleteHealthGoal(let planId): return "plans/\(planId)"
         case .changeHealthGoal(let planId, let param): return "plans/\(planId)"
             
-        case .uploadImage(let planId, _): return "plans/\(planId)/upload-images"
+        case .uploadImage(let planId, _): 
+            return "plans/\(planId)/upload-images"
+            
+        case .uploadStatus(let planId, let status): 
+            return "plans/\(planId)/status"
+        case .uploadMemo(let planId, let memo):
+            return "plans/\(planId)/memo"
         }
     }
     
@@ -50,6 +59,10 @@ extension HealthGoalAPI: TargetType {
             
         case .uploadImage:
             return .post
+        case .uploadStatus:
+            return .patch
+        case .uploadMemo:
+            return .patch
         }
     }
 
@@ -70,6 +83,14 @@ extension HealthGoalAPI: TargetType {
             
         case .uploadImage(_, let param):
             return .uploadMultipart(param)
+            
+        case .uploadStatus(let planId, let status):
+            let requestBody: [String: Any] = ["status": status]
+            return .requestParameters(parameters: requestBody, encoding: JSONEncoding.default)
+            
+        case .uploadMemo(let planId, let memo):
+            let requestBody: [String: Any] = ["memo": memo]
+            return .requestParameters(parameters: requestBody, encoding: JSONEncoding.default)
         }
         
     }

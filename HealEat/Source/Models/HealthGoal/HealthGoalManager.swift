@@ -107,6 +107,38 @@ class HealthGoalManager {
         }
     }
     
+    static func uploadHealthGoalStatus(planId: Int, status: String, completion: @escaping (Bool, Response?) -> Void ) {
+        APIManager.HealthGoalProvider.request(.uploadStatus(planId: planId, status: status)) { result in
+            switch result {
+            case .success(let response):
+                if response.statusCode == 200 {
+                    completion(true, response)
+                } else {
+                    completion(false, response)
+                }
+            case .failure(let error):
+                Toaster.shared.makeToast("진행 상황 업로드 중 에러가 발생했습니다.")
+                completion(false, error.response)
+            }
+        }
+    }
+    
+    static func uploadHealthGoalMemo(planId: Int, memo: String, completion: @escaping (Bool, Response?) -> Void ) {
+        APIManager.HealthGoalProvider.request(.uploadMemo(planId: planId, memo: memo)) { result in
+            switch result {
+            case .success(let response):
+                if response.statusCode == 200 {
+                    completion(true, response)
+                } else {
+                    completion(false, response)
+                }
+            case .failure(let error):
+                Toaster.shared.makeToast("메모 업로드 중 에러가 발생했습니다.")
+                completion(false, error.response)
+            }
+        }
+    }
+    
 
     
     
