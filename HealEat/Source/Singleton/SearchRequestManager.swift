@@ -1,6 +1,5 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
-
 class SearchRequestManager {
     static let shared = SearchRequestManager()
     

@@ -16,7 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
        SDKInitializer.InitSDK(appKey: "7f7993bda29532bdccc7163352611b10")
         
         
-        
         return true
     }
 

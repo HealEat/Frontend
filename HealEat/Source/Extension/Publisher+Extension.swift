@@ -5,7 +5,7 @@ import Combine
 
 extension Publisher {
     func sinkHandledCompletion(receiveValue: @escaping ((Self.Output) -> Void)) -> AnyCancellable {
-        self.sink(receiveCompletion: { completion in
+        return self.sink(receiveCompletion: { completion in
             switch completion {
             case .finished: break
             case .failure(let error):
@@ -17,5 +17,12 @@ extension Publisher {
                 }
             }
         }, receiveValue: receiveValue)
+    }
+    
+    func manageThread() -> AnyPublisher<Output, Failure> {
+        return self
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 }

@@ -6,7 +6,7 @@ import Kingfisher
 
 class ReviewImageCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
-    var images: [UIImage] = []
+    var images: [URL] = []
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return images.count
@@ -16,13 +16,13 @@ class ReviewImageCollectionViewHandler: NSObject, UICollectionViewDelegate, UICo
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: PreviewCollectionViewCell.self), for: indexPath) as? PreviewCollectionViewCell else {
             return UICollectionViewCell()
         }
-        cell.previewImageView.image = images[indexPath.row]
-        cell.previewImageView.layer.cornerRadius = 10
+        cell.previewImageView.kf.setImage(with: images[indexPath.row])
+        cell.previewImageView.layer.cornerRadius = 6
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 50, height: 50)
+        return CGSize(width: 108, height: 108)
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 4

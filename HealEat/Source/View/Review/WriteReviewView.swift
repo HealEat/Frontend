@@ -7,7 +7,7 @@ class WriteReviewView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = .systemBackground
+        self.backgroundColor = .white
         addComponents()
     }
     
@@ -17,7 +17,7 @@ class WriteReviewView: UIView {
     
     lazy var navigationView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
         return view
     }()
     
@@ -28,14 +28,14 @@ class WriteReviewView: UIView {
     
     lazy var navigationBackButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "chevron.down"), for: .normal)
-        button.tintColor = .label
+        button.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+        button.tintColor = .healeatBlack
         return button
     }()
     
     lazy var navigationTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         label.textColor = .healeatBlack
         return label
     }()
@@ -62,9 +62,10 @@ class WriteReviewView: UIView {
     
     lazy var topTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.font = UIFont.systemFont(ofSize: 16)
         label.numberOfLines = 0
         label.textAlignment = .center
+        label.textColor = .healeatBlack
         return label
     }()
     
@@ -132,6 +133,7 @@ class WriteReviewView: UIView {
     
     lazy var reviewTextView: UITextView = {
         let textView = UITextView()
+        textView.backgroundColor = .white
         textView.textColor = .healeatBlack
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
@@ -154,6 +156,7 @@ class WriteReviewView: UIView {
         button.layer.cornerRadius = 14
         button.setTitle("저장", for: .normal)
         button.setTitleColor(.healeatGreen1, for: .normal)
+        button.isHidden = true
         return button
     }()
     
@@ -220,7 +223,7 @@ class WriteReviewView: UIView {
             make.centerX.equalToSuperview()
         })
         topStarsView.snp.makeConstraints({ make in
-            make.height.equalTo(13)
+            make.height.equalTo(24)
         })
         separatorView1.snp.makeConstraints({ make in
             make.top.equalTo(topReviewView.snp.bottom)
@@ -270,7 +273,6 @@ class WriteReviewView: UIView {
     }
     
     func updateCollectionViewWidth() {
-        print(imageCollectionView.collectionViewLayout.collectionViewContentSize.width)
         imageCollectionView.snp.updateConstraints({ make in
             make.width.equalTo(imageCollectionView.collectionViewLayout.collectionViewContentSize.width).priority(600)
         })

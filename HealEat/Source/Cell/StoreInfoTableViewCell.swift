@@ -6,6 +6,7 @@ class StoreInfoTableViewCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        backgroundColor = .white
         addComponents()
     }
     
@@ -34,11 +35,12 @@ class StoreInfoTableViewCell: UITableViewCell {
         return imageView
     }()
     
-    lazy var locationLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .healeatGray5
-        return label
+    lazy var locationButton: UIButton = {
+        let button = UIButton()
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+        button.setTitleColor(.healeatGray5, for: .normal)
+        button.showsMenuAsPrimaryAction = true
+        return button
     }()
     
     lazy var phoneView: UIView = {
@@ -88,7 +90,7 @@ class StoreInfoTableViewCell: UITableViewCell {
         infoStackView.addArrangedSubview(linkView)
         
         locationView.addSubview(locationImageView)
-        locationView.addSubview(locationLabel)
+        locationView.addSubview(locationButton)
         
         phoneView.addSubview(phoneImageView)
         phoneView.addSubview(phoneLabel)
@@ -109,7 +111,7 @@ class StoreInfoTableViewCell: UITableViewCell {
             make.leading.equalToSuperview().inset(16)
             make.height.equalTo(18)
         })
-        locationLabel.snp.makeConstraints({ make in
+        locationButton.snp.makeConstraints({ make in
             make.centerY.equalToSuperview()
             make.leading.equalTo(locationImageView.snp.trailing).offset(10)
         })

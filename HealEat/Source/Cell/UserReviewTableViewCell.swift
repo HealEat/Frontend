@@ -7,6 +7,7 @@ class UserReviewTableViewCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        backgroundColor = .white
         addComponents()
     }
     
@@ -50,6 +51,12 @@ class UserReviewTableViewCell: UITableViewCell {
         return label
     }()
     
+    lazy var profilePurposeButton: UIButton = {
+        let button = UIButton()
+        button.showsMenuAsPrimaryAction = true
+        return button
+    }()
+    
     lazy var reviewView: UIView = {
         let view = UIView()
         return view
@@ -76,52 +83,34 @@ class UserReviewTableViewCell: UITableViewCell {
         return label
     }()
     
-    lazy var photoScrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.bouncesHorizontally = false
-        scrollView.showsHorizontalScrollIndicator = false
-        return scrollView
+    let handler = ReviewImageCollectionViewHandler()
+    lazy var imageCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.backgroundColor = .clear
+        collectionView.register(PreviewCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: PreviewCollectionViewCell.self))
+        collectionView.delegate = handler
+        collectionView.dataSource = handler
+        return collectionView
     }()
-    
-    lazy var photoStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.alignment = .fill
-        stackView.distribution = .equalSpacing
-        stackView.spacing = 6
-        return stackView
-    }()
-    
-    func addImage(url: URL) {
-        let imageView = UIImageView()
-        
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 6
-        imageView.kf.setImage(with: url)
-        
-        imageView.snp.makeConstraints({ make in
-            make.width.height.equalTo(108)
-        })
-        
-        photoStackView.addArrangedSubview(imageView)
-    }
     
     private func addComponents() {
         contentView.addSubview(mainStackView)
         mainStackView.addArrangedSubview(profileView)
         mainStackView.addArrangedSubview(reviewView)
         mainStackView.addArrangedSubview(reviewLabel)
-        mainStackView.addArrangedSubview(photoScrollView)
+        mainStackView.addArrangedSubview(imageCollectionView)
         
         profileView.addSubview(profileImageView)
         profileView.addSubview(profileNameLabel)
         profileView.addSubview(profilePurposeLabel)
+        profileView.addSubview(profilePurposeButton)
         
         reviewView.addSubview(reviewStarsView)
         reviewView.addSubview(reviewDateLabel)
-        
-        photoScrollView.addSubview(photoStackView)
         
         setConstraints()
     }
@@ -139,8 +128,13 @@ class UserReviewTableViewCell: UITableViewCell {
             make.top.equalToSuperview()
         })
         profilePurposeLabel.snp.makeConstraints({ make in
+            make.top.equalTo(profileNameLabel.snp.bottom).offset(3)
             make.leading.equalTo(profileImageView.snp.trailing).offset(5)
+            make.trailing.lessThanOrEqualTo(profileView.snp.centerX)
             make.bottom.equalToSuperview()
+        })
+        profilePurposeButton.snp.makeConstraints({ make in
+            make.edges.equalTo(profilePurposeLabel)
         })
         reviewStarsView.snp.makeConstraints({ make in
             make.top.bottom.equalToSuperview().inset(1)
@@ -151,9 +145,15 @@ class UserReviewTableViewCell: UITableViewCell {
             make.centerY.equalToSuperview()
             make.leading.equalTo(reviewStarsView.snp.trailing).offset(4)
         })
-        photoStackView.snp.makeConstraints({ make in
-            make.edges.equalToSuperview()
-            make.width.height.equalToSuperview()
+        imageCollectionView.snp.makeConstraints({ make in
+            make.height.equalTo(108)
+            make.leading.trailing.equalToSuperview()
+        })
+    }
+    
+    func updateCollectionViewVisibility(isVisible: Bool) {
+        imageCollectionView.snp.updateConstraints({ make in
+            make.height.equalTo(isVisible ? 108 : 0)
         })
     }
 }

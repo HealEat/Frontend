@@ -20,21 +20,14 @@ class MarketVC: UIViewController {
     private var featureCollectionViewHandler = FeatureCollectionViewHandler()
     private var detailRatingCollectionViewHandler = DetailRatingCollectionViewHandler()
     private var previewCollectionViewHandler = PreviewCollectionViewHandler()
-    
-    private var marketHomeTableViewHandler = MarketHomeTableViewHandler()
     private var imageCollectionViewHandler = ImageCollectionViewHandler()
-    private var marketReviewTableViewHandler = MarketReviewTableViewHandler()
     
     // MARK: - API
     private var storeDetailResponseModel: StoreDetailResponseModel?
     private var imageModels: [ImageModel] = []
-    private var reviewModels: [ReviewsResponseModel.ReviewList] = []
     
     private var imagePage: Int = 1
     private var imageIsLast: Bool = false
-    
-    private var reviewPage: Int = 1
-    private var reviewIsLast: Bool = false
     
     // MARK: - PageViewControllers
     private let marketHomeVC: MarketHomeVC = {
@@ -59,25 +52,27 @@ class MarketVC: UIViewController {
         
         self.view = marketView
         self.navigationController?.navigationBar.isHidden = true
+        self.navigationController?.tabBarController?.tabBar.isHidden = true
         
-        initializeGestures()
+        initializeViewControllers()
         initializeHandlers()
         
         getStoreDetail(placeId: param.placeId)
         getReviewImgs(placeId: param.placeId, page: imagePage)
-        getReviews(reviewsRequest: ReviewsRequest(
-            placeId: param.placeId,
-            page: reviewPage,
-            sortBy: UserDefaultsManager.shared.reviewSort,
-            filters: UserDefaultsManager.shared.reviewFilters
-        ))
     }
     
     // MARK: - Func
-    private func initializeGestures() {
+    private func initializeViewControllers() {
         marketHomeVC.onGesture = panGestureHandler(recognizer:)
+        marketHomeVC.imageCollectionViewHandler = imageCollectionViewHandler
+        marketHomeVC.changePageTo = { [weak self] index in
+            guard let button = self?.marketView.topTabBar.tabBarStackView.arrangedSubviews[index] as? UIButton else { return }
+            self?.marketView.topTabBar.onClickMenu(button)
+        }
+        
         marketImageVC.onGesture = panGestureHandler(recognizer:)
         marketReviewVC.onGesture = panGestureHandler(recognizer:)
+        marketReviewVC.param = MarketReviewVC.Param(placeId: param.placeId)
     }
     
     private func initializeHandlers() {
@@ -98,36 +93,8 @@ class MarketVC: UIViewController {
             self?.present(imageViewerVC, animated: true)
         }
         
-        marketHomeTableViewHandler.imageCollectionViewHandler = imageCollectionViewHandler
-        marketHomeTableViewHandler.changePageTo = { [weak self] index in
-            guard let button = self?.marketView.topTabBar.tabBarStackView.arrangedSubviews[index] as? UIButton else { return }
-            self?.marketView.topTabBar.onClickMenu(button)
-        }
-        marketHomeVC.marketHomeView.mainTableView.delegate = marketHomeTableViewHandler
-        marketHomeVC.marketHomeView.mainTableView.dataSource = marketHomeTableViewHandler
-        
         marketImageVC.marketImageView.imageCollectionView.delegate = imageCollectionViewHandler
         marketImageVC.marketImageView.imageCollectionView.dataSource = imageCollectionViewHandler
-        
-        
-        marketReviewTableViewHandler.pushWriteReviewVC = { [weak self] in
-            guard let storeDetailResponseModel = self?.storeDetailResponseModel else { return }
-            let viewController = WriteReviewVC()
-            viewController.param = WriteReviewVC.Param(storeDetailResponseModel: storeDetailResponseModel)
-            self?.navigationController?.pushViewController(viewController, animated: true)
-        }
-        marketReviewTableViewHandler.reloadData = { [weak self] in
-            guard let self = self else { return }
-            reviewPage = 1
-            getReviews(reviewsRequest: ReviewsRequest(
-                placeId: param.placeId,
-                page: reviewPage,
-                sortBy: UserDefaultsManager.shared.reviewSort,
-                filters: UserDefaultsManager.shared.reviewFilters
-            ))
-        }
-        marketReviewVC.marketReviewView.reviewTableView.delegate = marketReviewTableViewHandler
-        marketReviewVC.marketReviewView.reviewTableView.dataSource = marketReviewTableViewHandler
     }
     
     private func setStoreToHandlers(storeDetailResponseModel: StoreDetailResponseModel) {
@@ -137,7 +104,8 @@ class MarketVC: UIViewController {
             ("베지테리언", storeDetailResponseModel.isInDBDto.vegetScore, storeDetailResponseModel.isInDBDto.vegetCount),
             ("다이어트", storeDetailResponseModel.isInDBDto.dietScore, storeDetailResponseModel.isInDBDto.dietCount),
         ]
-        marketHomeTableViewHandler.storeDetailResponseModel = storeDetailResponseModel
+        marketHomeVC.storeDetailResponseModel = storeDetailResponseModel
+        marketReviewVC.storeDetailResponseModel = storeDetailResponseModel
         
         marketView.featureCollectionView.reloadData()
         marketView.detailRatingCollectionView.reloadData()
@@ -153,19 +121,12 @@ class MarketVC: UIViewController {
         marketImageVC.marketImageView.imageCollectionView.reloadData()
     }
     
-    private func setReviewsToHandler() {
-        marketReviewTableViewHandler.reviewModels = reviewModels
-        marketReviewTableViewHandler.storeDetailResponseModel = storeDetailResponseModel
-        
-        marketReviewVC.marketReviewView.reviewTableView.reloadData()
-    }
-    
     private func initializeView(storeDetailResponseModel: StoreDetailResponseModel) {
         marketView.navigationTitleLabel.text = storeDetailResponseModel.storeInfoDto.placeName
         marketView.titleLabel.text = storeDetailResponseModel.storeInfoDto.placeName
         marketView.subtitleLabel.text = storeDetailResponseModel.storeInfoDto.categoryName
-        marketView.ratingStarView.star = storeDetailResponseModel.isInDBDto.totalScore
-        marketView.ratingLabel.text = "\(storeDetailResponseModel.isInDBDto.totalScore) (\(storeDetailResponseModel.isInDBDto.reviewCount))"
+        marketView.ratingStarView.star = storeDetailResponseModel.isInDBDto.totalHealthScore
+        marketView.ratingLabel.text = "\(storeDetailResponseModel.isInDBDto.reviewCount == 0 ? "리뷰 없음" : storeDetailResponseModel.isInDBDto.totalHealthScore.oneDecimalString) (\(storeDetailResponseModel.isInDBDto.reviewCount))"
         marketView.openLabel.text = "영업 중"
         marketView.openHourLabel.text = "9:30 - 20:30"
     }
@@ -197,7 +158,7 @@ class MarketVC: UIViewController {
     }()
     
     @objc private func onClickNavBack() {
-        
+        navigationController?.popViewController(animated: true)
     }
     
     @objc private func onClickNaver() {
@@ -278,17 +239,6 @@ class MarketVC: UIViewController {
                     self?.imageModels.append(ImageModel(daumImage: $0))
                 })
                 self?.setImagesToHandlers()
-            })
-            .store(in: &cancellable)
-    }
-    
-    private func getReviews(reviewsRequest: ReviewsRequest) {
-        StoreRepository.shared.getReviews(reviewsRequest: reviewsRequest)
-            .sinkHandledCompletion(receiveValue: { [weak self] reviewsResponseModel in
-                self?.reviewModels = reviewsResponseModel.reviewList
-                self?.reviewIsLast = reviewsResponseModel.isLast
-                self?.reviewPage += 1
-                self?.setReviewsToHandler()
             })
             .store(in: &cancellable)
     }

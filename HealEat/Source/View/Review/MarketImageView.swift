@@ -25,7 +25,7 @@ class MarketImageView: UIView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsVerticalScrollIndicator = false
         collectionView.bouncesVertically = false
-        collectionView.backgroundColor = .clear
+        collectionView.backgroundColor = .white
         collectionView.register(PreviewCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: PreviewCollectionViewCell.self))
         
         return collectionView
