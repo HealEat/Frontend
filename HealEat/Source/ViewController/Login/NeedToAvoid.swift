@@ -5,12 +5,15 @@
 
 
 
+
 import UIKit
 import SnapKit
 import Then
 
 class NeedToAvoidVC: UIViewController {
     weak var delegate: PurposeCompletionDelegate?
+    
+    private let toAvoidService = NeedToAvoidService()
 
     private let backButton = UIButton().then {
         $0.setTitle("< 이전", for: .normal)
@@ -163,8 +166,30 @@ class NeedToAvoidVC: UIViewController {
             print("옵션을 선택해주세요.")
             return
         }
+        
+        sendSelectedAvoidOptions()
+        
         let finalStepVC = FinalStepVC()
         finalStepVC.modalPresentationStyle = .fullScreen
         present(finalStepVC, animated: true, completion: nil)
+    }
+    
+    private func sendSelectedAvoidOptions() {
+        let selectedArray = Array(selectedOptions)
+        
+        toAvoidService.sendAvoidPreference(selectedAnswers: selectedArray) { success in
+            DispatchQueue.main.async {
+                if success {
+                    print("✅ 선택된 피해야 할 옵션 전송 성공: \(selectedArray)")
+
+                    // ✅ 최종 화면 이동 (예: 메인 화면으로 돌아가기)
+                    self.dismiss(animated: true) {
+                        self.delegate?.didCompletePurpose()
+                    }
+                } else {
+                    print("❌ 선택된 피해야 할 옵션 전송 실패")
+                }
+            }
+        }
     }
 }

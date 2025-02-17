@@ -5,12 +5,31 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import UIKit
 import SnapKit
 import Then
 
 class NeedNutrientVC: UIViewController {
     weak var delegate: PurposeCompletionDelegate?
+    
+    private let nutrientService = NeedNutrientService()
 
     private let backButton = UIButton().then {
         $0.setTitle("< 이전", for: .normal)
@@ -162,8 +181,30 @@ class NeedNutrientVC: UIViewController {
             print("옵션을 선택해주세요.")
             return
         }
+        
+        sendSelectedNutrientOptions()
+        
         let needToAvoidVC = NeedToAvoidVC()
         needToAvoidVC.modalPresentationStyle = .fullScreen
         present(needToAvoidVC, animated: true, completion: nil)
+    }
+    
+    private func sendSelectedNutrientOptions() {
+        let selectedArray = Array(selectedOptions)
+        
+        nutrientService.sendNutrientPreference(selectedAnswers: selectedArray) { success in
+            DispatchQueue.main.async {
+                if success {
+                    print("✅ 선택된 영양소 옵션 전송 성공: \(selectedArray)")
+
+                    // ✅ 성공 시 다음 화면으로 이동
+                    let needToAvoidVC = NeedToAvoidVC()
+                    needToAvoidVC.modalPresentationStyle = .fullScreen
+                    self.present(needToAvoidVC, animated: true, completion: nil)
+                } else {
+                    print("❌ 선택된 영양소 옵션 전송 실패")
+                }
+            }
+        }
     }
 }

@@ -1,6 +1,8 @@
 
 
 
+
+
 import UIKit
 import SnapKit
 import Then
@@ -64,6 +66,7 @@ class DietVC: UIViewController {
         view.backgroundColor = .white
         setupLayout()
         setupActions()
+        fetchUserName()
     }
 
     // MARK: - Setup Layout
@@ -112,6 +115,13 @@ class DietVC: UIViewController {
         }
     }
 
+    // MARK: - Fetch User Name
+    private func fetchUserName() {
+        GetNameService.shared.fetchUserName { [weak self] name in
+            self?.titleLabel.text = "\(name) 님의 다이어트 목적은 무엇입니까?"
+        }
+    }
+    
     // MARK: - Action Handlers
     @objc private func previousButtonTapped() {
         dismiss(animated: true, completion: nil)
@@ -156,7 +166,6 @@ class DietVC: UIViewController {
             }
         }
     }
-
 
     @objc private func optionButtonTapped(_ sender: UIButton) {
         // 모든 버튼 상태 초기화

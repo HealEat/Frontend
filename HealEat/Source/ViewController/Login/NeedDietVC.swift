@@ -5,12 +5,15 @@
 
 
 
+
 import UIKit
 import SnapKit
 import Then
 
 class NeedDietVC: UIViewController {
     weak var delegate: PurposeCompletionDelegate?
+
+    private let dietService = NeedDietService()
 
     // MARK: - UI Elements
     private let backButton = UIButton().then {
@@ -163,8 +166,31 @@ class NeedDietVC: UIViewController {
             print("옵션을 선택해주세요.")
             return
         }
+        
+        sendSelectedDietOptions()
+        
         let needNutrientVC = NeedNutrientVC()
         needNutrientVC.modalPresentationStyle = .fullScreen
         present(needNutrientVC, animated: true, completion: nil)
     }
+    
+    private func sendSelectedDietOptions() {
+        let selectedArray = Array(selectedOptions)
+        
+        dietService.sendDietPreference(selectedAnswers: selectedArray) { success in
+            DispatchQueue.main.async {
+                if success {
+                    print("✅ 선택된 식단 옵션 전송 성공: \(selectedArray)")
+
+                    // ✅ 성공 시 다음 화면으로 이동
+                    let needNutrientVC = NeedNutrientVC()
+                    needNutrientVC.modalPresentationStyle = .fullScreen
+                    self.present(needNutrientVC, animated: true, completion: nil)
+                } else {
+                    print("❌ 선택된 식단 옵션 전송 실패")
+                }
+            }
+        }
+    }
+
 }

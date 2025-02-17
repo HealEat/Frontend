@@ -1,17 +1,13 @@
 
-
-
-
-
-
-
 import UIKit
 import SnapKit
 
 class FinalStepVC: UIViewController {
     // MARK: - UI Elements
+    private let nameService = GetNameService()  // ✅ 사용자 이름 가져오는 서비스 추가
+
     private let messageLabel = UILabel().then {
-        $0.text = "김현우님을 위한 추천 매장을 선정하고 있습니다."
+        $0.text = "님을 위한 추천 매장을 선정하고 있습니다."  // 초기값 변경
         $0.numberOfLines = 0
         $0.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         $0.textAlignment = .center
@@ -35,6 +31,7 @@ class FinalStepVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupLayout()
+        fetchUserName()  // ✅ 사용자 이름 가져오기
     }
 
     // MARK: - Setup Layout
@@ -56,6 +53,14 @@ class FinalStepVC: UIViewController {
         activityIndicator.snp.makeConstraints { make in
             make.top.equalTo(subtitleLabel.snp.bottom).offset(20)
             make.centerX.equalToSuperview()
+        }
+    }
+
+    // MARK: - Fetch User Name
+    private func fetchUserName() {
+        nameService.fetchUserName { [weak self] name in
+            guard let self = self else { return }
+            self.messageLabel.text = "\(name)님을 위한 추천 매장을 선정하고 있습니다."
         }
     }
 }

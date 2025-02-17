@@ -9,6 +9,8 @@ import Then
 class VegetarianVC: UIViewController {
     weak var delegate: PurposeCompletionDelegate?
     
+    private let nameService = GetNameService()  // ✅ 사용자 이름 가져오는 서비스 추가
+    
     // MARK: - UI Elements
     private let titleLabel = UILabel().then {
         $0.text = "000 님은 베지테리언 중 어떤 종류에 속하십니까?"
@@ -18,7 +20,7 @@ class VegetarianVC: UIViewController {
     }
     
     private let subtitleLabel = UILabel().then {
-        $0.text = "* 프루테리언 제외"
+        $0.text = ""
         $0.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         $0.textAlignment = .center
         $0.textColor = .gray
@@ -63,6 +65,7 @@ class VegetarianVC: UIViewController {
         setupButtons()
         setupLayout()
         setupActions()
+        fetchUserName()
     }
     
     private func setupButtons() {
@@ -131,6 +134,12 @@ class VegetarianVC: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
     
+    private func fetchUserName() {
+        nameService.fetchUserName { [weak self] name in
+            self?.titleLabel.text = "\(name) 님의 다이어트 목적은 무엇입니까?"
+        }
+    }
+
     // MARK: - Action Handlers
     @objc private func optionTapped(_ sender: UIButton) {
         optionButtons.forEach { button in
