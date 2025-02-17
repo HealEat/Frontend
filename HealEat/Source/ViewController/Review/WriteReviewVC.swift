@@ -20,6 +20,39 @@ class WriteReviewVC: UIViewController {
         super.viewDidLoad()
         
         self.view = writeReviewView
+        
+        hideKeyboardWhenTappedAround()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification: )), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification: )), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        guard let userInfo = notification.userInfo, let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
+        }
+        writeReviewView.mainView.snp.updateConstraints({ make in
+            make.top.equalTo(writeReviewView.separatorView0.snp.bottom).inset(keyboardFrame.height)
+            make.bottom.equalToSuperview().inset(keyboardFrame.height)
+        })
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            self?.writeReviewView.layoutIfNeeded()
+        }
+    }
+    @objc func keyboardWillHide(notification: NSNotification) {
+        writeReviewView.mainView.snp.updateConstraints({ make in
+            make.top.equalTo(writeReviewView.separatorView0.snp.bottom)
+            make.bottom.equalToSuperview()
+        })
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            self?.writeReviewView.layoutIfNeeded()
+        }
     }
     
     private lazy var writeReviewView: WriteReviewView = {
@@ -68,9 +101,11 @@ class WriteReviewVC: UIViewController {
             request: ReviewWriteRequest.Request(healthScore: writeReviewView.topStarsView.star, tastyScore: writeReviewView.ratingReviewView.tasteReviewView.value, cleanScore: writeReviewView.ratingReviewView.cleanReviewView.value, freshScore: writeReviewView.ratingReviewView.freshReviewView.value, nutrScore: writeReviewView.ratingReviewView.nutritionReviewView.value, body: writeReviewView.reviewTextView.text)
         )
         
-        StoreRepository.shared.postReview(reviewWriteRequest: param)
-            .sinkHandledCompletion(receiveValue: { reviewWriteResponseModel in
+//        StoreRepository.shared.postReview(reviewWriteRequest: param)
+        StoreRepository.shared.testPostReview(reviewWriteRequest: param)
+            .sinkHandledCompletion(receiveValue: { [weak self] reviewWriteResponseModel in
                 print(reviewWriteResponseModel)
+                self?.navigationController?.popViewController(animated: true)
             })
             .store(in: &cancellable)
     }
@@ -78,6 +113,16 @@ class WriteReviewVC: UIViewController {
     private func reloadImageCollectionView() {
         writeReviewView.imageCollectionView.reloadData()
         writeReviewView.updateCollectionViewWidth()
+    }
+    
+    private func hideKeyboardWhenTappedAround() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
 }
 

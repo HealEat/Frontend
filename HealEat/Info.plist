@@ -17,11 +17,6 @@
 	</array>
 	<key>KAKAO_APP_KEY</key>
 	<string>826dcfc24d65718bf46f1655ed2a283d</string>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>naversearchapp</string>
-		<string>naversearchthirdlogin</string>
-	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

@@ -24,10 +24,6 @@ class MarketVC: UIViewController {
     
     // MARK: - API
     private var storeDetailResponseModel: StoreDetailResponseModel?
-    private var imageModels: [ImageModel] = []
-    
-    private var imagePage: Int = 1
-    private var imageIsLast: Bool = false
     
     // MARK: - PageViewControllers
     private let marketHomeVC: MarketHomeVC = {
@@ -56,9 +52,9 @@ class MarketVC: UIViewController {
         
         initializeViewControllers()
         initializeHandlers()
+        bind()
         
         getStoreDetail(placeId: param.placeId)
-        getReviewImgs(placeId: param.placeId, page: imagePage)
     }
     
     // MARK: - Func
@@ -112,10 +108,7 @@ class MarketVC: UIViewController {
         marketHomeVC.marketHomeView.mainTableView.reloadData()
     }
     
-    private func setImagesToHandlers() {
-        previewCollectionViewHandler.imageModels = imageModels
-        imageCollectionViewHandler.imageModels = imageModels
-        
+    private func reloadImages() {
         marketView.previewCollectionView.reloadData()
         marketHomeVC.marketHomeView.mainTableView.reloadData()
         marketImageVC.marketImageView.imageCollectionView.reloadData()
@@ -129,6 +122,16 @@ class MarketVC: UIViewController {
         marketView.ratingLabel.text = "\(storeDetailResponseModel.isInDBDto.reviewCount == 0 ? "리뷰 없음" : storeDetailResponseModel.isInDBDto.totalHealthScore.oneDecimalString) (\(storeDetailResponseModel.isInDBDto.reviewCount))"
         marketView.openLabel.text = "영업 중"
         marketView.openHourLabel.text = "9:30 - 20:30"
+    }
+    
+    private func bind() {
+        imageCollectionViewHandler.requestImages
+            .throttle(for: 1, scheduler: RunLoop.main, latest: false)
+            .sink(receiveValue: { [weak self] in
+                guard let self = self else { return }
+                getReviewImgs(placeId: param.placeId, page: imageCollectionViewHandler.page)
+            })
+            .store(in: &cancellable)
     }
     
     // MARK: - View
@@ -209,9 +212,11 @@ class MarketVC: UIViewController {
     private func getStoreDetail(placeId: Int) {
         StoreRepository.shared.getStoreDetail(placeId: placeId)
             .sinkHandledCompletion(receiveValue: { [weak self] storeDetailResponseModel in
-                self?.storeDetailResponseModel = storeDetailResponseModel
-                self?.initializeView(storeDetailResponseModel: storeDetailResponseModel)
-                self?.setStoreToHandlers(storeDetailResponseModel: storeDetailResponseModel)
+                guard let self = self else { return }
+                self.storeDetailResponseModel = storeDetailResponseModel
+                initializeView(storeDetailResponseModel: storeDetailResponseModel)
+                setStoreToHandlers(storeDetailResponseModel: storeDetailResponseModel)
+                getReviewImgs(placeId: param.placeId, page: imageCollectionViewHandler.page)
             })
             .store(in: &cancellable)
     }
@@ -220,14 +225,16 @@ class MarketVC: UIViewController {
         StoreRepository.shared.getReviewImgs(placeId: placeId, page: page)
             .sinkHandledCompletion(receiveValue: { [weak self] reviewImagesResponseModel in
                 reviewImagesResponseModel.reviewImageDtoList.forEach({
-                    self?.imageModels.append(ImageModel(reviewImage: $0))
+                    let imageModel = ImageModel(reviewImage: $0)
+                    self?.previewCollectionViewHandler.imageModels.append(imageModel)
+                    self?.imageCollectionViewHandler.imageModels.append(imageModel)
                 })
-                self?.imageIsLast = reviewImagesResponseModel.isLast
-                self?.imagePage += 1
+                self?.imageCollectionViewHandler.isLast = reviewImagesResponseModel.isLast
+                self?.imageCollectionViewHandler.page += 1
                 if reviewImagesResponseModel.totalElements < 10 {
                     self?.getDaumImgs(placeId: placeId)
                 }
-                self?.setImagesToHandlers()
+                self?.reloadImages()
             })
             .store(in: &cancellable)
     }
@@ -236,9 +243,11 @@ class MarketVC: UIViewController {
         StoreRepository.shared.getDaumImgs(placeId: placeId)
             .sinkHandledCompletion(receiveValue: { [weak self] daumImageResponseModels in
                 daumImageResponseModels.forEach({
-                    self?.imageModels.append(ImageModel(daumImage: $0))
+                    let imageModel = ImageModel(daumImage: $0)
+                    self?.previewCollectionViewHandler.imageModels.append(imageModel)
+                    self?.imageCollectionViewHandler.imageModels.append(imageModel)
                 })
-                self?.setImagesToHandlers()
+                self?.reloadImages()
             })
             .store(in: &cancellable)
     }

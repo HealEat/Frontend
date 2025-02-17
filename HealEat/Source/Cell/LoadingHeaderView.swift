@@ -1,13 +1,13 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
+import Foundation
 import UIKit
-import SnapKit
 
-class LoadingTableViewCell: UITableViewCell {
+class LoadingHeaderView: UICollectionReusableView {
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        backgroundColor = .white
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.backgroundColor = .white
         addComponents()
     }
     
@@ -28,7 +28,7 @@ class LoadingTableViewCell: UITableViewCell {
     }()
     
     private func addComponents() {
-        contentView.addSubview(baseView)
+        self.addSubview(baseView)
         baseView.addSubview(mainIndicatorView)
         setConstraints()
     }
@@ -36,7 +36,6 @@ class LoadingTableViewCell: UITableViewCell {
     private func setConstraints() {
         baseView.snp.makeConstraints({ make in
             make.edges.equalToSuperview()
-            make.height.equalTo(50)
         })
         mainIndicatorView.snp.makeConstraints({ make in
             make.centerX.centerY.equalToSuperview()

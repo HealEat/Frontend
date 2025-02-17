@@ -4,4 +4,5 @@ import Foundation
 
 class GlobalConst {
     static let maxRating: Int = 5
+    static var memberId: Int? = nil
 }

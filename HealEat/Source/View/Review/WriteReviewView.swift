@@ -46,6 +46,11 @@ class WriteReviewView: UIView {
         return view
     }()
     
+    lazy var mainView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
     lazy var topReviewView: UIView = {
         let view = UIView()
         return view
@@ -161,12 +166,14 @@ class WriteReviewView: UIView {
     }()
     
     private func addComponents() {
-        self.addSubview(navigationView)
         self.addSubview(separatorView0)
-        self.addSubview(topReviewView)
-        self.addSubview(separatorView1)
-        self.addSubview(ratingReviewView)
-        self.addSubview(reviewStackView)
+        self.addSubview(mainView)
+        self.addSubview(navigationView)
+        
+        mainView.addSubview(topReviewView)
+        mainView.addSubview(separatorView1)
+        mainView.addSubview(ratingReviewView)
+        mainView.addSubview(reviewStackView)
         
         navigationView.addSubview(navigationSafeAreaView)
         
@@ -214,9 +221,13 @@ class WriteReviewView: UIView {
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(1)
         })
-        topReviewView.snp.makeConstraints({ make in
+        mainView.snp.makeConstraints({ make in
             make.top.equalTo(separatorView0.snp.bottom)
             make.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+        })
+        topReviewView.snp.makeConstraints({ make in
+            make.top.leading.trailing.equalToSuperview()
         })
         topStackView.snp.makeConstraints({ make in
             make.top.bottom.equalToSuperview().inset(32)
