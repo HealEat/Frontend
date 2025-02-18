@@ -184,7 +184,7 @@ class AllKeywordsVC: UIViewController {
         let searchBy = SortSelectionManager.shared.searchBy
         let sortBy = SortSelectionManager.shared.sortBy
         
-        // ✅ `SearchRequestManager`에 업데이트
+        //  `SearchRequestManager`에 업데이트
         SearchRequestManager.shared.updateFilters(
             query: query,
             x: "\(x)",
@@ -196,7 +196,7 @@ class AllKeywordsVC: UIViewController {
             sortBy: sortBy
         )
         
-        // ✅ 검색 API 요청
+        //  검색 API 요청
         search()
     }
 
@@ -230,9 +230,7 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FoodKeywordCell.identifier, for: indexPath) as! FoodKeywordCell
 
-        let categoryType = isFoodType ? 0 : 1
-
-        // ✅ ID 및 이름 가져오기
+        //  ID 및 이름 가져오기
         let id: Int
         let item: String
         if isFoodType {
@@ -245,10 +243,9 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
             item = nutritionCategory.name
         }
         
-        // ✅ 셀에 데이터 적용
         cell.label.text = item
-
-        // ✅ 선택된 상태 반영
+        
+        let categoryType = isFoodType ? 0 : 1
         let isSelected = CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id)
         cell.updateUI(isSelected: isSelected)
 
@@ -311,7 +308,7 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 45) // ✅ 헤더 높이 설정
+        return CGSize(width: collectionView.frame.width, height: 45) //  헤더 높이
     }
 }
 

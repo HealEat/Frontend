@@ -30,6 +30,10 @@ class FinalStepVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupLayout()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.animateTransitionToBaseVC()
+        }
     }
 
     // MARK: - Setup Layout
@@ -53,4 +57,28 @@ class FinalStepVC: UIViewController {
             make.centerX.equalToSuperview()
         }
     }
+    
+    // MARK: - Navigation
+    private func animateTransitionToBaseVC() {
+        UIView.animate(withDuration: 0.5, animations: {
+            self.view.alpha = 0 
+        }) { _ in
+            self.navigateToBaseVC()
+        }
+    }
+
+    private func navigateToBaseVC() {
+        let baseVC = BaseVC()
+        baseVC.modalPresentationStyle = .fullScreen
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController = baseVC
+            window.makeKeyAndVisible()
+        }
+    }
 }
+
+
+
+

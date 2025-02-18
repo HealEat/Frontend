@@ -2,6 +2,7 @@
 
 
 import UIKit
+import KeychainSwift
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -19,7 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let splashVC = SplashVC() // SplashViewController -> SplashVC로 변경
         window?.rootViewController = splashVC
         let baseVC = BaseVC()
-   //     window?.rootViewController = baseVC
+       // window?.rootViewController = baseVC
         let marketVC = MarketVC()
         marketVC.param = MarketVC.Param(placeId: 13284457)
         //window?.rootViewController = UINavigationController(rootViewController: marketVC)
@@ -44,5 +45,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         print(message)
         print(accessToken)
+        if let token = accessToken {
+            let currentTimeInMilliseconds = Date().millisecondsSince1970
+            KeychainSwift().set(String(currentTimeInMilliseconds), forKey: "accessTokenCreatedAt")
+            KeychainSwift().set(token, forKey: "accessToken")
+            
+            NotificationCenter.default.post(name: .loginSuccess, object: nil)
+        }
+        
     }
 }

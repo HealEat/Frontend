@@ -17,6 +17,8 @@ class ProfileVC: UIViewController, UIImagePickerControllerDelegate, UINavigation
         super.viewDidLoad()
         setupActions()
         setupTextFieldObserver() // 닉네임 입력 감지
+        
+        profileView.nicknameTextField.delegate = self
     }
 
     // MARK: - Setup Actions
@@ -53,7 +55,7 @@ class ProfileVC: UIViewController, UIImagePickerControllerDelegate, UINavigation
         profileView.errorLabel.isHidden = true
         profileView.nicknameTextField.layer.borderColor = UIColor.lightGray.cgColor
 
-        // ✅ API 요청 실행 (닉네임 & 이미지 전송)
+        //  API 요청 실행 (닉네임 & 이미지 전송)
         ProfileService.shared.createProfile(name: nickname, image: selectedImageData) { result in
             switch result {
             case .success:
@@ -108,4 +110,13 @@ class ProfileVC: UIViewController, UIImagePickerControllerDelegate, UINavigation
         UIGraphicsEndImageContext()
         return croppedImage
     }
+}
+
+
+extension ProfileVC: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+
 }

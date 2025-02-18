@@ -54,12 +54,7 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         
         navigationController?.navigationBar.isHidden = true
         fetchUserProfile()
-        
-        if let image1 = UIImage(named: "example1"),
-           let image2 = UIImage(named: "example2" ) {
-            //uploadImages(planId: 1, images: [image1, image2])
-        }
-        
+    
         scrollView.delegate = self
     }
     
@@ -106,7 +101,6 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         let collectionViewHeight = max(335, healthGoalList.count * 335) // 최소 높이 보장
         
         if isFirstUpdate {
-            // ✅ 첫 번째 업데이트만 애니메이션 적용
             UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
                 self.collectionView.snp.updateConstraints { make in
                     make.height.equalTo(collectionViewHeight)
@@ -115,7 +109,6 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
             })
             isFirstUpdate = false
         } else {
-            // ✅ 이후에는 애니메이션 없이 즉시 업데이트
             self.collectionView.snp.updateConstraints { make in
                 make.height.equalTo(collectionViewHeight)
             }
@@ -230,7 +223,6 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
     func didSubmitMemo(in cell: HealthGoalCell, memo: String) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         let planId = healthGoalList[indexPath.row].id
-        print("memo란 이것이다: \(memo)")
         HealthGoalManager.uploadHealthGoalMemo(planId: planId, memo: memo) { isSuccess, response in
             if isSuccess {
                 print("메모 업로드 성공: \(response)")

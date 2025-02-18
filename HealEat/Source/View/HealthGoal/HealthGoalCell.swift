@@ -359,7 +359,6 @@ extension HealthGoalCell: UITextViewDelegate {
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        //  Return 키가 눌렸다면 API 요청 후 키보드 닫기
         if text == "\n" {
             if let memoText = textView.text, !memoText.isEmpty {
                 delegate?.didSubmitMemo(in: self, memo: memoText)
@@ -368,19 +367,15 @@ extension HealthGoalCell: UITextViewDelegate {
             return false  //  줄바꿈 방지
         }
 
-        //  현재 입력된 텍스트 + 새로 입력될 텍스트 포함한 전체 길이 계산
         let newText = (textView.text as NSString).replacingCharacters(in: range, with: text)
         
-        //  글자 수 제한 (최대 200자)
         if newText.utf16.count > 200 {
             return false
         }
 
-        // textView의 최대 크기 (현재 높이 기준)
         let maxSize = textView.frame.size
         let fittingSize = textView.sizeThatFits(CGSize(width: maxSize.width, height: CGFloat.greatestFiniteMagnitude))
 
-        //  높이를 초과하면 입력 차단
         if fittingSize.height > maxSize.height {
             return false
         }

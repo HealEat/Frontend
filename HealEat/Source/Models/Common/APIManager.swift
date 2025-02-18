@@ -1,21 +1,18 @@
-//
-//  APIManager.swift
-//  HealEat
-//
-//  Created by 이태림 on 1/26/25.
-//
 // Copyright © 2025 HealEat. All rights reserved.
 
 import Foundation
 import Moya
 
 class APIManager {
-    static let HomeProvider = MoyaProvider<HomeAPI>(plugins: [NetworkLoggerPlugin()])
-    static let CSearchProvider = MoyaProvider<CSearchAPI>(plugins: [NetworkLoggerPlugin()])
+    static let AuthProvider = MoyaProvider<AuthAPI>(plugins:
+    [BearerTokenPlugin(), NetworkLoggerPlugin()])
+    static let HomeProvider = MoyaProvider<HomeAPI>(plugins:
+    [BearerTokenPlugin(), NetworkLoggerPlugin()])
+    static let CSearchProvider = MoyaProvider<CSearchAPI>(plugins: [BearerTokenPlugin(), NetworkLoggerPlugin()])
     static let HealthGoalProvider = MoyaProvider<HealthGoalAPI>(plugins:
-        [NetworkLoggerPlugin()])
-    static let InfoProvider = MoyaProvider<InfoAPI>(plugins: [NetworkLoggerPlugin()])
-    static let MyPageProvider = MoyaProvider<MyPageAPI>(plugins: [NetworkLoggerPlugin()])
-    static let StoreProvider = MoyaProvider<StoreAPI>(plugins: [NetworkLoggerPlugin()])
+        [BearerTokenPlugin(), NetworkLoggerPlugin()])
+    static let InfoProvider = MoyaProvider<InfoAPI>(plugins: [BearerTokenPlugin(), NetworkLoggerPlugin()])
+    static let MyPageProvider = MoyaProvider<MyPageAPI>(plugins: [BearerTokenPlugin(), NetworkLoggerPlugin()])
+    static let StoreProvider = MoyaProvider<StoreAPI>(plugins: [BearerTokenPlugin(), NetworkLoggerPlugin()])
 }
 

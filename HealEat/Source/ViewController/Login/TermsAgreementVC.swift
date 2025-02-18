@@ -78,6 +78,8 @@ class TermsAgreementVC: UIViewController {
         setupViews()
         setupLayout()
         setupActions()
+        
+        getTerms()
     }
     
     private func setupViews() {
@@ -240,6 +242,21 @@ class TermsAgreementVC: UIViewController {
         let profileVC = ProfileVC()
         profileVC.modalPresentationStyle = .fullScreen
         present(profileVC, animated: false, completion: nil)
+    }
+    
+    
+    //MARK: - API call
+    
+    private func getTerms() {
+        AuthManager.fetchTermsData { result in
+            switch result {
+            case .success(let data):
+                print(data)
+            case .failure(let error):
+                print("Error occurred: \(error.localizedDescription)")
+            }
+        }
+
     }
 
 }
