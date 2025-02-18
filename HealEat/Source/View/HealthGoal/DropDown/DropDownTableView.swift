@@ -19,14 +19,14 @@ class DropDownTableView: UITableView {
     }
     
     private func setupUI() {
-        self.layer.cornerRadius = 5
-        self.clipsToBounds = true
-        self.backgroundColor = .clear
+        self.layer.cornerRadius = 10
+        self.layer.masksToBounds = true
+        self.backgroundColor = .white
         self.layer.shadowColor = UIColor.black.cgColor
         self.layer.shadowOpacity = 0.1
         self.layer.shadowOffset = CGSize(width: 0, height: 4)
         self.layer.shadowRadius = 5
-        self.layer.borderColor = UIColor(hex: "#B5B5B5")?.cgColor
+        self.layer.borderColor = UIColor.healeatGray4.cgColor
         self.layer.borderWidth = 1
     }
     

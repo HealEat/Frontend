@@ -11,12 +11,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         //태림오빠꺼
-//        SDKInitializer.InitSDK(appKey: "826dcfc24d65718bf46f1655ed2a283d")
+        //SDKInitializer.InitSDK(appKey: "826dcfc24d65718bf46f1655ed2a283d")
         //임시방편
-//        SDKInitializer.InitSDK(appKey: "7f7993bda29532bdccc7163352611b10")
-        
-        // Temp: - Hosung.Kim
-        SDKInitializer.InitSDK(appKey: "a12d41fcd35852f3815588ada58513bf")
+       SDKInitializer.InitSDK(appKey: "7f7993bda29532bdccc7163352611b10")
         
         
         return true
@@ -36,8 +33,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
     
+    // iOS 12 이하에서 사용
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         print(url)
         return true
     }
+
+
+    
 }

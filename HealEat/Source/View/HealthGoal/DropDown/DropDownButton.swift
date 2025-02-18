@@ -6,12 +6,16 @@ class DropDownButton: UIButton {
     
     private let myImageView = UIImageView().then {
         $0.isUserInteractionEnabled = false
-        $0.image = UIImage(named: "dropDownArrow")
+        let image = UIImage(systemName:"chevron.down")?.withRenderingMode(.alwaysTemplate)
+        $0.image = image
+        $0.tintColor = .healeatGray5
+        $0.contentMode = .scaleAspectFit
+        $0.isOpaque = false
     }
     
     let label = UILabel().then {
-        $0.textColor = UIColor(hex: "#797979")
-        $0.font = UIFont.systemFont(ofSize: 10, weight: .medium)
+        $0.textColor = .healeatGray5
+        $0.font = UIFont.systemFont(ofSize: 13, weight: .medium)
     }
     
     init() {
@@ -26,12 +30,14 @@ class DropDownButton: UIButton {
         
     private func setUp() {
         backgroundColor = .white
-        layer.cornerRadius = 12
-        clipsToBounds = true
-        layer.borderColor = UIColor(hex: "#B5B5B5")?.cgColor
+        layer.cornerRadius = 16
+        layer.masksToBounds = true
+        layer.borderColor = UIColor.healeatGray4.cgColor
         layer.borderWidth = 1
         
-        [label, myImageView].forEach(addSubview(_:))
+        [label, myImageView].forEach {
+            addSubview($0)
+        }
         
         label.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
@@ -40,10 +46,10 @@ class DropDownButton: UIButton {
         
         
         myImageView.snp.makeConstraints { make in
-            make.width.equalTo(5.97)
-            make.height.equalTo(3)
+            make.width.equalTo(15)
+            make.height.equalTo(15)
             make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().offset(-10)
+            make.trailing.equalToSuperview().offset(-11)
         }
     }
 }

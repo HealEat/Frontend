@@ -16,7 +16,7 @@ class SearchVC: UIViewController {
         
     
     // MARK: - UI Components
-    private lazy var searchBar = CustomSearchBar().then {
+    private lazy var searchBar = CustomCSearchBar().then {
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.healeatGray5,
             .font: UIFont.systemFont(ofSize: 16, weight: .regular)
@@ -237,6 +237,8 @@ class SearchVC: UIViewController {
         let filteredSearchVC = FilteredSearchVC()
         filteredSearchVC.filteredStoresVC.filteredData = searchResults
         filteredSearchVC.filteredStoresVC.storeData = searchResults.storeList
+        filteredSearchVC.avgX = searchResults.searchInfo?.avgX
+        filteredSearchVC.avgY = searchResults.searchInfo?.avgY
         filteredSearchVC.hidesBottomBarWhenPushed = true // 탭바 숨겨주기
         navigationController?.pushViewController(filteredSearchVC, animated: true)
     }
@@ -270,7 +272,7 @@ class SearchVC: UIViewController {
     
     //MARK: API call
     private func getRecentSearches() {
-        CSearchManager.recentSearches(page: 1) { result in
+        CSearchManager.recentSearches { result in
             switch result {
             case .success(let data):
                 guard let searchData = data.result?.recentSearchList else { return }
@@ -290,7 +292,7 @@ class SearchVC: UIViewController {
         CSearchManager.deleteRecentSearch(recentId: recentId) { isSuccess, response in
             if isSuccess {
                 self.getRecentSearches()
-                print("최근 검색 기록 삭제 성공하셧어염💓")
+                print("최근 검색 기록 삭제 성공")
             } else {
                 if let data = response?.data,
                    let errorMessage = String(data: data, encoding: .utf8) {
@@ -302,15 +304,12 @@ class SearchVC: UIViewController {
     
     private func search() {
         let param = SearchRequestManager.shared.currentRequest
-        print("📡 검색 요청: \(param)")
 
         CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
             guard isSuccess, let searchResults = searchResults else {
                 Toaster.shared.makeToast("검색 요청 실패")
                 return
             }
-            print("✅ 검색 성공! 사용된 필터: \(param)")
-            print("🔍 받아온 검색 결과: \(searchResults)")
             
             self.goToFilteredSearch(searchResults: searchResults)
         }

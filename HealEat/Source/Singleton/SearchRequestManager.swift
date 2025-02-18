@@ -50,11 +50,5 @@ class SearchRequestManager {
         self.sortBy = sortBy ?? self.sortBy
         
         print("✅ 필터 업데이트 완료:")
-        print("- query: \(self.query)")
-        print("- x: \(self.x), y: \(self.y)")
-        print("- categoryIdList: \(self.categoryIdList)")
-        print("- featureIdList: \(self.featureIdList)")
-        print("- minRating: \(self.minRating)")
-        print("- searchBy: \(self.searchBy.rawValue), sortBy: \(self.sortBy.rawValue)")
     }
 }

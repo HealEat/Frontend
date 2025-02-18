@@ -2,6 +2,7 @@
 
 
 import UIKit
+import KeychainSwift
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -16,15 +17,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
 
         // SplashVC를 초기화면으로 설정
-//        let splashVC = SplashVC() // SplashViewController -> SplashVC로 변경
-//        window?.rootViewController = splashVC
-        
-//        let baseVC = BaseVC()
-//        window?.rootViewController = baseVC
-        
+        let splashVC = SplashVC() // SplashViewController -> SplashVC로 변경
+        window?.rootViewController = splashVC
+        let baseVC = BaseVC()
+       // window?.rootViewController = baseVC
         let marketVC = MarketVC()
         marketVC.param = MarketVC.Param(placeId: 13284457)
-        window?.rootViewController = UINavigationController(rootViewController: marketVC)
+        //window?.rootViewController = UINavigationController(rootViewController: marketVC)
         
         // Hosung.Kim 백엔드 분들 리뷰 추가하기 위한 툴 빌드용 ======================================
 //        let testVC = BackTestViewController()
@@ -50,5 +49,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         print(message)
         print(accessToken)
+        if let token = accessToken {
+            let currentTimeInMilliseconds = Date().millisecondsSince1970
+            KeychainSwift().set(String(currentTimeInMilliseconds), forKey: "accessTokenCreatedAt")
+            KeychainSwift().set(token, forKey: "accessToken")
+            
+            NotificationCenter.default.post(name: .loginSuccess, object: nil)
+        }
+        
     }
 }

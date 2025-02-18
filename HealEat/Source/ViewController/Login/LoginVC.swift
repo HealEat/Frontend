@@ -2,8 +2,11 @@
 
 
 import UIKit
+import KeychainSwift
+import SwiftyToaster
 
 class LoginVC: UIViewController {
+    let tokenPlugin = BearerTokenPlugin()
     private let loginView = LoginView()
 
     // MARK: - Lifecycle
@@ -15,7 +18,15 @@ class LoginVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupActions()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(validateLogin), name: .loginSuccess, object: nil)
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+    NotificationCenter.default.removeObserver(self, name: .loginSuccess, object: nil)
+    }
+    
+    
 
     // MARK: - Actions
     private func setupActions() {
@@ -27,14 +38,19 @@ class LoginVC: UIViewController {
 
     @objc private func naverLoginTapped() {
         print("네이버 로그인 버튼 눌림")
+        UserDefaults.standard.set("naver", forKey: "lastLoginPlatform")
         guard let url = URL(string: "https://healeatapp.com/auth/naver") else { return }
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        navigateToAgreement()
+        print("validateLogin 호출안돼???")
+        validateLogin()
     }
 
     @objc private func kakaoLoginTapped() {
         print("카카오 로그인 버튼 눌림")
-        navigateToAgreement()
+        UserDefaults.standard.set("kakao", forKey: "lastLoginPlatform")
+        guard let url = URL(string: "https://healeatapp.com/auth/kakao") else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        validateLogin()
     }
 
     @objc private func appleLoginTapped() {
@@ -70,6 +86,45 @@ class LoginVC: UIViewController {
         // AlertController 표시
         present(alertController, animated: true, completion: nil)
     }
+    
+    @objc private func validateLogin() {
+        print("validateLogin")
+        self.tokenPlugin.checkAuthenticationStatus() { token in
+            if let token = token {
+                self.navigateToAgreement()
+                //self.checkTermStatus()
+            } else {
+                Toaster.shared.makeToast("로그인에 실패했습니다.")
+            }
+        }
+    }
+    
+    private func checkTermStatus() {
+        AuthManager.fetchTermsStatus { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if response {
+                    navigateToBaseVC()
+                } else {
+                    navigateToAgreement()
+                }
+            case .failure(let error):
+                Toaster.shared.makeToast("이용약관 동의 확인 중 에러가 발생했습니다.")
+            }
+        }
+    }
+    
+    
+    // MARK: - Navigation
+    func navigateToBaseVC() {
+        let baseVC = BaseVC()
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let window = scene.windows.first {
+            window.rootViewController = baseVC
+            window.makeKeyAndVisible()
+        }
+    }
 
     private func navigateToAgreement() {
         let TermsAgreementVC = TermsAgreementVC()
@@ -77,6 +132,9 @@ class LoginVC: UIViewController {
         TermsAgreementVC.modalPresentationStyle = .fullScreen
         present(TermsAgreementVC, animated: true, completion: nil)
     }
+
+    
+
     
     private func gotoHome() {
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate,
