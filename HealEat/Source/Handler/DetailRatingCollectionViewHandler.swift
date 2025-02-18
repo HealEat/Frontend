@@ -5,12 +5,7 @@ import UIKit
 
 class DetailRatingCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollectionViewDataSource {
     
-    private let detailRatings: [(String, Float, Int)]
-    
-    init(detailRatings: [(String, Float, Int)]) {
-        self.detailRatings = detailRatings
-        super.init()
-    }
+    var detailRatings: [(String, Float, Int)] = []
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return detailRatings.count
@@ -21,7 +16,7 @@ class DetailRatingCollectionViewHandler: NSObject, UICollectionViewDelegate, UIC
             return UICollectionViewCell()
         }
         cell.titleLabel.text = detailRatings[indexPath.row].0
-        cell.ratingLabel.text = String(format: "%.1f", detailRatings[indexPath.row].1)
+        cell.ratingLabel.text = detailRatings[indexPath.row].2 == 0 ? "리뷰 없음" : detailRatings[indexPath.row].1.oneDecimalString
         cell.ratingCountLabel.text = "(\(detailRatings[indexPath.row].2))"
         return cell
     }

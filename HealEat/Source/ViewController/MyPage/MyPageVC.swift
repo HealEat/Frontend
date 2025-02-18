@@ -10,7 +10,7 @@ class MyPageVC: UIViewController {
             profileImageView.image = selectedImage
         }
     }
-    let menu = ["나의 건강 정보", "저장 목록", "내가 남긴 후기"]
+    let menu = ["나의 건강 정보", "저장 목록", "내가 남긴 후기", "로그아웃", "회원 탈퇴"]
     
     // MARK: - UI Properties
     private lazy var profileImageView = UIImageView().then {
@@ -179,6 +179,11 @@ extension MyPageVC: UITableViewDelegate, UITableViewDataSource {
         case 0:
             let myhealthinfoVC = MyHealthInfoVC()
             navigationController?.pushViewController(myhealthinfoVC, animated: true)
+        case 3:
+            let logoutVC = LogOutVC()
+            logoutVC.modalPresentationStyle = .overCurrentContext
+            logoutVC.modalTransitionStyle = .crossDissolve
+            present(logoutVC, animated: true, completion: nil)
         default:
             break
         }

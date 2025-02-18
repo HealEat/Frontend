@@ -26,8 +26,8 @@ class TabBarSegmentedControl: UIView {
             button.configuration = configuration
             button.tag = i
             button.addTarget(self, action: #selector(onClickMenu(_:)), for: .touchUpInside)
-            button.setAttributedTitle(NSAttributedString(string: menus[i], attributes: [.foregroundColor: UIColor(red: 161/255, green: 161/255, blue: 161/255, alpha: 1), .font: UIFont.systemFont(ofSize: 16)]), for: .normal)
-            button.setAttributedTitle(NSAttributedString(string: menus[i], attributes: [.foregroundColor: UIColor.label, .font: UIFont.systemFont(ofSize: 16, weight: .medium)]), for: .selected)
+            button.setAttributedTitle(NSAttributedString(string: menus[i], attributes: [.foregroundColor: UIColor.healeatGray5, .font: UIFont.systemFont(ofSize: 16)]), for: .normal)
+            button.setAttributedTitle(NSAttributedString(string: menus[i], attributes: [.foregroundColor: UIColor.healeatBlack, .font: UIFont.systemFont(ofSize: 16, weight: .medium)]), for: .selected)
             tabBarStackView.addArrangedSubview(button)
         }
     }
@@ -67,13 +67,13 @@ class TabBarSegmentedControl: UIView {
     
     lazy var selectedArea: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 161/255, green: 161/255, blue: 161/255, alpha: 1)
+        view.backgroundColor = UIColor.healeatGray5
         return view
     }()
     
     lazy var selectedBar: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.label
+        view.backgroundColor = UIColor.healeatBlack
         return view
     }()
     

@@ -4,13 +4,13 @@ import Foundation
 
 struct RecentSearchResponse: Codable {
     let recentSearchList: [RecentSearchItem]?
-    let listSize: Int  // 흠.. 나중에 수정? 
 }
 
 struct RecentSearchItem: Codable {
     let recentSearchId: Int
     let searchType: SearchType
     let placeId: Int?
+    let placeName: String?
     let query: String
 }
 

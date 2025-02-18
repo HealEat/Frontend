@@ -5,9 +5,12 @@ import UIKit
 import SwiftyToaster
 
 class ChangeFilterVC: UIViewController {
-    let foodTypeList = FoodCategory.allItems
-    let nutritionList = NutritionCategory.allItems
-    let maxSelectionCount = 5
+    private let foodTypeList = FoodCategory.allItems
+    private let nutritionList = NutritionCategory.allItems
+    private let maxSelectionCount = 5
+    private var selectedRating: Float = 0.0
+    
+    weak var delegate: ChangeFilterVCDelegate?
         
     
     // MARK: - UI Components
@@ -51,7 +54,7 @@ class ChangeFilterVC: UIViewController {
         $0.tag = 1
     }
     private lazy var foodTypeButton =  UIButton().then {
-        $0.setTitle("+15", for: .normal)
+        $0.setTitle("+\(foodTypeList.count)", for: .normal)
         $0.setTitleColor(UIColor.healeatGreen1, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         $0.backgroundColor = .healeatLightGreen
@@ -59,7 +62,7 @@ class ChangeFilterVC: UIViewController {
         $0.layer.masksToBounds = true
     }
     private lazy var nutritionButton =  UIButton().then {
-        $0.setTitle("+12", for: .normal)
+        $0.setTitle("+\(nutritionList.count)", for: .normal)
         $0.setTitleColor(UIColor.healeatGreen1, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         $0.backgroundColor = .healeatLightGreen
@@ -133,7 +136,42 @@ class ChangeFilterVC: UIViewController {
         setupUI()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
 
+        over3P5Button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
+        over4Button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
+        over4P5Button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
+        
+        resetButton.addTarget(self, action: #selector(resetFilters), for: .touchUpInside)
+        applyFilterButton.addTarget(self, action: #selector(applyFilters), for: .touchUpInside)
     }
+    
+
+    @objc private func filterButtonTapped(_ sender: FilterButton) {
+        let allButtons = [over3P5Button, over4Button, over4P5Button]
+
+        if sender.isSelectedState {
+            // ✅ 이미 선택된 버튼을 다시 누르면 선택 해제
+            sender.isSelectedState = false
+            selectedRating = 0.0
+        } else {
+            // ✅ 모든 버튼 비활성화 후 선택된 버튼만 활성화
+            allButtons.forEach { $0.isSelectedState = false }
+            sender.isSelectedState = true
+
+            // ✅ 선택된 값 저장
+            switch sender {
+            case over3P5Button:
+                selectedRating = 3.5
+            case over4Button:
+                selectedRating = 4.0
+            case over4P5Button:
+                selectedRating = 4.5
+            default:
+                selectedRating = 0.0
+            }
+        }
+    }
+
+
     
 
 
@@ -207,7 +245,69 @@ class ChangeFilterVC: UIViewController {
         navigationController?.pushViewController(keywordVC, animated: true)
     }
     
+    @objc private func applyFilters() {
+        let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
+        let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
+        let x = LocationManager.shared.currentLongitude
+        let y = LocationManager.shared.currentLatitude
+        let searchBy = SortSelectionManager.shared.searchBy
+        let sortBy = SortSelectionManager.shared.sortBy
+        
+        SearchRequestManager.shared.updateFilters(
+            x: "\(x)",
+            y: "\(y)",
+            categoryIdList: foodList,
+            featureIdList: nutritionList,
+            minRating: selectedRating,
+            searchBy: searchBy,
+            sortBy: sortBy
+        )
+        
+        search()
+    }
+    
+    @objc private func resetFilters() {
+        CategorySelectionManager.shared.clearAllSelections()
+        let x = LocationManager.shared.currentLongitude
+        let y = LocationManager.shared.currentLatitude
+        SortSelectionManager.shared.searchBy = .accuracy
+        SortSelectionManager.shared.sortBy = .rating
+        
+        SearchRequestManager.shared.updateFilters(
+            query: "",
+            x: "\(x)",
+            y: "\(y)",
+            categoryIdList: [],
+            featureIdList: [],
+            minRating: 0.0,
+            searchBy: .accuracy,
+            sortBy: .rating
+        )
+        
+        search()
+    }
+    
+    
+    
     //MARK: API call
+    private func search() {
+        let param = SearchRequestManager.shared.currentRequest
+
+        CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
+            guard isSuccess, let searchResults = searchResults else {
+                Toaster.shared.makeToast("검색 요청 실패")
+                return
+            }
+            
+            self.delegate?.didReceiveSearchResults(searchResults)
+            self.dismiss(animated: true)
+        }
+    }
+    
+
+
+    
+    
 
 }
 
@@ -272,3 +372,6 @@ extension ChangeFilterVC: UICollectionViewDelegate, UICollectionViewDataSource, 
 }
 
 
+protocol ChangeFilterVCDelegate: AnyObject {
+    func didReceiveSearchResults(_ results: HomeResponse)
+}

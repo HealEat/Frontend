@@ -3,17 +3,17 @@
 import UIKit
 import Then
 import SnapKit
+import SwiftyToaster
 
-class FilteredStoresVC: UIViewController {
-    public var searchRequest: CSearchRequest?
+class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     public var filteredData: HomeResponse?
     public var storeData: [StoreResponse] = []
+    var filterArr: [String] = []
+    var finalArr: [String] = []
     public let storeview = FilteredStoresView()
     private var isFetchingData = false
     var currentPage = 2
     var isLastPage = false
-    private var currentLatitude: Double = 37.550874837441
-    private var currentLongitude: Double = 126.925554591431
     
 
     override func viewDidLoad() {
@@ -36,55 +36,87 @@ class FilteredStoresVC: UIViewController {
 
     }
     
+    func didReceiveSearchResults(_ results: HomeResponse) {
+        self.filteredData = results
+        self.storeData = results.storeList
+        self.reloadCollectionView()
+        
+        NotificationCenter.default.post(
+            name: .updateMapsVC,
+            object: nil,
+            userInfo:
+                ["lat": results.searchInfo?.avgY ?? LocationManager.shared.currentLatitude,
+                 "lon": results.searchInfo?.avgX ?? LocationManager.shared.currentLongitude]
+        )
 
-    
-    func updateLocation(lat: Double, lon: Double) {
-        self.currentLatitude = lat
-        self.currentLongitude = lon
-        //MARK: 주의!! 너무 자주 호출되지 않나 확인
-        fetchStoreData(reset: true)
     }
     
     private func fetchStoreData(reset: Bool = false) {
         guard !isLastPage else { return }
-        guard let searchRequest = searchRequest else { return }
         
         if reset {
             storeData.removeAll()
             currentPage = 1
             isLastPage = false
         }
-
+        
         isFetchingData = true // API 호출 시작
         
-        APIManager.CSearchProvider.request(.search(page: currentPage, param: searchRequest)) { result in
-            self.isFetchingData = false
-
-            switch result {
-            case .success(let response):
-                do {
-                    let decodedData = try JSONDecoder().decode(DefaultResponse<HomeResponse>.self, from: response.data)
-                    if let storeList = decodedData.result?.storeList {
-                        if reset {
-                            self.storeData = storeList
-                        } else {
-                            self.storeData.append(contentsOf: storeList)
-                        }
-                        self.currentPage += 1
-                        self.isLastPage = decodedData.result?.isLast ?? false
-
-                        DispatchQueue.main.async {
-                            self.storeview.storeCollectionView.reloadData()
-                        }
-                    }
-                } catch {
-                    print("❌ JSON 디코딩 오류:", error)
-                }
-            case .failure(let error):
-                print("❌ API 요청 실패:", error)
-            }
+        if currentPage == 1 {
+            let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
+            let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
+            let searchBy = SortSelectionManager.shared.searchBy
+            let sortBy = SortSelectionManager.shared.sortBy
+            // ✅ `SearchRequestManager`에 업데이트
+            SearchRequestManager.shared.updateFilters(
+                x: "\(LocationManager.shared.currentLongitude)",
+                y: "\(LocationManager.shared.currentLatitude)",
+                categoryIdList: foodList,
+                featureIdList: nutritionList,
+                minRating: 0.0,
+                searchBy: searchBy,
+                sortBy: sortBy
+            )
         }
+        
+        let searchRequest = SearchRequestManager.shared.currentRequest
+        
+        
+        CSearchManager.search(page: currentPage, param: searchRequest) { isSuccess, result in
+            self.isFetchingData = false
+            guard isSuccess, let searchResults = result else {
+                Toaster.shared.makeToast("검색 요청 실패")
+                return
+            }
+            let storeList = searchResults.storeList
+            if reset {
+                self.storeData = storeList
+            } else {
+                self.storeData.append(contentsOf: storeList)
+            }
+            if storeList.isEmpty {
+                self.isLastPage = true
+            }
+            self.currentPage += 1
+            self.isLastPage = searchResults.isLast ?? false
+            
+            DispatchQueue.main.async {
+                //self.storeview.storeCollectionView.reloadData()
+                self.reloadCollectionView()
+            }
+            NotificationCenter.default.post(
+                name: .updateMapsVC,
+                object: nil,
+                userInfo: [
+                    "lat": searchResults.searchInfo?.avgY ?? LocationManager.shared.currentLatitude,
+                    "lon": searchResults.searchInfo?.avgX ?? LocationManager.shared.currentLongitude ]
+            )
+    
+        }
+        
     }
+        
+
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -93,6 +125,8 @@ class FilteredStoresVC: UIViewController {
     private func setupCollectionView() {
         storeview.storeCollectionView.dataSource = self
         storeview.storeCollectionView.delegate = self
+        storeview.filterCollectionView.dataSource = self
+        storeview.filterCollectionView.delegate = self
         storeview.storeCollectionView.bounces = false
         storeview.storeCollectionView.contentInsetAdjustmentBehavior = .never
         storeview.storeCollectionView.isScrollEnabled = true
@@ -102,11 +136,46 @@ class FilteredStoresVC: UIViewController {
     
     public func reloadCollectionView() {
         DispatchQueue.main.async {
+            print("reloadCollectionView 실행 - 데이터 개수: \(self.finalArr.count)")
             self.storeview.storeCollectionView.reloadData()
             self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
             self.storeview.storeCollectionView.layoutIfNeeded()
+            
+            // ✅ 특정 필터가 선택된 경우에만 filteredCollectionView 표시
+            self.updateFilteredCollectionViewHeight()
         }
     }
+    
+    private func makeFilterArray() {
+        let foodIds = CategorySelectionManager.shared.getSelectedItems(forCategory: 0)
+        let selectedFood = FoodCategory.allItems.filter { foodIds.contains($0.id) }.map { $0.name }
+        let nutritionIds = CategorySelectionManager.shared.getSelectedItems(forCategory: 1)
+        let selectedNutrition = NutritionCategory.allItems.filter { nutritionIds.contains($0.id) }.map { $0.name }
+        
+        filterArr = selectedFood + selectedNutrition
+        
+        finalArr = filterArr
+        let minRating = SearchRequestManager.shared.minRating
+        if minRating >= 3.5 {
+            finalArr.append("별점 \(SearchRequestManager.shared.minRating)이상")
+        }
+        
+        // filterArr에 없는 값을 FoodCategory나 NutritionCategory에서 랜덤하게 추가
+        let allItems = FoodCategory.allItems.map { $0.name } + NutritionCategory.allItems.map { $0.name }
+        let availableItems = allItems.filter { !filterArr.contains($0) } // filterArr에 없는 값들
+        
+        if let randomItem = availableItems.randomElement() { // 랜덤으로 하나 선택
+            finalArr.append(randomItem)
+        }
+        DispatchQueue.main.async {
+            print("reloadData 실행 - 데이터 개수: \(self.finalArr.count)")
+            self.storeview.filterCollectionView.reloadData()
+            self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
+            self.storeview.storeCollectionView.layoutIfNeeded()
+        }
+        
+    }
+
     
     
     @objc private func goToFilterVC() {
@@ -117,6 +186,7 @@ class FilteredStoresVC: UIViewController {
             })]
             sheet.prefersGrabberVisible = false
         }
+        bottomSheet.delegate = self
         present(bottomSheet, animated: true)
     }
     
@@ -135,6 +205,11 @@ class FilteredStoresVC: UIViewController {
         sortingVC.delegate = self
         sortingVC.sortingOptions = filters
         sortingVC.isSortBy = isSortBy
+        if isSortBy {
+            sortingVC.selectedOption = SortSelectionManager.shared.sortBy.name
+        } else {
+            sortingVC.selectedOption = SortSelectionManager.shared.searchBy.name
+        }
         
         sortingVC.modalPresentationStyle = .popover
         sortingVC.modalTransitionStyle = .crossDissolve
@@ -164,36 +239,121 @@ class FilteredStoresVC: UIViewController {
         //sortingVC.preferredContentSize = CGSize(width: 122, height: 158) // ✅ 작은 크기로 표시
         present(sortingVC, animated: true)
     }
-
     
-
-
     
+    private func shouldShowFilteredCollectionView() -> Bool {
+        let foodList = CategorySelectionManager.shared.getSelectedItems(forCategory: 0)
+        let nutritionList = CategorySelectionManager.shared.getSelectedItems(forCategory: 1)
+        
+
+        return !foodList.isEmpty || !nutritionList.isEmpty
+    }
+    
+    private func updateFilteredCollectionViewHeight() {
+        makeFilterArray()
+        let shouldShow = shouldShowFilteredCollectionView()
+        let targetHeight: CGFloat = shouldShow ? 30 : 0
+
+        // ✅ 높이가 변경될 때만 애니메이션 실행
+        guard storeview.filterCollectionView.frame.height != targetHeight else {
+            if shouldShow { storeview.filterCollectionView.reloadData() }
+            return
+        }
+
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
+            self.storeview.filterCollectionView.alpha = shouldShow ? 1 : 0
+            self.storeview.filterCollectionView.snp.updateConstraints {
+                $0.height.equalTo(targetHeight)
+            }
+            self.view.layoutIfNeeded()
+        }) { _ in
+            if shouldShow {
+                self.storeview.filterCollectionView.reloadData()
+            }
+        }
+    }
+
+
+
+
+
+
 }
 
-extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate {
+extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return storeData.count
+        if collectionView.tag == 0 {
+            return storeData.isEmpty ? 1 : storeData.count
+        } else if collectionView.tag == 1 {
+            return finalArr.count
+        } else {
+            return 0
+        }
+        
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell( withReuseIdentifier: StoreCollectionViewCell.identifier, for: indexPath) as? StoreCollectionViewCell
-        else {
+        if collectionView.tag == 0 {
+            if storeData.isEmpty {
+                guard let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: EmptyStateCell.identifier,
+                    for: indexPath
+                ) as? EmptyStateCell else {
+                    return UICollectionViewCell()
+                }
+                return cell
+            } else {
+                guard let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: StoreCollectionViewCell.identifier,
+                    for: indexPath
+                ) as? StoreCollectionViewCell else {
+                    return UICollectionViewCell()
+                }
+                cell.storeconfigure(model: storeData[indexPath.row])
+                return cell
+            }
+        } else if collectionView.tag == 1 {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SmallFilterCell.identifier,for: indexPath) as? SmallFilterCell else { return UICollectionViewCell() }
+            let item = finalArr[indexPath.row]
+            if filterArr.contains(item) {
+                cell.updateUI(state: .filter)  // ✅ 선택한 값은 selected 상태
+            } else if item.contains("별점") {
+                cell.updateUI(state: .rating)  // ✅ minRating 조건을 만족한 값은 highlighted 상태
+            } else {
+                cell.updateUI(state: .recommended)  // ✅ 랜덤 추가된 값은 random 상태
+            }
+            cell.label.text = finalArr[indexPath.row]
+            return cell
+        } else {
             return UICollectionViewCell()
         }
-
-        let model = storeData[indexPath.row]
-        cell.storeconfigure(model: model)
-
-        return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if collectionView.tag == 1 {
+            let item = finalArr[indexPath.row]
+            
+            let label = UILabel()
+            label.font = .systemFont(ofSize: 14)
+            label.text = item
+            label.sizeToFit()
+            
+            return CGSize(width: label.frame.width + 12, height: label.frame.height + 7)
+        }
+        return (collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize ?? CGSize(width: UIScreen.main.bounds.width - 32, height: 123)
+            
+    }
+
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
+        
+        // 🔥 마지막 페이지이면 요청 중단
+        guard !isFetchingData, !isLastPage else { return }
 
-        if offsetY > contentHeight - height * 2, !isFetchingData {
+        if offsetY > contentHeight - height * 2 {
             isFetchingData = true
             fetchStoreData()
         }
@@ -210,6 +370,8 @@ extension FilteredStoresVC: SortingDropdownDelegate {
         } else {
             storeview.setByResultButton.buttonLabel.text = option
         }
+        fetchStoreData(reset: true)
+        isLastPage = false
     }
 }
 
@@ -219,3 +381,5 @@ extension FilteredStoresVC: UIPopoverPresentationControllerDelegate {
         return .none // ✅ iPhone에서도 popover 스타일 유지
     }
 }
+
+

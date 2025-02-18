@@ -3,15 +3,25 @@
 
 import UIKit
 import SwiftyToaster
+import SDWebImage
+import PhotosUI
 
-class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
+class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
+    
     weak var delegate: HealthGoalUpdateDelegate?
 
     var planId: Int?
     var goalNum: Int?
     var duration: String?
-    var count: String?
+    var count: Int?
     var goal: String?
+    
+    var existingImages: [MemoImage] = [] // 기존 서버에서 받은 이미지 (URL + ID)
+    var existingImagesMap: [Int: UIImage] = [:] // 기존 이미지 ID와 UIImage를 매핑
+    var imagesToShow: [(id: Int?, image: UIImage)] = [] // 모든 이미지 저장 (기존 + 신규)
+    var imageToSave: [UIImage] = [] // 새로 추가된 이미지
+    var imageToDelete: [Int] = [] // 삭제할 기존 이미지 ID 리스트
+
     
     private let dateDataSource = DropDownDataSource(items: ["하루", "일주일", "열흘", "한달"])
     private let countDataSource = DropDownDataSource(items: ["1회", "2회", "3회", "4회", "5회", "6회", "7회", "8회", "9회", "10회"])
@@ -20,56 +30,67 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
     private lazy var goalNumLabel = UILabel().then {
         $0.text = "목표 \(goalNum ?? 0)"
         $0.textColor = .black
-        $0.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+        $0.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
     }
     private lazy var durationLabel = UILabel().then {
         $0.text = "기간"
-        $0.textColor = UIColor(hex: "#747474")
-        $0.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        $0.textColor = UIColor.healeatGray5
+        $0.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
     }
     private lazy var countLabel = UILabel().then {
         $0.text = "횟수"
-        $0.textColor = UIColor(hex: "#747474")
-        $0.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        $0.textColor = UIColor.healeatGray5
+        $0.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
     }
     private lazy var goalLabel = UILabel().then {
         $0.text = "목표"
-        $0.textColor = UIColor(hex: "#747474")
-        $0.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        $0.textColor = UIColor.healeatGray5
+        $0.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
     }
     private lazy var durationButton = DropDownButton().then {
-        $0.label.text = "기간을 선택하세요."
+        $0.label.text = duration ?? "기간"
     }
     private lazy var countButton = DropDownButton().then {
-        $0.label.text = "횟수를 선택하세요."
+        if let count = count {
+            $0.label.text = "\(count)회"
+        } else {
+            $0.label.text = "횟수를 선택하세요."
+        }
     }
     private lazy var goalTextField = UITextField().then {
-        $0.layer.borderColor = UIColor(hex: "#B5B5B5")?.cgColor
+        $0.text = goal ?? "목표"
+        $0.layer.borderColor = UIColor.healeatGray4.cgColor
         $0.backgroundColor = .white
         $0.layer.borderWidth = 1
-        $0.layer.cornerRadius = 12
-        $0.clipsToBounds = true
+        $0.layer.cornerRadius = 16
+        $0.layer.masksToBounds = true
         let fullText = "목표를 작성하세요."
-        let attributedString = NSMutableAttributedString(string: fullText, attributes: [.foregroundColor: UIColor(hex: "#797979") ?? UIColor.gray, .font: UIFont.systemFont(ofSize: 10, weight: .medium)])
+        let attributedString = NSMutableAttributedString(string: fullText, attributes: [.foregroundColor: UIColor.healeatGray5, .font: UIFont.systemFont(ofSize: 13, weight: .medium)])
         $0.attributedPlaceholder = attributedString
         $0.addLeftPadding()
-        $0.textColor = UIColor(hex: "#797979")
-        $0.font = UIFont.systemFont(ofSize: 10, weight: .medium)
+        $0.textColor = UIColor.healeatGray5
+        $0.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         $0.textAlignment = .left
+    }
+    private lazy var imageSelectCollectionView = ImageSelectionCollectionView().then {
+        $0.backgroundColor = .white
+        $0.isScrollEnabled = false
     }
     private lazy var deleteButton = UIButton().then {
         $0.setTitle("삭제", for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        $0.backgroundColor = UIColor(hex: "#A1A1A1")
-        $0.layer.cornerRadius = 12
-        $0.clipsToBounds = true
+        $0.setTitleColor(UIColor.healeatGray5, for: .normal)
+        $0.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        $0.backgroundColor = UIColor.healeatGray3
+        $0.layer.cornerRadius = 14
+        $0.layer.masksToBounds = true
     }
     private lazy var saveButton = UIButton().then {
         $0.setTitle("저장", for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        $0.backgroundColor = UIColor(hex: "#009459")
-        $0.layer.cornerRadius = 12
-        $0.clipsToBounds = true
+        $0.setTitleColor(UIColor.healeatGreen1, for: .normal)
+        $0.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        $0.backgroundColor = UIColor.healeatLightGreen
+        $0.layer.cornerRadius = 14
+        $0.layer.masksToBounds = true
         
     }
     
@@ -93,9 +114,9 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
     }
     private lazy var buttonStack = UIStackView().then {
         $0.axis = .horizontal
-        $0.alignment = .center
+        $0.alignment = .fill
         $0.distribution = .fillEqually
-        $0.spacing = 25
+        $0.spacing = 26
     }
     
     private lazy var dateDropDownTableView = DropDownTableView().then {
@@ -114,6 +135,7 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        setImages()
     }
     
     
@@ -124,7 +146,7 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
         [countLabel, countButton].forEach(countStack.addArrangedSubview(_:))
         [goalLabel, goalTextField].forEach(goalStack.addArrangedSubview(_:))
         [deleteButton, saveButton].forEach(buttonStack.addArrangedSubview(_:))
-        [goalNumLabel, durationStack, countStack, goalStack, buttonStack].forEach {
+        [goalNumLabel, durationStack, countStack, goalStack, imageSelectCollectionView, buttonStack].forEach {
             view.addSubview($0)
         }
         [dateDropDownTableView, countDropDownTableView].forEach {
@@ -140,33 +162,38 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
             make.leading.equalToSuperview().offset(30)
         }
         durationStack.snp.makeConstraints { make in
-            make.top.equalTo(goalNumLabel.snp.bottom).offset(15)
+            make.top.equalTo(goalNumLabel.snp.bottom).offset(20)
             make.leading.equalToSuperview().offset(30)
         }
         durationButton.snp.makeConstraints { make in
-            make.width.equalTo(171)
-            make.height.equalTo(23)
+            make.width.equalTo(180)
+            make.height.equalTo(32)
         }
         countStack.snp.makeConstraints { make in
-            make.top.equalTo(durationStack.snp.bottom).offset(10)
+            make.top.equalTo(durationStack.snp.bottom).offset(15)
             make.leading.equalToSuperview().offset(30)
         }
         countButton.snp.makeConstraints { make in
-            make.width.equalTo(171)
-            make.height.equalTo(23)
+            make.width.equalTo(180)
+            make.height.equalTo(32)
         }
         goalStack.snp.makeConstraints { make in
-            make.top.equalTo(countStack.snp.bottom).offset(10)
+            make.top.equalTo(countStack.snp.bottom).offset(15)
             make.leading.equalToSuperview().offset(30)
         }
         goalTextField.snp.makeConstraints { make in
-            make.width.equalTo(171)
-            make.height.equalTo(23)
+            make.width.equalTo(180)
+            make.height.equalTo(32)
+        }
+        imageSelectCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(goalStack.snp.bottom).offset(25)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(232)
         }
         buttonStack.snp.makeConstraints { make in
-            make.top.equalTo(goalStack.snp.bottom).offset(30)
-            make.horizontalEdges.equalToSuperview().inset(100)
-            make.height.equalTo(35)
+            make.horizontalEdges.equalToSuperview().inset(120)
+            make.height.equalTo(36)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
         dateDropDownTableView.snp.makeConstraints { make in
             make.top.equalTo(durationButton.snp.bottom)
@@ -185,7 +212,62 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
         countButton.addTarget(self, action: #selector(countBtnClicked), for: .touchUpInside)
         deleteButton.addTarget(self, action: #selector(deleteBtnClicked), for: .touchUpInside)
         saveButton.addTarget(self, action: #selector(saveBtnClicked), for: .touchUpInside)
+        
+        imageSelectCollectionView.addImageHandler = { [weak self] in
+            self?.presentImagePicker()
+        }
+        imageSelectCollectionView.deleteImageHandler = { [weak self] index in
+            self?.deleteImage(at: index)
+        }
     }
+
+    private func setImages() {
+        imagesToShow.removeAll()
+        existingImagesMap.removeAll()
+        
+        let dispatchGroup = DispatchGroup()
+        let imageUrls = existingImages.map { $0.imageUrl }
+
+        for memoImage in existingImages {
+            guard let url = URL(string: memoImage.imageUrl) else { continue }
+            
+            dispatchGroup.enter()
+            SDWebImageManager.shared.loadImage(with: url, options: .highPriority, progress: nil) { image, _, _, _, _, _ in
+                if let image = image {
+                    self.imagesToShow.append((id: memoImage.id, image: image ))
+                    self.existingImagesMap[memoImage.id] = image
+                } else {
+                    self.imagesToShow.append((id: memoImage.id, image: UIImage(named: "placeholder") ?? UIImage()))  // 기본 이미지 처리
+                }
+                dispatchGroup.leave()
+            }
+        }
+
+        dispatchGroup.notify(queue: .main) {
+            self.imageSelectCollectionView.updateImages(self.imagesToShow.map { $0.image })
+        }
+    }
+    
+    private func deleteImage(at index: Int) {
+        let imageInfo = imagesToShow[index]
+
+        if let imageId = imageInfo.id {
+            // ✅ 기존 이미지 삭제 → ID를 imageToDelete 배열에 추가
+            imageToDelete.append(imageId)
+        } else {
+            // ✅ 새로 추가한 이미지 삭제 → imageToSave 배열에서 제거
+            if let indexInSave = imageToSave.firstIndex(of: imageInfo.image) {
+                imageToSave.remove(at: indexInSave)
+            }
+        }
+
+        // ✅ imagesToShow에서도 제거
+        imagesToShow.remove(at: index)
+
+        // ✅ UICollectionView 업데이트
+        imageSelectCollectionView.updateImages(imagesToShow.map { $0.image })
+    }
+
     
     
     //MARK: - Setup Actions
@@ -207,6 +289,25 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
         }
     }
     
+    private func presentImagePicker() {
+        let maxImageCount = 5
+        let remainingCount = maxImageCount - imagesToShow.count
+        
+        guard remainingCount > 0 else {
+            Toaster.shared.makeToast("최대 5장의 이미지만 선택할 수 있습니다.")
+            return
+        }
+        
+        var config = PHPickerConfiguration()
+        config.selectionLimit = remainingCount
+        config.filter = .images  // 이미지만 선택
+        
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+    
+    
     @objc private func deleteBtnClicked() {
         guard let planId = planId else { return }
         deleteHealthGoalData(planId: planId)
@@ -221,11 +322,8 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
             Toaster.shared.makeToast("❌ 목표를 작성해주세요.")
             return
         }
-        guard let duration = duration else {
-            Toaster.shared.makeToast("기간을 입력해주세요.")
-            return
-        }
-        guard let durationEnum = TimeUnit.rawValue(fromKorean: duration) else {
+        guard let duration = duration, // 이거 아님!! 수정 필요
+              let durationEnum = HealthPlanDuration.fromKorean(duration) else {
             Toaster.shared.makeToast("기간을 입력해주세요.")
             return
         }
@@ -235,16 +333,24 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
             return
         }
         
-        guard let countInNum = count.extractNumber else {
-            Toaster.shared.makeToast("횟수를 입력해주세요.")
-            return
-        }
-
-        let healthgoal = HealthGoalRequest(duration: durationEnum, number: countInNum, goal: goal)
+        // ✅ 새로 추가한 이미지들을 Data로 변환
+        let newImageData = imageToSave.compactMap { $0.jpegData(compressionQuality: 0.8) }
+        
+        let healthgoal = ChangeHealthGoalRequest(
+            updateRequest: HealthGoalRequest(
+                duration: durationEnum.rawValue,
+                number: count,
+                goal: goal,
+                removeImageIds: imageToDelete),
+            images: newImageData
+        )
         
         changeHealthGoalData(planId: planId, goal: healthgoal)
+        
         dismiss(animated: true) {  // ✅ 바텀시트가 완전히 닫힌 후 실행
-            self.delegate?.didUpdateHealthGoal()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.delegate?.didUpdateHealthGoal()
+            }
         }
     }
     
@@ -255,7 +361,7 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
             self.duration = item  // ✅ 날짜 선택
             durationButton.label.text = item
         case 1:
-            self.count = item  // ✅ 횟수 선택
+            self.count = item.extractNumber  // ✅ 횟수 선택
             countButton.label.text = item
         default:
             break
@@ -282,7 +388,7 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
         }
     }
     
-    private func changeHealthGoalData(planId: Int, goal: HealthGoalRequest) {
+    private func changeHealthGoalData(planId: Int, goal: ChangeHealthGoalRequest) {
         HealthGoalManager.changeHealthGoal(goal, planId: planId) { isSuccess, response in
             if isSuccess {
                 print("건강목표 수정 성공: \(response)")
@@ -296,6 +402,32 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate {
     }
 }
 
+
+extension HGBottomSheetVC: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        for result in results {
+            let itemProvider = result.itemProvider
+            guard itemProvider.canLoadObject(ofClass: UIImage.self) else { continue }
+                    
+            itemProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
+                DispatchQueue.main.async {
+                    guard let self = self, let selectedImage = image as? UIImage else { return }
+                    self.imageToSave.append(selectedImage)
+                    self.imagesToShow.append((id: nil, image: selectedImage))
+                    self.imageSelectCollectionView.updateImages(self.imagesToShow.map { $0.image })
+                }
+            }
+        }
+    }
+}
+
+
+
+
 protocol HealthGoalUpdateDelegate: AnyObject {
     func didUpdateHealthGoal()
 }
+
+

@@ -18,7 +18,9 @@ class MarketReviewView: UIView {
         let tableView = UITableView()
         tableView.register(WriteReviewTableViewCell.self, forCellReuseIdentifier: String(describing: WriteReviewTableViewCell.self))
         tableView.register(RatingReviewTableViewCell.self, forCellReuseIdentifier: String(describing: RatingReviewTableViewCell.self))
+        tableView.register(NoReviewTableViewCell.self, forCellReuseIdentifier: String(describing: NoReviewTableViewCell.self))
         tableView.register(UserReviewTableViewCell.self, forCellReuseIdentifier: String(describing: UserReviewTableViewCell.self))
+        tableView.register(LoadingTableViewCell.self, forCellReuseIdentifier: String(describing: LoadingTableViewCell.self))
         tableView.allowsSelection = false
         tableView.separatorColor = .healeatGray3P5
         tableView.separatorInset = .zero
@@ -26,6 +28,7 @@ class MarketReviewView: UIView {
         tableView.sectionFooterHeight = 0
         tableView.bouncesVertically = false
         tableView.showsVerticalScrollIndicator = false
+        tableView.backgroundColor = .white
         return tableView
     }()
     

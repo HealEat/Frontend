@@ -22,8 +22,24 @@ class PreviewCollectionViewCell: UICollectionViewCell {
         return imageView
     }()
     
+    lazy var xButton: UIButton = {
+        let button = UIButton()
+        
+        var configuration = UIButton.Configuration.plain()
+        configuration.image = UIImage(systemName: "xmark")?.resize(to: CGSize(width: 8, height: 8))?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        configuration.baseForegroundColor = .white
+        
+        button.configuration = configuration
+        button.layer.cornerRadius = 6
+        button.tintColor = .white
+        button.backgroundColor = .healeatBlack65P
+        button.isHidden = true
+        return button
+    }()
+    
     private func addComponents() {
         contentView.addSubview(previewImageView)
+        contentView.addSubview(xButton)
         setConstraints()
     }
     
@@ -31,13 +47,9 @@ class PreviewCollectionViewCell: UICollectionViewCell {
         previewImageView.snp.makeConstraints({ make in
             make.edges.equalToSuperview()
         })
-    }
-    
-    func updateSize(width: CGFloat, height: CGFloat) {
-        previewImageView.snp.remakeConstraints({ make in
-            make.edges.equalToSuperview()
-            make.width.equalTo(width)
-            make.height.equalTo(height)
+        xButton.snp.makeConstraints({ make in
+            make.top.trailing.equalToSuperview().inset(4)
+            make.width.height.equalTo(12)
         })
     }
 }

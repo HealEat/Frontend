@@ -25,9 +25,9 @@ class MarketImageView: UIView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsVerticalScrollIndicator = false
         collectionView.bouncesVertically = false
-        collectionView.backgroundColor = .clear
+        collectionView.backgroundColor = .white
         collectionView.register(PreviewCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: PreviewCollectionViewCell.self))
-        
+        collectionView.register(LoadingHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: String(describing: LoadingHeaderView.self))
         return collectionView
     }()
     
@@ -38,8 +38,8 @@ class MarketImageView: UIView {
     
     private func setConstraints() {
         imageCollectionView.snp.makeConstraints({ make in
-            make.top.bottom.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview()
+            make.top.leading.trailing.equalToSuperview().inset(16)
         })
     }
 }

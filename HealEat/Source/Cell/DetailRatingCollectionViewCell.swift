@@ -16,28 +16,28 @@ class DetailRatingCollectionViewCell: UICollectionViewCell {
     lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = .systemFont(ofSize: 10, weight: .semibold)
+        label.font = .systemFont(ofSize: 16)
         label.textAlignment = .center
         return label
     }()
     
     lazy var starImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "star.fill")?.withTintColor(UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1), renderingMode: .alwaysOriginal)
+        imageView.image = UIImage(resource: .star).withTintColor(.healeatGreen2, renderingMode: .alwaysOriginal)
         return imageView
     }()
     
     lazy var ratingLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
-        label.font = .systemFont(ofSize: 7)
+        label.textColor = .healeatDarkGreen1
+        label.font = .systemFont(ofSize: 15)
         return label
     }()
     
     lazy var ratingCountLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
-        label.font = .systemFont(ofSize: 7)
+        label.textColor = .healeatDarkGreen1
+        label.font = .systemFont(ofSize: 15)
         return label
     }()
     
@@ -65,11 +65,11 @@ class DetailRatingCollectionViewCell: UICollectionViewCell {
         })
         ratingStackView.snp.makeConstraints({ make in
             make.top.equalTo(titleLabel.snp.bottom).offset(4)
-            make.height.equalTo(11)
             make.leading.trailing.bottom.equalToSuperview()
         })
         starImageView.snp.makeConstraints({ make in
-            make.width.equalTo(11)
+            make.width.height.equalTo(15)
+            make.top.bottom.equalToSuperview()
         })
     }
     

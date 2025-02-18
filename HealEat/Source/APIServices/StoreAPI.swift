@@ -2,13 +2,20 @@
 
 import Foundation
 import Moya
+import UIKit
 
+/// Store-Controller API
 enum StoreAPI {
-    case getStoreDetail(storeId: Int)
-    case saveStore(param: SaveStoreRequest)
-//    case getReview(storeId: Int)
-//    case postBookmark(storeId: Int)
-//    case deleteBookmark(storeId: Int)
+    case getReviews(param: ReviewsRequest)
+    case postReview(param: ReviewWriteRequest)
+    case postBookmark(placeId: Int)
+    case getStoreDetail(placeId: Int)
+    case getReviewImgs(placeId: Int, page: Int)
+    case getDaumImgs(placeId: Int)
+    case deleteBookmark(placeId: Int, bookmarkId: Int)
+    
+    // TODO: Temp 삭제할 것!
+    case testPostReview(param: ReviewWriteRequest)
 }
 
 extension StoreAPI: TargetType {
@@ -18,38 +25,83 @@ extension StoreAPI: TargetType {
         }
         return url
     }
-
+    
     var path: String {
         switch self {
-        case .getStoreDetail(let storeId):
-            return "/stores/\(storeId)"
-        case .saveStore(let param):
-            return "/stores/\(param.placeId)"
-//        case .postBookmark(let storeId):
-//            return "/stores/\(storeId)/bookmarks"
+        case .getReviews(let param):
+            return "/stores/\(param.placeId)/reviews"
+        case .postReview(let param):
+            return "/stores/\(param.placeId)/reviews"
+        case .postBookmark(let placeId):
+            return "/stores/\(placeId)/bookmarks"
+        case .getStoreDetail(let placeId):
+            return "/stores/\(placeId)"
+        case .getReviewImgs(let placeId, let page):
+            return "/stores/\(placeId)/reviewImgs"
+        case .getDaumImgs(let placeId):
+            return "/stores/\(placeId)/daumImgs"
+        case .deleteBookmark(let placeId, let bookmarkId):
+            return "/stores/\(placeId)/bookmarks/\(bookmarkId)"
+        case .testPostReview(let param):
+            if let memberId = GlobalConst.memberId {
+                return "/stores/\(param.placeId)/reviews/\(memberId)"
+            }
+            return "/stores/\(param.placeId)/reviews"
         }
     }
-
+    
     var method: Moya.Method {
         switch self {
-        case .getStoreDetail:
+        case .getStoreDetail, .getReviewImgs, .getDaumImgs, .getReviews:
             return .get
-        case .saveStore:
-            return . post
+        case .postReview, .postBookmark, .testPostReview:
+            return .post
+        case .deleteBookmark:
+            return .delete
         }
     }
-
+    
     var task: Moya.Task {
         switch self {
-        case .getStoreDetail:
+        case .getStoreDetail, .getDaumImgs, .postBookmark, .deleteBookmark:
             return .requestPlain
-        case .saveStore(let param):
-            return .requestJSONEncodable(param)
+        case .getReviewImgs(let placeId, let page):
+            return .requestParameters(parameters: ["page": page], encoding: URLEncoding.queryString)
+        case .getReviews(let param):
+            return .requestParameters(parameters: [
+                "page": param.page,
+                "sortBy": param.sortBy.rawValue,
+                "filters": param.filters.map(\.rawValue),
+            ], encoding: URLEncoding.queryString)
+        case .postReview(let param):
+            var multipartFormDatas: [MultipartFormData] = []
+            if let requestData = try? JSONEncoder().encode(param.request) {
+                multipartFormDatas.append(MultipartFormData(provider: .data(requestData), name: "request"))
+            }
+            param.images.enumerated().forEach({ i, image in
+                multipartFormDatas.append(MultipartFormData(provider: .data(image), name: "files", fileName: "\(i).jpg", mimeType: "image/jpeg"))
+            })
+            print(multipartFormDatas)
+            return .uploadMultipart(multipartFormDatas)
+        case .testPostReview(let param):
+            var multipartFormDatas: [MultipartFormData] = []
+            if let requestData = try? JSONEncoder().encode(param.request) {
+                multipartFormDatas.append(MultipartFormData(provider: .data(requestData), name: "request"))
+            }
+            param.images.enumerated().forEach({ i, image in
+                multipartFormDatas.append(MultipartFormData(provider: .data(image), name: "files", fileName: "\(i).jpg", mimeType: "image/jpeg"))
+            })
+            print(multipartFormDatas)
+            return .uploadMultipart(multipartFormDatas)
         }
     }
     
-    
     var headers: [String : String]? {
-        return ["Content-Type": "application/json"]
+        switch self {
+        case .postReview, .testPostReview:
+            return ["Content-Type": "multipart/form-data"]
+        default:
+            return ["Content-Type": "application/json"]
+        }
     }
 }

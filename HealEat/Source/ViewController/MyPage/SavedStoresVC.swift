@@ -3,10 +3,12 @@
 import UIKit
 
 class SavedStoresVC: UIViewController {
-
     
     // MARK: - UI Properties
-    
+    private lazy var savedStoreTableView = UITableView().then {
+        $0.register(StoreTableViewCell.self, forCellReuseIdentifier: String(describing: StoreTableViewCell.self))
+        $0.separatorStyle = .none
+    }
     
     
     // MARK: - Life Cycle
@@ -24,7 +26,16 @@ class SavedStoresVC: UIViewController {
         [profileStack, editButton].forEach {
             view.addSubview($0)
         }*/
+        [savedStoreTableView, ].forEach {
+            view.addSubview($0)
+        }
         
+//        savedStoreTableView.delegate = self
+//        savedStoreTableView.dataSource = self
+        
+        savedStoreTableView.snp.makeConstraints({ make in
+            make.top.bottom.leading.trailing.equalToSuperview()
+        })
 
     }
     
@@ -133,4 +144,23 @@ class SavedStoresVC: UIViewController {
 
 }
 
-
+//extension SavedStoresVC: UITableViewDelegate, UITableViewDataSource {
+//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        return storeResponseModels.count
+//    }
+//    
+//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: StoreTableViewCell.self), for: indexPath) as? StoreTableViewCell else { return UITableViewCell() }
+//        
+//        cell.configure(storeResponseModel: storeResponseModels[indexPath.row])
+//        
+//        return cell
+//    }
+//    
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        tableView.deselectRow(at: indexPath, animated: true)
+//        let vc = MarketVC()
+//        vc.param = MarketVC.Param(placeId: storeResponseModels[indexPath.row].placeId)
+//        navigationController?.pushViewController(vc, animated: true)
+//    }
+//}

@@ -40,13 +40,14 @@ class RatingReviewView: UIView {
     }()
     
     lazy var reviewStarsView: StarsView = {
-        let starView = StarsView(accentColor: .healeatGreen2, baseColor: .healeatGray4)
-        return starView
+        let starsView = StarsView(accentColor: .healeatGreen2, baseColor: .healeatGray4)
+        starsView.isUserInteractionEnabled = false
+        return starsView
     }()
     
     lazy var reviewLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 11)
+        label.font = .systemFont(ofSize: 14)
         label.textColor = .healeatGray5
         return label
     }()
@@ -80,6 +81,15 @@ class RatingReviewView: UIView {
         return fieldReviewView
     }()
     
+    func initializeView(totalHealthScore: Float, totalCount: Int, tasteScore: Float, cleanScore: Float, freshScore: Float, nutritionScore: Float) {
+        reviewStarsView.star = totalHealthScore
+        reviewLabel.text = "\(totalCount == 0 ? "리뷰 없음" : totalHealthScore.oneDecimalString) (\(totalCount))"
+        tasteReviewView.reviewBar.drawProcess(process: CGFloat(tasteScore) / CGFloat(GlobalConst.maxRating))
+        cleanReviewView.reviewBar.drawProcess(process: CGFloat(cleanScore) / CGFloat(GlobalConst.maxRating))
+        freshReviewView.reviewBar.drawProcess(process: CGFloat(freshScore) / CGFloat(GlobalConst.maxRating))
+        nutritionReviewView.reviewBar.drawProcess(process: CGFloat(nutritionScore) / CGFloat(GlobalConst.maxRating))
+    }
+    
     private func addComponents() {
         self.addSubview(totalReviewView)
         self.addSubview(fieldReviewStackView)
@@ -98,11 +108,11 @@ class RatingReviewView: UIView {
     private func setConstraints() {
         totalReviewView.snp.makeConstraints({ make in
             make.top.leading.trailing.equalToSuperview()
-            make.height.equalTo(24)
+            make.height.equalTo(27)
         })
         reviewStarsView.snp.makeConstraints({ make in
             make.leading.equalToSuperview().inset(16)
-            make.top.bottom.equalToSuperview().inset(5)
+            make.top.bottom.equalToSuperview().inset(6)
         })
         reviewLabel.snp.makeConstraints({ make in
             make.centerY.equalToSuperview()
