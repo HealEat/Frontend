@@ -62,4 +62,11 @@ class StoreRepository {
             .map({ BookmarkResponseModel(bookmarkResponseEntity: $0) })
             .manageThread()
     }
+    
+    func testPostReview(reviewWriteRequest: ReviewWriteRequest) -> AnyPublisher<ReviewWriteResponseModel, HealEatError> {
+        return provider.requestPublisher(.testPostReview(param: reviewWriteRequest))
+            .extractResult(ReviewWriteResponseEntity.self)
+            .map({ ReviewWriteResponseModel(reviewWriteResponseEntity: $0) })
+            .manageThread()
+    }
 }

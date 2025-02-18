@@ -11,7 +11,7 @@ public enum HealEatError: Error {
     var description: String {
         switch self {
         case .moyaError(let error):
-            return "Moya Error - \(error)"
+            return "Moya Error - \(error)\n\(error.response)\n\(error.localizedDescription)"
         case .healeatError(let statusCode, let message):
             return "HealEat Error - Status Code: \(statusCode), Message: \(message)"
         case .resultNil(let statusCode, let message):

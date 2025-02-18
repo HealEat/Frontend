@@ -13,6 +13,9 @@ enum StoreAPI {
     case getReviewImgs(placeId: Int, page: Int)
     case getDaumImgs(placeId: Int)
     case deleteBookmark(placeId: Int, bookmarkId: Int)
+    
+    // TODO: Temp 삭제할 것!
+    case testPostReview(param: ReviewWriteRequest)
 }
 
 extension StoreAPI: TargetType {
@@ -39,6 +42,11 @@ extension StoreAPI: TargetType {
             return "/stores/\(placeId)/daumImgs"
         case .deleteBookmark(let placeId, let bookmarkId):
             return "/stores/\(placeId)/bookmarks/\(bookmarkId)"
+        case .testPostReview(let param):
+            if let memberId = GlobalConst.memberId {
+                return "/stores/\(param.placeId)/reviews/\(memberId)"
+            }
+            return "/stores/\(param.placeId)/reviews"
         }
     }
     
@@ -46,7 +54,7 @@ extension StoreAPI: TargetType {
         switch self {
         case .getStoreDetail, .getReviewImgs, .getDaumImgs, .getReviews:
             return .get
-        case .postReview, .postBookmark:
+        case .postReview, .postBookmark, .testPostReview:
             return .post
         case .deleteBookmark:
             return .delete
@@ -75,12 +83,22 @@ extension StoreAPI: TargetType {
             })
             print(multipartFormDatas)
             return .uploadMultipart(multipartFormDatas)
+        case .testPostReview(let param):
+            var multipartFormDatas: [MultipartFormData] = []
+            if let requestData = try? JSONEncoder().encode(param.request) {
+                multipartFormDatas.append(MultipartFormData(provider: .data(requestData), name: "request"))
+            }
+            param.images.enumerated().forEach({ i, image in
+                multipartFormDatas.append(MultipartFormData(provider: .data(image), name: "files", fileName: "\(i).jpg", mimeType: "image/jpeg"))
+            })
+            print(multipartFormDatas)
+            return .uploadMultipart(multipartFormDatas)
         }
     }
     
     var headers: [String : String]? {
         switch self {
-        case .postReview:
+        case .postReview, .testPostReview:
             return ["Content-Type": "multipart/form-data"]
         default:
             return ["Content-Type": "application/json"]
