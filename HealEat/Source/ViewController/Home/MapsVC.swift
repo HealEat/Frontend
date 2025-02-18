@@ -5,7 +5,7 @@ import KakaoMapsSDK
 import CoreLocation
 import Moya
 
-class MapsVC: UIViewController, MapControllerDelegate {
+class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     
     var la : Double!
     var lo : Double!
@@ -13,13 +13,17 @@ class MapsVC: UIViewController, MapControllerDelegate {
     var currentDirectionArrowPoi: Poi? // 방향 화살표
     var currentDirectionPoi: Poi?
     var currentHeading: Double = 0.0 // 현재 방향 (라디안)
-    var isTracking: Bool = false // 추적 모드 여부
+    var isTracking: Bool = true // 추적 모드 여부
     var mapContainer: KMViewContainer?
     var mapController: KMController?
     var _observerAdded: Bool
     var _auth: Bool
     var _appear: Bool
     var storeview = StoreView()
+    var storevc: StoreVC!
+    var storeData: [StoreResponse] = []
+    private var existingPoiLocations: Set<String> = []
+    var _clickedPoiID: String = ""
     
    
     required init?(coder aDecoder: NSCoder) {
@@ -50,6 +54,7 @@ class MapsVC: UIViewController, MapControllerDelegate {
         setupMapView()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         setupLocationManager()
+        storevc.delegate = self
     }
     
     private func setupMapView() {
@@ -167,6 +172,9 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     func viewInit(viewName: String) {
         print("OK")
+        let mapView = mapController?.getView("mapview") as! KakaoMap
+        mapView.eventDelegate = self
+        
     }
     
     //addView 성공 이벤트 delegate. 추가적으로 수행할 작업을 진행한다.
@@ -174,6 +182,8 @@ class MapsVC: UIViewController, MapControllerDelegate {
         let view = mapController?.getView("mapview") as! KakaoMap
         view.viewRect = mapContainer!.bounds    //뷰 add 도중에 resize 이벤트가 발생한 경우 이벤트를 받지 못했을 수 있음. 원하는 뷰 사이즈로 재조정.
         viewInit(viewName: viewName)
+        createStoreLabelLayer()
+        createStorePoiStyle()
         createCurrentLocationMarker()
 
     }
@@ -297,17 +307,106 @@ class MapsVC: UIViewController, MapControllerDelegate {
         currentPositionPoi?.moveAt(newPosition, duration: 150)
         currentDirectionArrowPoi?.moveAt(newPosition, duration: 150)
         currentDirectionPoi?.moveAt(newPosition, duration: 150)
-        isTracking = false
-        // 지도 카메라 이동 (추적 모드일 경우)
-        if isTracking {
-            moveCameraToCurrentLocation(CLLocationCoordinate2D(latitude: lat, longitude: lon))
-        }
     }
     
     func updateCurrentDirectionMarker(heading: Double) {
         currentDirectionArrowPoi?.rotateAt(heading, duration: 150)
     }
+
     
+    // POI가 속할 LabelLayer를 생성
+    func createStoreLabelLayer() {
+        guard let mapView = mapController?.getView("mapview") as? KakaoMap else {
+            return }
+        let manager = mapView.getLabelManager()
+            
+        let layerOption = LabelLayerOptions(layerID: "StorePoiLayer", competitionType: .none, competitionUnit: .poi, orderType: .rank, zOrder: 10000)
+        
+        _ = manager.addLabelLayer(option: layerOption)
+    }
+    
+    // POI의 스타일을 생성
+    func createStorePoiStyle() {
+        guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
+        let manager = mapView.getLabelManager()
+        let originalImage = UIImage(named: "pin")
+        let resizedImage = originalImage?.resized(to: CGSize(width: 20, height: 20)) // 원하는 크기로 줄이기
+        
+        let iconStyle = PoiIconStyle(symbol: resizedImage ?? originalImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
+        let perLevelStyle = PerLevelPoiStyle(iconStyle: iconStyle, level: 0)
+        let poiStyle = PoiStyle(styleID: "storeStyle", styles: [perLevelStyle])
+        
+        manager.addPoiStyle(poiStyle)
+    }
+    
+    // 서버에서 받은 store 데이터를 POI로 변환해 추가
+    func addStorePois(storeData: [StoreResponse]) {
+        guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
+        
+        let manager = mapView.getLabelManager()
+        guard let layer = manager.getLabelLayer(layerID: "StorePoiLayer") else {
+            return }
+        
+        for store in storeData {
+            guard let longitude = Double(store.x), let latitude = Double(store.y) else {
+                continue }
+            let positionKey = "\(longitude),\(latitude)"
+            if existingPoiLocations.contains(positionKey) {
+                continue
+            }
+            let position = MapPoint(longitude: longitude, latitude: latitude)
+                
+            let poiOption = PoiOptions(styleID: "storeStyle", poiID: "\(store.id)")
+            poiOption.rank = 1
+            poiOption.clickable = true
+                
+            let storePoi = layer.addPoi(option: poiOption, at: position) { _ in }
+            storePoi?.show()
+            existingPoiLocations.insert(positionKey)
+        }
+    }
+    
+    func poiDidTapped(kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint) {
+        print("🚀 poiDidTapped 호출됨! layerID: \(layerID), poiID: \(poiID)")
+
+        guard let storeId = Int(poiID),
+        let store = storeData.first(where: { $0.id == storeId }) else { return }
+
+        // 기존의 클릭된 POI 스타일 되돌리기
+        let manager = kakaoMap.getLabelManager()
+        let layer = manager.getLabelLayer(layerID: layerID)
+
+        if let clickedPoi = layer?.getPoi(poiID: _clickedPoiID) {
+            print("🔄 기존 클릭된 POI 스타일 변경")
+            clickedPoi.changeStyle(styleID: "storeStyle")
+        }
+
+        // 클릭된 POI의 스타일 변경
+        if let clickedPoi = layer?.getPoi(poiID: poiID) {
+            print("✨ 새로 클릭된 POI 스타일 변경")
+            clickedPoi.changeStyle(styleID: "highlightedStoreStyle") //  새로운 스타일 적용 가능
+        }
+
+        _clickedPoiID = poiID
+        print("📌 새로운 클릭된 POI ID 저장: \(_clickedPoiID)")
+        // 매장명 POI 추가
+        addStoreNamePois(name: store.place_name, at: position)
+    }
+    
+    func addStoreNamePois(name: String, at position: MapPoint) {
+        guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
+        let manager = mapView.getLabelManager()
+        guard let layer = manager.getLabelLayer(layerID: "StoreNameLabelLayer") else { return }
+        
+        let poiOptions = PoiOptions(styleID: "storeNameStyle", poiID: "storeNamePoi")
+        poiOptions.rank = 1
+        poiOptions.clickable = true
+        poiOptions.addText(PoiText(text: name, styleIndex: 0)) // POI에 텍스트 추가
+        
+        let namePoi = layer.addPoi(option: poiOptions, at: position)
+        namePoi?.show()
+    }
+
     @objc func willResignActive(){
         mapController?.pauseEngine()  //뷰가 inactive 상태로 전환되는 경우 렌더링 중인 경우 렌더링을 중단.
     }
@@ -340,15 +439,16 @@ class MapsVC: UIViewController, MapControllerDelegate {
     
     public func updateMapPosition(lat: Double, lon: Double) {
         // 지도 중심 이동
-        
-        let currentPosition = MapPoint(longitude: lon, latitude: lat)
+        _ = MapPoint(longitude: lon, latitude: lat)
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
-            if isTracking { // ✅ isTracking이 true일 때만 카메라 이동하도록 수정
-                mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 16, mapView: mapView))
+            if isTracking { //  isTracking이 true일 때만 카메라 이동하도록 수정
+                let centerPosition = MapPoint(longitude: lon, latitude: lat)
+                mapView.moveCamera(CameraUpdate.make(target: centerPosition, zoomLevel: 16, mapView: mapView)) // 기존 방식 사용
+                isTracking = false
             }
         }
     }
-    
+
     
     private func handleAuthorizationChange(_ status: CLAuthorizationStatus) {
         switch status {
@@ -395,3 +495,26 @@ class MapsVC: UIViewController, MapControllerDelegate {
     }
 }
 
+extension MapsVC: StoreVCDelegate {
+    func didTapHealthSetting() {
+    }
+    
+    func didFetchStoreData(storeData: [StoreResponse]) {
+        print("📢 새로운 storeData 받음: \(storeData.map { $0.id })")
+        self.storeData = storeData
+        addStorePois(storeData: storeData)
+        
+        print("✅ storeData가 업데이트됨! 현재 저장된 매장 ID 리스트: \(self.storeData.map { $0.id })")
+
+    }
+}
+
+
+extension UIImage {
+    func resized(to targetSize: CGSize) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+    }
+}

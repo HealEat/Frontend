@@ -14,6 +14,7 @@ class HomeVC: UIViewController {
     public var storeVC = StoreVC() // StoreVC 추가
     private var modalHeightConstraint: NSLayoutConstraint!
     private var storePanGesture: UIPanGestureRecognizer?
+    private var isFirstLocationUpdate = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,21 +48,28 @@ class HomeVC: UIViewController {
     private func setupMapsVC() {
         let mapsVC = MapsVC()
         self.mapsVC = mapsVC
+        
+        mapsVC.storevc = storeVC
+        storeVC.delegate = mapsVC
+        
         addChild(mapsVC)
         view.addSubview(mapsVC.view)
         mapsVC.view.frame = view.bounds
         mapsVC.didMove(toParent: self)
-        
         setupUI()
         
         LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
-            self?.storeVC.updateLocation(lat: lat, lon: lon)
-            self?.mapsVC?.updateMapPosition(lat: lat, lon: lon)
-            self?.mapsVC?.updateCurrentLocationMarker(lat: lat, lon: lon)
+            guard let self = self else { return }
+            
+            // 위치 업데이트 후 매장 요청
+            if self.isFirstLocationUpdate {
+                self.isFirstLocationUpdate = false
+                self.storeVC.updateLocation(lat: lat, lon: lon)
+            }
+            self.mapsVC?.updateMapPosition(lat: lat, lon: lon)
+            self.mapsVC?.updateCurrentLocationMarker(lat: lat, lon: lon)
         }
     }
-        
-    
     
     private func setupStoreView() {
         storeview.backgroundColor = .white
@@ -351,6 +359,11 @@ class HomeVC: UIViewController {
 }
 
 extension HomeVC: StoreVCDelegate {
+    
+    func didFetchStoreData(storeData: [StoreResponse]) {
+        mapsVC?.addStorePois(storeData: storeData)
+    }
+    
     func didTapHealthSetting() {
         healthsetting() // 기존 healthsetting() 메서드 호출
     }
