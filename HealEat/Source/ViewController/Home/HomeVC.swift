@@ -10,14 +10,17 @@ class HomeVC: UIViewController {
     private let storeview = StoreView()
     private let notloginview = NotloginView()
     private let healthsettingview = HealthInfoSettingView()
+    public var purposevc = PurposeVC()
     public var storeVC = StoreVC() // StoreVC 추가
     private var modalHeightConstraint: NSLayoutConstraint!
     private var storePanGesture: UIPanGestureRecognizer?
+    private var isFirstLocationUpdate = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupMapsVC()
+        gotocurrentButton.addTarget(self, action: #selector(gotocurrentposition), for: .touchUpInside)
         if !storeVC.isloggedIn {
             setupNotloginView()
         }
@@ -25,10 +28,6 @@ class HomeVC: UIViewController {
             if !storeVC.hasHealthInfo {
                 setupStoreView()
                 storeVC.delegate = self
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.storeVC.reloadCollectionView() // StoreVC에서 컬렉션 뷰 강제 리로드
-                }
             }
             else {
                 setupHealthSettingView()
@@ -45,20 +44,33 @@ class HomeVC: UIViewController {
         super.viewDidLayoutSubviews()
     }
     
+    
     private func setupMapsVC() {
         let mapsVC = MapsVC()
         self.mapsVC = mapsVC
+        
+        mapsVC.storevc = storeVC
+        storeVC.delegate = mapsVC
+        
         addChild(mapsVC)
         view.addSubview(mapsVC.view)
         mapsVC.view.frame = view.bounds
         mapsVC.didMove(toParent: self)
+        setupUI()
         
         LocationManager.shared.onLocationUpdate = { [weak self] lat, lon in
-            self?.storeVC.updateLocation(lat: lat, lon: lon)
-            self?.mapsVC?.updateMapPosition(lat: lat, lon: lon)
+            guard let self = self else { return }
+            
+            // 위치 업데이트 후 매장 요청
+            if self.isFirstLocationUpdate {
+                self.isFirstLocationUpdate = false
+                self.storeVC.updateLocation(lat: lat, lon: lon)
+            }
+            self.mapsVC?.updateMapPosition(lat: lat, lon: lon)
+            self.mapsVC?.updateCurrentLocationMarker(lat: lat, lon: lon)
         }
     }
-        
+    
     private func setupStoreView() {
         storeview.backgroundColor = .white
         storeview.layer.cornerRadius = 16
@@ -66,7 +78,7 @@ class HomeVC: UIViewController {
         storeview.clipsToBounds = true
             
         view.addSubview(storeview)
-            
+        
         storeview.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
             $0.height.greaterThanOrEqualTo(370)
@@ -79,7 +91,7 @@ class HomeVC: UIViewController {
         DispatchQueue.main.async {
             self.addGrabber()
         }
-            
+        
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
         storePanGesture = panGesture
         storePanGesture?.delegate = self
@@ -246,7 +258,7 @@ class HomeVC: UIViewController {
         }
                 
         buttonStackView.addArrangedSubview(yesButton)
-
+        yesButton.addTarget(self, action: #selector(tapyesButton), for: .touchUpInside)
         // "아니요" 버튼
         lazy var noButton = UIButton().then {
             $0.setTitle("아니요", for: .normal)
@@ -268,6 +280,41 @@ class HomeVC: UIViewController {
         window.viewWithTag(1)?.removeFromSuperview()
     }
     
+    private lazy var searchBar = CustomSearchBar().then {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor.healeatGray5,
+            .font: UIFont.systemFont(ofSize: 16, weight: .regular)
+        ]
+        $0.searchBar.attributedPlaceholder = NSAttributedString(string: "검색", attributes: attributes)
+    }
+    
+    private lazy var gotocurrentButton = UIButton().then {
+        $0.setImage(UIImage(named: "gotocurrent"), for: .normal)
+    }
+    
+    private func setupUI() {
+        mapsVC?.view.addSubview(searchBar)
+        mapsVC?.view.addSubview(gotocurrentButton)
+        setupConstraints()
+    }
+    
+    private func setupConstraints() {
+        searchBar.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(15)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+        }
+        
+        gotocurrentButton.snp.makeConstraints {
+            $0.top.equalTo(searchBar.snp.bottom).offset(20)
+            $0.height.width.equalTo(50)
+            $0.trailing.equalToSuperview().offset(-12)
+        }
+    }
+    
+    @objc func gotocurrentposition() {
+        mapsVC?.startTracking()
+    }
+    
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: view)
         let velocity = gesture.velocity(in: view)
@@ -285,7 +332,7 @@ class HomeVC: UIViewController {
             let finalHeight: CGFloat
 
             if velocity.y > 500 {
-                finalHeight = 125 // 아래로 빠르게 스크롤하면 최소 크기로 (탭바 위)
+                finalHeight = 110 // 아래로 빠르게 스크롤하면 최소 크기로 (탭바 위)
             } else if velocity.y < -500 {
                 finalHeight = screenHeight // 위로 빠르게 스크롤하면 최대 크기로 (검색바 아래)
             } else {
@@ -304,10 +351,19 @@ class HomeVC: UIViewController {
     @objc private func tapnoButton() {
         dismissAlert()
     }
-
+    
+    @objc private func tapyesButton() {
+        purposevc.modalPresentationStyle = .fullScreen
+        present(purposevc, animated: true, completion: nil)
+    }
 }
 
 extension HomeVC: StoreVCDelegate {
+    
+    func didFetchStoreData(storeData: [StoreResponse]) {
+        mapsVC?.addStorePois(storeData: storeData)
+    }
+    
     func didTapHealthSetting() {
         healthsetting() // 기존 healthsetting() 메서드 호출
     }

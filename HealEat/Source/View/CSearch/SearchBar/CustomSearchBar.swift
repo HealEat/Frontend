@@ -31,6 +31,7 @@ class CustomSearchBar: UIView, UITextFieldDelegate {
         let image = UIImage(named: "magnifyingGlass")?.withRenderingMode(.alwaysTemplate)
         $0.setImage(image, for: .normal)
         $0.tintColor = .black
+        
     }
     private lazy var mikeButton = UIButton().then {
         let image = UIImage(systemName: "microphone")?.withRenderingMode(.alwaysTemplate)
