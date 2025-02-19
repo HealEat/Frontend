@@ -318,13 +318,16 @@ class HomeVC: UIViewController {
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: view)
         let velocity = gesture.velocity(in: view)
-        let screenHeight = UIScreen.main.bounds.height - 130
-        let collectionView = storeVC.storeview.storeCollectionView
+        
+        let searchBarBottom = searchBar.frame.maxY
+        let maxHeight = view.bounds.height - searchBarBottom - 20
 
+        let tabBarHeight = self.tabBarController?.tabBar.frame.height ?? 0
+        let minHeight = tabBarHeight + 25
         
         switch gesture.state {
         case .changed:
-            let newHeight = min(screenHeight, max(80, modalHeightConstraint.constant - translation.y))
+            let newHeight = min(maxHeight, max(minHeight, modalHeightConstraint.constant - translation.y))
             modalHeightConstraint.constant = newHeight
             gesture.setTranslation(.zero, in: view)
         case .ended:
@@ -332,11 +335,11 @@ class HomeVC: UIViewController {
             let finalHeight: CGFloat
 
             if velocity.y > 500 {
-                finalHeight = 110 // 아래로 빠르게 스크롤하면 최소 크기로 (탭바 위)
+                finalHeight = minHeight // 아래로 빠르게 스크롤하면 최소 크기로 (탭바 위)
             } else if velocity.y < -500 {
-                finalHeight = screenHeight // 위로 빠르게 스크롤하면 최대 크기로 (검색바 아래)
+                finalHeight = maxHeight // 위로 빠르게 스크롤하면 최대 크기로 (검색바 아래)
             } else {
-                finalHeight = modalHeightConstraint.constant > midPoint ? screenHeight : 370
+                finalHeight = modalHeightConstraint.constant > midPoint ? maxHeight : 370
             }
 
             UIView.animate(withDuration: 0.3) {

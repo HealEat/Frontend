@@ -6,7 +6,9 @@ import CombineMoya
 import Moya
 
 public extension AnyPublisher where Output == Response, Failure == MoyaError {
-    func HEmap<D: Codable>(_ type: D.Type, atKeyPath keyPath: String? = nil, using decoder: JSONDecoder = JSONDecoder(), failsOnEmptyData: Bool = true) -> AnyPublisher<D, HealEatError> {
+    // 서버로부터 받아온 결과값을 DefaultResponse<D>로 변환 후,
+    // result값을 D 타입으로 return 또는 HealEatError를 throw
+    func extractResult<D: Codable>(_ type: D.Type, atKeyPath keyPath: String? = nil, using decoder: JSONDecoder = JSONDecoder(), failsOnEmptyData: Bool = true) -> AnyPublisher<D, HealEatError> {
         return map(DefaultResponse<D>.self)
             .tryMap({ defaultResponse in
                 if !defaultResponse.isSuccess {

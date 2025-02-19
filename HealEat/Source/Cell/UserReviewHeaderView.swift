@@ -25,22 +25,72 @@ class UserReviewHeaderView: UIView {
         let button = UIButton()
         
         var configuration = UIButton.Configuration.plain()
-        configuration.preferredSymbolConfigurationForImage = .init(pointSize: 10)
+        configuration.preferredSymbolConfigurationForImage = .init(pointSize: 11)
         configuration.image = UIImage(systemName: "chevron.down")
         configuration.imagePlacement = .trailing
         configuration.imagePadding = 3
-        configuration.attributedTitle = AttributedString("최신 순", attributes: AttributeContainer([
-            .font: UIFont.systemFont(ofSize: 10),
-            .foregroundColor: UIColor.healeatGray6,
-        ]))
         configuration.titleAlignment = .center
         
         button.configuration = configuration
         button.tintColor = .healeatGray6
-        button.menu = UIMenu(title: "정렬 방식을 골라주세요.", identifier: nil, options: .displayInline, children: [
-            UIAction(title: "최신 순", handler: { _ in }),
-        ])
         button.showsMenuAsPrimaryAction = true
+        
+        return button
+    }()
+    
+    lazy var filterStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 10
+        stackView.alignment = .fill
+        stackView.distribution = .equalSpacing
+        return stackView
+    }()
+    
+    lazy var sickButton: UIButton = {
+        let button = UIButton()
+        
+        var configuration = UIButton.Configuration.plain()
+        configuration.preferredSymbolConfigurationForImage = .init(pointSize: 12)
+        configuration.imagePlacement = .trailing
+        configuration.imagePadding = 4
+        configuration.titleAlignment = .center
+        configuration.contentInsets = .zero
+        
+        button.configuration = configuration
+//        button.tintColor = .healeatGray6
+        
+        return button
+    }()
+    
+    lazy var vegetButton: UIButton = {
+        let button = UIButton()
+        
+        var configuration = UIButton.Configuration.plain()
+        configuration.preferredSymbolConfigurationForImage = .init(pointSize: 12)
+        configuration.imagePlacement = .trailing
+        configuration.imagePadding = 4
+        configuration.titleAlignment = .center
+        configuration.contentInsets = .zero
+        
+        button.configuration = configuration
+//        button.tintColor = .healeatGray6
+        
+        return button
+    }()
+    
+    lazy var dietButton: UIButton = {
+        let button = UIButton()
+        
+        var configuration = UIButton.Configuration.plain()
+        configuration.preferredSymbolConfigurationForImage = .init(pointSize: 12)
+        configuration.imagePlacement = .trailing
+        configuration.imagePadding = 4
+        configuration.titleAlignment = .center
+        configuration.contentInsets = .zero
+        
+        button.configuration = configuration
+//        button.tintColor = .healeatGray6
         
         return button
     }()
@@ -55,6 +105,12 @@ class UserReviewHeaderView: UIView {
         self.addSubview(topSeparatorView)
         self.addSubview(sortButton)
         self.addSubview(bottomSeparatorView)
+        self.addSubview(filterStackView)
+        
+        filterStackView.addArrangedSubview(sickButton)
+        filterStackView.addArrangedSubview(vegetButton)
+        filterStackView.addArrangedSubview(dietButton)
+        
         setConstraints()
     }
     
@@ -64,12 +120,16 @@ class UserReviewHeaderView: UIView {
             make.height.equalTo(0.5)
         })
         sortButton.snp.makeConstraints({ make in
-            make.leading.equalToSuperview().inset(20)
-            make.top.bottom.equalToSuperview().inset(10)
+            make.leading.equalToSuperview().inset(10)
+            make.top.bottom.equalToSuperview()
         })
         bottomSeparatorView.snp.makeConstraints({ make in
             make.leading.trailing.bottom.equalToSuperview()
             make.height.equalTo(0.5)
+        })
+        filterStackView.snp.makeConstraints({ make in
+            make.trailing.equalToSuperview().inset(20)
+            make.top.bottom.equalToSuperview()
         })
     }
 }

@@ -7,6 +7,7 @@ class WriteReviewTableViewCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        backgroundColor = .white
         addComponents()
     }
     
@@ -30,7 +31,8 @@ class WriteReviewTableViewCell: UITableViewCell {
     
     lazy var reviewTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.textColor = .healeatBlack
         label.numberOfLines = 0
         label.textAlignment = .center
         return label
@@ -38,6 +40,7 @@ class WriteReviewTableViewCell: UITableViewCell {
     
     lazy var reviewStarsView: StarsView = {
         let starsView = StarsView(accentColor: .healeatYellow, baseColor: .healeatGray4)
+        starsView.isUserInteractionEnabled = false
         return starsView
     }()
     
@@ -49,12 +52,12 @@ class WriteReviewTableViewCell: UITableViewCell {
         configuration.background.backgroundColor = UIColor.white
         configuration.attributedTitle = AttributedString("건강 후기 남기러 가기", attributes: AttributeContainer([
             .font: UIFont.systemFont(ofSize: 13),
-            .foregroundColor: UIColor(red: 106/255, green: 106/255, blue: 106/255, alpha: 1),
+            .foregroundColor: UIColor.healeatGray5,
         ]))
         configuration.titleAlignment = .center
         
         button.configuration = configuration
-        button.layer.borderColor = UIColor(red: 213/255, green: 213/255, blue: 213/255, alpha: 1).cgColor
+        button.layer.borderColor = UIColor.healeatGray3P5.cgColor
         button.layer.cornerRadius = 12
         button.layer.borderWidth = 1
         
@@ -82,7 +85,7 @@ class WriteReviewTableViewCell: UITableViewCell {
             make.centerX.equalToSuperview()
         })
         reviewStarsView.snp.makeConstraints({ make in
-            make.height.equalTo(13)
+            make.height.equalTo(24)
         })
     }
 }

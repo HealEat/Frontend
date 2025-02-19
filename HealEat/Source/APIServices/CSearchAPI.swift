@@ -8,8 +8,10 @@ import UIKit
 enum CSearchAPI {
     case search(page: Int, param: CSearchRequest)
     case searchStore(placeId: Int)
-    case searchRecent(page: Int)
+    case searchRecent
     case deleteRecentSearch(recentId: Int)
+    
+    case searchRect(page: Int, param: CSearchRectRequest)
 }
 
 
@@ -25,10 +27,12 @@ extension CSearchAPI: TargetType {
     
     var path: String {
         switch self {
-        case .search(let page, let param): return "search"
+        case .search(let page, let param): return "search/location"
         case .searchStore(let placeId): return "search/\(placeId)"
         case .searchRecent: return "search/recent"
         case .deleteRecentSearch(let recentId): return "search/recent/\(recentId)"
+            
+        case .searchRect(let page, let param): return "search/map-rect"
         }
     }
     
@@ -42,6 +46,9 @@ extension CSearchAPI: TargetType {
             return .get
         case .deleteRecentSearch:
             return .delete
+            
+        case .searchRect:
+            return .post
         }
     }
     
@@ -60,13 +67,21 @@ extension CSearchAPI: TargetType {
         case .searchStore:
             return .requestPlain
             
-        case .searchRecent(let page):
-            let queryParam: [String: Any] = ["page": page]
-            
-            return .requestParameters(parameters: queryParam, encoding: URLEncoding.default)
+        case .searchRecent:
+            return .requestPlain
             
         case .deleteRecentSearch(let recentId):
             return .requestPlain
+            
+        case .searchRect(let page, let param):
+            let queryParam: [String: Any] = ["page": page]
+            guard let bodyParams = param.toDictionary() else {
+                return .requestPlain
+            }
+            return .requestCompositeParameters(
+                bodyParameters: bodyParams,
+                bodyEncoding: JSONEncoding.default,
+                urlParameters: queryParam)
         }
         
     }

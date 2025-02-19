@@ -68,7 +68,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         // 업데이트된 위치 저장
         currentLatitude = newLat
         currentLongitude = newLon
-        print("📍 위치 업데이트: \(currentLatitude), \(currentLongitude)")
+        //print("📍 위치 업데이트: \(currentLatitude), \(currentLongitude)")
 
         // ✅ MapsVC에서 사용할 콜백 호출
         

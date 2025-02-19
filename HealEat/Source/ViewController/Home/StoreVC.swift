@@ -135,7 +135,6 @@ class StoreVC: UIViewController {
         purposevc.modalPresentationStyle = .fullScreen
         present(purposevc, animated: true, completion: nil)
     }
-    
 }
 
 extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -153,5 +152,12 @@ extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
         cell.storeconfigure(model: model)
 
         return cell
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    //   let marketVC = MarketVC()
+     //  marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)
+      // navigationController?.pushViewController(marketVC, animated: true)
     }
 }

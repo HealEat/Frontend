@@ -34,42 +34,4 @@ class MultipartForm {
         }
         return nil
     }
-    
-    /*static func createMultiImageMultipartData(images: [UIImage], fieldName: String) -> MultipartFormData? {
-        for (index, image) in images.enumerated() {
-            if let imageData = image.jpegData(compressionQuality: 0.8) {
-                    return MultipartFormData(
-                        provider: .data(imageData),
-                        name: fieldName,
-                        fileName: "image\(index).jpg",
-                        mimeType: "image/jpeg"
-                )
-            }
-        }
-        return nil
-    }*/
-    
-    static func createMultiImageMultipartData(images: [UIImage], fieldName: String) -> [MultipartFormData] {
-        var multipartArray = [MultipartFormData]()
-        
-        for (index, image) in images.enumerated() {
-            if let imageData = image.jpegData(compressionQuality: 0.8) {
-                print("📸 Image \(index) Data Size: \(imageData.count) bytes") // ✅ 파일 데이터 크기 출력
-
-                let imagePart = MultipartFormData(
-                    provider: .data(imageData), // ✅ 여기서 .file(URL) 대신 .data() 사용
-                    name: "files",
-                    fileName: "image\(index).jpg",
-                    mimeType: "image/jpeg"
-                )
-                multipartArray.append(imagePart)
-            }
-        }
-
-
-
-        
-        return multipartArray
-    }
-
 }

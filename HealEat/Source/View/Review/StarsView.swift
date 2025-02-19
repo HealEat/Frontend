@@ -5,10 +5,12 @@ import SnapKit
 
 class StarsView: UIView {
     
+    weak var delegate: StarsViewDelegate?
+    
     private let accentColor: UIColor
     private let baseColor: UIColor
     
-    private let starViews: [StarView]
+    private let starViews: [StarBackgroundView]
     
     var star: Float {
         didSet {
@@ -22,11 +24,11 @@ class StarsView: UIView {
         self.accentColor = accentColor
         self.baseColor = baseColor
         self.starViews = [
-            StarView(accentColor: accentColor, baseColor: baseColor, fill: 0),
-            StarView(accentColor: accentColor, baseColor: baseColor, fill: 0),
-            StarView(accentColor: accentColor, baseColor: baseColor, fill: 0),
-            StarView(accentColor: accentColor, baseColor: baseColor, fill: 0),
-            StarView(accentColor: accentColor, baseColor: baseColor, fill: 0),
+            StarBackgroundView(accentColor: accentColor, baseColor: baseColor, fill: 0),
+            StarBackgroundView(accentColor: accentColor, baseColor: baseColor, fill: 0),
+            StarBackgroundView(accentColor: accentColor, baseColor: baseColor, fill: 0),
+            StarBackgroundView(accentColor: accentColor, baseColor: baseColor, fill: 0),
+            StarBackgroundView(accentColor: accentColor, baseColor: baseColor, fill: 0),
         ]
         star = 0
         
@@ -38,12 +40,20 @@ class StarsView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    @objc private func onClickStar(_ gestureRecognizer: UITapGestureRecognizer) {
+        guard let star = gestureRecognizer.view?.tag else { return }
+        self.star = Float(star)
+        delegate?.onClicked()
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         layoutIfNeeded()
-        for starView in starViews {
+        for (i, starView) in starViews.enumerated() {
             starView.maskImageView.frame = starView.bounds
             starView.mask = starView.maskImageView
+            starView.tag = i + 1
+            starView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onClickStar(_:))))
         }
     }
     
@@ -69,4 +79,58 @@ class StarsView: UIView {
             make.edges.equalToSuperview()
         })
     }
+}
+
+class StarBackgroundView: UIView {
+    
+    private let accentColor: UIColor
+    private let baseColor: UIColor
+    
+    var fill: Float {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    init(accentColor: UIColor, baseColor: UIColor, fill: Float) {
+        self.accentColor = accentColor
+        self.baseColor = baseColor
+        self.fill = max(0, min(fill, 1))
+        super.init(frame: .zero)
+        self.snp.makeConstraints({ make in
+            make.width.equalTo(self.snp.height)
+        })
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    lazy var maskImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = UIImage(resource: .star)
+        imageView.frame = bounds
+        
+        return imageView
+    }()
+    
+    override func draw(_ rect: CGRect) {
+        let width = rect.width
+        let height = rect.height
+        
+        let backgroundRect = CGRect(x: 0, y: 0, width: width, height: height)
+        let backgroundPath = UIBezierPath(rect: backgroundRect)
+        baseColor.setFill()
+        backgroundPath.fill()
+        
+        let processRect = CGRect(x: 0, y: 0, width: CGFloat(fill)*width, height: height)
+        let processPath = UIBezierPath(rect: processRect)
+        accentColor.setFill()
+        processPath.fill()
+    }
+}
+
+protocol StarsViewDelegate: AnyObject {
+    func onClicked()
 }

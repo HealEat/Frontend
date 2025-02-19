@@ -18,12 +18,17 @@ class AllKeywordsVC: UIViewController {
         $0.clipsToBounds = true
         $0.addTarget(self, action: #selector(goBack), for: .touchUpInside)
     }
-    private lazy var searchBar = CustomSearchBar().then {
+    private lazy var searchBar = CustomCSearchBar().then {
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.healeatGray5,
             .font: UIFont.systemFont(ofSize: 16, weight: .regular)
         ]
         $0.searchBar.attributedPlaceholder = NSAttributedString(string: "음식, 매장, 주소 검색", attributes: attributes)
+        $0.searchBar.text = SearchRequestManager.shared.query
+        
+        $0.returnKeyPressed = { text in
+            self.searchButtonClicked()
+        }
     }
     private lazy var foodTypeButton = UIButton().then {
         let unselected = NSAttributedString(string: "음식 종류", attributes: [
@@ -105,6 +110,7 @@ class AllKeywordsVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         foodTypeButton.isSelected = isFoodType
         nutritionButton.isSelected = !isFoodType
+        searchBar.searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
     }
     
 
@@ -153,15 +159,62 @@ class AllKeywordsVC: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    private func goToFilteredSearch(searchResults: HomeResponse) {
+        let filteredSearchVC = FilteredSearchVC()
+        filteredSearchVC.filteredStoresVC.filteredData = searchResults
+        filteredSearchVC.filteredStoresVC.storeData = searchResults.storeList
+        filteredSearchVC.hidesBottomBarWhenPushed = true // 탭바 숨겨주기
+        navigationController?.pushViewController(filteredSearchVC, animated: true)
+    }
+    
     @objc private func toggleButtonState() {
         foodTypeButton.isSelected.toggle()
         nutritionButton.isSelected.toggle()
         isFoodType.toggle()
         allKeywordsView.collectionview.reloadData()
     }
+    
+    
+    @objc private func searchButtonClicked() {
+        let query = searchBar.searchBar.text ?? ""
+        let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
+        let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
+        let x = LocationManager.shared.currentLongitude
+        let y = LocationManager.shared.currentLatitude
+        let searchBy = SortSelectionManager.shared.searchBy
+        let sortBy = SortSelectionManager.shared.sortBy
+        
+        //  `SearchRequestManager`에 업데이트
+        SearchRequestManager.shared.updateFilters(
+            query: query,
+            x: "\(x)",
+            y: "\(y)",
+            categoryIdList: foodList,
+            featureIdList: nutritionList,
+            minRating: 0.0,
+            searchBy: searchBy,
+            sortBy: sortBy
+        )
+        
+        //  검색 API 요청
+        search()
+    }
 
     
     //MARK: API call
+    
+    private func search() {
+        let param = SearchRequestManager.shared.currentRequest
+
+        CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
+            guard isSuccess, let searchResults = searchResults else {
+                Toaster.shared.makeToast("검색 요청 실패")
+                return
+            }
+            
+            self.goToFilteredSearch(searchResults: searchResults)
+        }
+    }
 
 }
 
@@ -177,9 +230,7 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FoodKeywordCell.identifier, for: indexPath) as! FoodKeywordCell
 
-        let categoryType = isFoodType ? 0 : 1
-
-        // ✅ ID 및 이름 가져오기
+        //  ID 및 이름 가져오기
         let id: Int
         let item: String
         if isFoodType {
@@ -192,10 +243,9 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
             item = nutritionCategory.name
         }
         
-        // ✅ 셀에 데이터 적용
         cell.label.text = item
-
-        // ✅ 선택된 상태 반영
+        
+        let categoryType = isFoodType ? 0 : 1
         let isSelected = CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id)
         cell.updateUI(isSelected: isSelected)
 
@@ -258,7 +308,7 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 45) // ✅ 헤더 높이 설정
+        return CGSize(width: collectionView.frame.width, height: 45) //  헤더 높이
     }
 }
 

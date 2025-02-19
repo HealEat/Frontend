@@ -2,49 +2,60 @@
 
 import Moya
 import Foundation
+import Moya
 
 enum ProfileAPI {
-    case postProfile(param: ProfileRequest) // 프로필 저장 API
-    case checkNickname(nickname: String) // 닉네임 중복 확인 API
+    case createProfile(name: String, image: Data?)
 }
 
 extension ProfileAPI: TargetType {
     var baseURL: URL {
-        return URL(string: "http://13.124.70.231:8080")! // ✅ 실제 API URL
+        return URL(string: "http://13.124.70.231:8080")!
     }
 
     var path: String {
         switch self {
-        case .postProfile:
+        case .createProfile:
             return "/info/profile"
-        case .checkNickname:
-            return "/info/check-nickname"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .postProfile:
-            return .post
-        case .checkNickname:
-            return .get
+        case .createProfile:
+            return .post  // ✅ POST 요청 사용
         }
     }
 
     var task: Task {
         switch self {
-        case .postProfile(let param):
-            return .requestJSONEncodable(param)
+        case let .createProfile(name, image):
+            var multipartData: [MultipartFormData] = []
 
-        case .checkNickname(let nickname):
-            return .requestParameters(parameters: ["nickname": nickname], encoding: URLEncoding.queryString)
+            // 닉네임 JSON 데이터 추가
+            let jsonData = try? JSONSerialization.data(withJSONObject: ["name": name], options: [])
+            let jsonPart = MultipartFormData(provider: .data(jsonData ?? Data()), name: "request")
+            multipartData.append(jsonPart)
+
+            // 이미지 파일 추가
+            if let imageData = image {
+                let imagePart = MultipartFormData(provider: .data(imageData), name: "file", fileName: "profile.jpg", mimeType: "image/jpeg")
+                multipartData.append(imagePart)
+            }
+
+            return .uploadMultipart(multipartData)
         }
     }
 
     var headers: [String: String]? {
         return [
-            "Content-Type": "application/json",
-            "Authorization": "Bearer 9999" // ✅ 인증 토큰 (임시 값, 실제 토큰 사용)
+            "accept": "*/*",
+            "Authorization": "Bearer 9999",
+            "Content-Type": "multipart/form-data"
         ]
+    }
+
+    var validationType: ValidationType {
+        return .successCodes
     }
 }

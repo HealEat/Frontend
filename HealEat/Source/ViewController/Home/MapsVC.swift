@@ -23,9 +23,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     var storevc: StoreVC!
     var storeData: [StoreResponse] = []
     private var existingPoiLocations: Set<String> = []
-    var _clickedPoiID: String = ""
-    
-   
+     
     required init?(coder aDecoder: NSCoder) {
         _observerAdded = false
         _auth = false
@@ -53,8 +51,9 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         super.viewDidLoad()
         setupMapView()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
+      
+      
         setupLocationManager()
-        storevc.delegate = self
     }
     
     private func setupMapView() {
@@ -99,7 +98,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
 
     override func viewDidDisappear(_ animated: Bool) {
         removeObservers()
-        mapController?.resetEngine()     //엔진 정지. 추가되었던 ViewBase들이 삭제된다.
+   //   mapController?.resetEngine()     //엔진 정지. 추가되었던 ViewBase들이 삭제된다.
     }
     
     // 인증 성공시 delegate 호출.
@@ -161,7 +160,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         }
         
         //여기에서 그릴 View(KakaoMap, Roadview)들을 추가한다.
-        let defaultPosition: MapPoint = MapPoint(longitude: 126.925554591431, latitude: 37.550874837441)
+        let defaultPosition: MapPoint = MapPoint(longitude: 126.9255545914, latitude: 37.550874837)
         //지도(KakaoMap)를 그리기 위한 viewInfo를 생성
         let mapviewInfo: MapviewInfo = MapviewInfo(viewName: "mapview", viewInfoName: "map", defaultPosition: defaultPosition, defaultLevel: 16)
         
@@ -185,7 +184,8 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         createStoreLabelLayer()
         createStorePoiStyle()
         createCurrentLocationMarker()
-
+        
+        NotificationCenter.default.post(name: .mapsVCDidLoad, object: nil)
     }
     
     //addView 실패 이벤트 delegate. 실패에 대한 오류 처리를 진행한다.
@@ -202,6 +202,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     func addObservers(){
         NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateRequest(_:)), name: .updateMapsVC, object: nil)
     
         _observerAdded = true
     }
@@ -209,6 +210,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     func removeObservers(){
         NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .updateMapsVC, object: nil)
 
         _observerAdded = false
     }
@@ -220,18 +222,19 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
 
         // ✅ 권한 변경 감지
         LocationManager.shared.onAuthorizationChange = { [weak self] status in
-
             self?.handleAuthorizationChange(status)
         }
 
         // ✅ 위치 오류 처리
         LocationManager.shared.onLocationError = { [weak self] error in
+            print("onLocationError change 콜백")
             self?.showLocationError(error)
         }
 
 
         // ✅ 방향 업데이트 처리
         LocationManager.shared.onHeadingUpdate = { [weak self] heading in
+            //print("onHeadingUpdate change 콜백")
             self?.updateHeading(heading)
         }
         
@@ -311,9 +314,10 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     
     func updateCurrentDirectionMarker(heading: Double) {
         currentDirectionArrowPoi?.rotateAt(heading, duration: 150)
+        
+        
     }
 
-    
     // POI가 속할 LabelLayer를 생성
     func createStoreLabelLayer() {
         guard let mapView = mapController?.getView("mapview") as? KakaoMap else {
@@ -333,12 +337,18 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         let resizedImage = originalImage?.resized(to: CGSize(width: 20, height: 20)) // 원하는 크기로 줄이기
         
         let iconStyle = PoiIconStyle(symbol: resizedImage ?? originalImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
-        let perLevelStyle = PerLevelPoiStyle(iconStyle: iconStyle, level: 0)
-        let poiStyle = PoiStyle(styleID: "storeStyle", styles: [perLevelStyle])
-        
+        let textStyle = PoiTextStyle(textLineStyles: [
+            PoiTextLineStyle(textStyle: TextStyle(fontSize: 16, fontColor: UIColor.black, strokeThickness: 2, strokeColor: UIColor.white))
+        ])
+        textStyle.textLayouts = [PoiTextLayout.bottom] // 텍스트를 아이콘 아래에 표시
+            
+        // POI 스타일을 생성 (아이콘과 텍스트를 모두 포함)
+        let poiStyle = PoiStyle(styleID: "storeStyle", styles: [
+            PerLevelPoiStyle(iconStyle: iconStyle, textStyle: textStyle, level: 0)
+        ])
         manager.addPoiStyle(poiStyle)
     }
-    
+
     // 서버에서 받은 store 데이터를 POI로 변환해 추가
     func addStorePois(storeData: [StoreResponse]) {
         guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
@@ -359,6 +369,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
             let poiOption = PoiOptions(styleID: "storeStyle", poiID: "\(store.id)")
             poiOption.rank = 1
             poiOption.clickable = true
+            poiOption.addText(PoiText(text: store.place_name, styleIndex: 0))
                 
             let storePoi = layer.addPoi(option: poiOption, at: position) { _ in }
             storePoi?.show()
@@ -366,47 +377,6 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         }
     }
     
-    func poiDidTapped(kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint) {
-        print("🚀 poiDidTapped 호출됨! layerID: \(layerID), poiID: \(poiID)")
-
-        let storeId = poiID
-        guard let store = storeData.first(where: { $0.id == storeId }) else { return }
-
-        // 기존의 클릭된 POI 스타일 되돌리기
-        let manager = kakaoMap.getLabelManager()
-        let layer = manager.getLabelLayer(layerID: layerID)
-
-        if let clickedPoi = layer?.getPoi(poiID: _clickedPoiID) {
-            print("🔄 기존 클릭된 POI 스타일 변경")
-            clickedPoi.changeStyle(styleID: "storeStyle")
-        }
-
-        // 클릭된 POI의 스타일 변경
-        if let clickedPoi = layer?.getPoi(poiID: poiID) {
-            print("✨ 새로 클릭된 POI 스타일 변경")
-            clickedPoi.changeStyle(styleID: "highlightedStoreStyle") //  새로운 스타일 적용 가능
-        }
-
-        _clickedPoiID = poiID
-        print("📌 새로운 클릭된 POI ID 저장: \(_clickedPoiID)")
-        // 매장명 POI 추가
-        addStoreNamePois(name: store.place_name, at: position)
-    }
-    
-    func addStoreNamePois(name: String, at position: MapPoint) {
-        guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
-        let manager = mapView.getLabelManager()
-        guard let layer = manager.getLabelLayer(layerID: "StoreNameLabelLayer") else { return }
-        
-        let poiOptions = PoiOptions(styleID: "storeNameStyle", poiID: "storeNamePoi")
-        poiOptions.rank = 1
-        poiOptions.clickable = true
-        poiOptions.addText(PoiText(text: name, styleIndex: 0)) // POI에 텍스트 추가
-        
-        let namePoi = layer.addPoi(option: poiOptions, at: position)
-        namePoi?.show()
-    }
-
     @objc func willResignActive(){
         mapController?.pauseEngine()  //뷰가 inactive 상태로 전환되는 경우 렌더링 중인 경우 렌더링을 중단.
     }
@@ -439,7 +409,8 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     
     public func updateMapPosition(lat: Double, lon: Double) {
         // 지도 중심 이동
-        _ = MapPoint(longitude: lon, latitude: lat)
+        let currentPosition = MapPoint(longitude: lon, latitude: lat)
+    
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
             if isTracking { //  isTracking이 true일 때만 카메라 이동하도록 수정
                 let centerPosition = MapPoint(longitude: lon, latitude: lat)
@@ -448,6 +419,18 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
             }
         }
     }
+
+    
+    @objc private func handleUpdateRequest(_ notification: Notification) {
+        if let coordinates = notification.userInfo,
+           let lat = coordinates["lat"] as? Double,
+           let lon = coordinates["lon"] as? Double {
+            updateMapPosition(lat: lat, lon: lon)
+        }
+    }
+    
+    
+
 
     
     private func handleAuthorizationChange(_ status: CLAuthorizationStatus) {
@@ -492,6 +475,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
 
     private func updateHeading(_ heading: Double) {
         currentDirectionArrowPoi?.rotateAt(heading, duration: 100)
+        //print("🧭 방향 업데이트: \(heading)")
     }
 }
 
@@ -501,6 +485,7 @@ extension MapsVC: StoreVCDelegate {
     
     func didFetchStoreData(storeData: [StoreResponse]) {
         print("📢 새로운 storeData 받음: \(storeData.map { $0.id })")
+        storevc.delegate = self
         self.storeData = storeData
         addStorePois(storeData: storeData)
         
@@ -518,3 +503,4 @@ extension UIImage {
         }
     }
 }
+

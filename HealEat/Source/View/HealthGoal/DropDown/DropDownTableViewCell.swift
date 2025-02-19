@@ -9,8 +9,8 @@ class DropDownTableViewCell: UITableViewCell {
         
     public let cellLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 10, weight: .semibold)
-        label.textColor = UIColor(hex: "#797979")
+        label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        label.textColor = UIColor.healeatGray5
         return label
     }()
     

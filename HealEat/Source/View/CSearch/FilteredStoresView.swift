@@ -49,14 +49,28 @@ class FilteredStoresView: UIView {
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 10, weight: .regular)
     }
     
+    public let filterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
+        $0.minimumLineSpacing = 3
+        $0.scrollDirection = .horizontal
+        $0.estimatedItemSize = .zero
+        $0.minimumInteritemSpacing = 4
+    }).then {
+        $0.backgroundColor = .clear
+        $0.isScrollEnabled = false
+        $0.register(SmallFilterCell.self, forCellWithReuseIdentifier: SmallFilterCell.identifier)
+        $0.tag = 1
+    }
+    
     public let storeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width - 32, height: 123)
-        $0.minimumLineSpacing = 10
+        $0.minimumLineSpacing = 20
         $0.scrollDirection = .vertical
     }).then {
         $0.backgroundColor = .clear
         $0.isScrollEnabled = false
         $0.register(StoreCollectionViewCell.self, forCellWithReuseIdentifier: StoreCollectionViewCell.identifier)
+        $0.register(EmptyStateCell.self, forCellWithReuseIdentifier: EmptyStateCell.identifier)
+        $0.tag = 0
     }
     
     private func setViews() {
@@ -69,6 +83,7 @@ class FilteredStoresView: UIView {
         
         addSubview(setButtonStack)
         addSubview(filterButton)
+        addSubview(filterCollectionView)
         addSubview(storeCollectionView)
     }
     
@@ -85,8 +100,14 @@ class FilteredStoresView: UIView {
             $0.width.equalTo(32)
         }
         
+        filterCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(filterButton.snp.bottom).offset(7)
+            make.height.equalTo(0)
+            make.leading.trailing.equalToSuperview().inset(15)
+        }
+        
         storeCollectionView.snp.makeConstraints {
-            $0.top.equalTo(filterButton.snp.bottom).offset(7)
+            $0.top.equalTo(filterCollectionView.snp.bottom).offset(7)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
             $0.height.greaterThanOrEqualTo(200)

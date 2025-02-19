@@ -16,15 +16,16 @@ class SearchVC: UIViewController {
         
     
     // MARK: - UI Components
-    private lazy var searchBar = CustomSearchBar().then {
+    private lazy var searchBar = CustomCSearchBar().then {
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.healeatGray5,
             .font: UIFont.systemFont(ofSize: 16, weight: .regular)
         ]
         $0.searchBar.attributedPlaceholder = NSAttributedString(string: "음식, 매장, 주소 검색", attributes: attributes)
+        $0.searchBar.text = SearchRequestManager.shared.query
         
         $0.returnKeyPressed = { text in
-            print("검색할 값, to search query: \(text)")
+            self.searchButtonClicked()
         }
     }
     
@@ -232,25 +233,46 @@ class SearchVC: UIViewController {
     }
     
     
-    private func goToFilteredSearch(searchRequest: CSearchRequest, searchResults: HomeResponse) {
+    private func goToFilteredSearch(searchResults: HomeResponse) {
         let filteredSearchVC = FilteredSearchVC()
-        filteredSearchVC.filteredStoresVC.searchRequest = searchRequest
         filteredSearchVC.filteredStoresVC.filteredData = searchResults
         filteredSearchVC.filteredStoresVC.storeData = searchResults.storeList
+        filteredSearchVC.avgX = searchResults.searchInfo?.avgX
+        filteredSearchVC.avgY = searchResults.searchInfo?.avgY
         filteredSearchVC.hidesBottomBarWhenPushed = true // 탭바 숨겨주기
         navigationController?.pushViewController(filteredSearchVC, animated: true)
     }
     
     @objc private func searchButtonClicked() {
         let query = searchBar.searchBar.text ?? ""
-        search(query: query)
+        let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
+        let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
+        let x = LocationManager.shared.currentLongitude
+        let y = LocationManager.shared.currentLatitude
+        let searchBy = SortSelectionManager.shared.searchBy
+        let sortBy = SortSelectionManager.shared.sortBy
+        
+        // ✅ `SearchRequestManager`에 업데이트
+        SearchRequestManager.shared.updateFilters(
+            query: query,
+            x: "\(x)",
+            y: "\(y)",
+            categoryIdList: foodList,
+            featureIdList: nutritionList,
+            minRating: 0.0,
+            searchBy: searchBy,
+            sortBy: sortBy
+        )
+        
+        // ✅ 검색 API 요청
+        search()
     }
-    
+
     
     
     //MARK: API call
     private func getRecentSearches() {
-        CSearchManager.recentSearches(page: 1) { result in
+        CSearchManager.recentSearches { result in
             switch result {
             case .success(let data):
                 guard let searchData = data.result?.recentSearchList else { return }
@@ -270,7 +292,7 @@ class SearchVC: UIViewController {
         CSearchManager.deleteRecentSearch(recentId: recentId) { isSuccess, response in
             if isSuccess {
                 self.getRecentSearches()
-                print("최근 검색 기록 삭제 성공하셧어염💓")
+                print("최근 검색 기록 삭제 성공")
             } else {
                 if let data = response?.data,
                    let errorMessage = String(data: data, encoding: .utf8) {
@@ -280,33 +302,18 @@ class SearchVC: UIViewController {
         }
     }
     
-    private func search(query: String) {
-        let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
-        let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
-        
-        let x = LocationManager.shared.currentLongitude
-        let y = LocationManager.shared.currentLatitude
-        
-        let searchBy = SortSelectionManager.shared.searchBy.rawValue
-        let sortBy = SortSelectionManager.shared.sortBy.rawValue
-        
-        let param = CSearchRequest(query: query, x: "\(x)", y: "\(y)", categoryIdList: foodList, featureIdList: nutritionList, minRating: 0, searchBy: searchBy, sortBy: sortBy)
-        print("param:\(param)")
-        
+    private func search() {
+        let param = SearchRequestManager.shared.currentRequest
+
         CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
             guard isSuccess, let searchResults = searchResults else {
                 Toaster.shared.makeToast("검색 요청 실패")
                 return
             }
-            print("맞춤 검색 요청 성공")
-            print("사용한 필터: \(param)")
-            print("받아온 검색 결과: \(searchResults)")
-            self.goToFilteredSearch(searchRequest: param, searchResults: searchResults)
+            
+            self.goToFilteredSearch(searchResults: searchResults)
         }
     }
-
-
-
 
 }
 
