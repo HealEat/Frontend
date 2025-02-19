@@ -71,7 +71,7 @@ class BackTestViewController: UIViewController {
             createdAt: nil,
             storeInfoDto: StoreDetailResponseEntity.StoreInfoDto(
                 placeId: Int(placeId.text!)!,
-                placeName: "백엔드용 툴",
+                placeName: "백엔드용 툴 \(Int(placeId.text!)!)",
                 categoryName: nil,
                 phone: nil,
                 addressName: nil,
