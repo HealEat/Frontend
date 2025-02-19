@@ -25,7 +25,6 @@ class StoreCollectionViewCell: UICollectionViewCell {
         scoreLabel.text = nil
         features = []
         alltagView.collectionview.reloadData()
-        
     }
     
     required init?(coder: NSCoder) {
@@ -155,9 +154,9 @@ class StoreCollectionViewCell: UICollectionViewCell {
         alltagView.collectionview.reloadData()
         
         if let imageUrl = model.imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
-            self.storeImage.kf.setImage(with: url, placeholder: UIImage(named: "placeholder"))
+            self.storeImage.kf.setImage(with: url, placeholder: UIImage(named: "notimage"))
         } else {
-            self.storeImage.image = UIImage(named: "placeholder") // 기본 이미지 설정
+            self.storeImage.image = UIImage(named: "notimage") // 기본 이미지 설정
         }
         
         self.storenameLabel.text = model.place_name

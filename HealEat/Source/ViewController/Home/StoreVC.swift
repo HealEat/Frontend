@@ -6,6 +6,7 @@ import SnapKit
 
 protocol StoreVCDelegate: AnyObject {
     func didTapHealthSetting()
+    func didFetchStoreData(storeData: [StoreResponse])
 }
 
 class StoreVC: UIViewController {
@@ -49,22 +50,14 @@ class StoreVC: UIViewController {
     func updateLocation(lat: Double, lon: Double) {
         self.currentLatitude = lat
         self.currentLongitude = lon
-        fetchStoreData(reset: true)
+        fetchStoreData()
     }
     
-    private func fetchStoreData(reset: Bool = false) {
-        guard !isLastPage else { return }
-
-        if reset {
-            storeData.removeAll()
-            currentPage = 1
-            isLastPage = false
-        }
-
-        isFetchingData = true
+    private func fetchStoreData() {
+        guard !isLastPage, !isFetchingData else { return }
         
+        isFetchingData = true
 
-        // 현재 위치를 사용하여 API 요청을 보냄
         APIManager.HomeProvider.request(.getStores(lon: currentLongitude, lat: currentLatitude, radius: 1000, page: currentPage)) { result in
             self.isFetchingData = false
 
@@ -72,23 +65,28 @@ class StoreVC: UIViewController {
             case .success(let response):
                 do {
                     let decodedData = try JSONDecoder().decode(DefaultResponse<HomeResponse>.self, from: response.data)
+                    print("받아온 데이터: \(decodedData)")
                     
                     let memberName = decodedData.result?.searchInfo?.memberName ?? "힐릿"
-                        DispatchQueue.main.async {
-                            self.storeview.setUserRecommendLabel(name: memberName)
+                    DispatchQueue.main.async {
+                        self.storeview.setUserRecommendLabel(name: memberName)
                     }
                     
                     if let storeList = decodedData.result?.storeList {
-                        if reset {
-                            self.storeData = storeList
-                        } else {
-                            self.storeData.append(contentsOf: storeList)
-                        }
-                        self.currentPage += 1
+                        
+                        self.storeData.append(contentsOf: storeList) // 기존 데이터에 추가
                         self.isLastPage = decodedData.result?.isLast ?? false
-
+                        self.currentPage += 1
+                        
                         DispatchQueue.main.async {
                             self.storeview.storeCollectionView.reloadData()
+                            print("📌 StoreVC -> didFetchStoreData 호출")
+                            self.delegate?.didFetchStoreData(storeData: self.storeData)
+                        }
+                        
+                        // 다음 페이지가 있으면 추가 요청
+                        if !self.isLastPage {
+                            self.fetchStoreData()
                         }
                     }
                 } catch {
@@ -99,7 +97,7 @@ class StoreVC: UIViewController {
             }
         }
     }
-
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
     }
@@ -116,13 +114,13 @@ class StoreVC: UIViewController {
     }
 
     public func reloadCollectionView() {
-        DispatchQueue.main.async {
-            self.storeview.storeCollectionView.reloadData()
-            self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
-            self.storeview.storeCollectionView.layoutIfNeeded()
-        }
+        
+        self.storeview.storeCollectionView.reloadData()
+        self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
+        self.storeview.storeCollectionView.layoutIfNeeded()
+        
     }
-                                                
+    
     @objc private func healthsettingTapped() {
         delegate?.didTapHealthSetting() //HomeVC에 버튼 클릭 이벤트 전달
     }

@@ -12,6 +12,7 @@ extension Publisher {
                 switch error {
                 case let healEatError as HealEatError:
                     print(healEatError.description)
+                    fallthrough
                 default:
                     print(error.localizedDescription)
                 }
