@@ -23,7 +23,7 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
     var imageToDelete: [Int] = [] // 삭제할 기존 이미지 ID 리스트
 
     
-    private let dateDataSource = DropDownDataSource(items: ["하루", "일주일", "열흘", "한달"])
+    private let dateDataSource = DropDownDataSource(items: HealthPlanDuration.allCases.map { $0.title })
     private let countDataSource = DropDownDataSource(items: ["1회", "2회", "3회", "4회", "5회", "6회", "7회", "8회", "9회", "10회"])
     
     // MARK: - UI Properties
@@ -64,8 +64,8 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
         $0.layer.borderWidth = 1
         $0.layer.cornerRadius = 16
         $0.layer.masksToBounds = true
-        let fullText = "목표를 작성하세요."
-        let attributedString = NSMutableAttributedString(string: fullText, attributes: [.foregroundColor: UIColor.healeatGray5, .font: UIFont.systemFont(ofSize: 13, weight: .medium)])
+        let placeholderText = "목표를 작성하세요."
+        let attributedString = NSMutableAttributedString(string: placeholderText, attributes: [.foregroundColor: UIColor.healeatGray5, .font: UIFont.systemFont(ofSize: 13, weight: .medium)])
         $0.attributedPlaceholder = attributedString
         $0.addLeftPadding()
         $0.textColor = UIColor.healeatGray5
@@ -136,6 +136,7 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
         super.viewDidLoad()
         setupView()
         setImages()
+        hideKeyboardWhenTappedAround()
     }
     
     
@@ -188,7 +189,9 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
         imageSelectCollectionView.snp.makeConstraints { make in
             make.top.equalTo(goalStack.snp.bottom).offset(25)
             make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(232)
+            let cellWidth = (UIScreen.main.bounds.width - 50)/3
+            let height = cellWidth*2 + 5
+            make.height.equalTo(height)
         }
         buttonStack.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview().inset(120)
@@ -224,51 +227,49 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
     private func setImages() {
         imagesToShow.removeAll()
         existingImagesMap.removeAll()
-        
         let dispatchGroup = DispatchGroup()
-        let imageUrls = existingImages.map { $0.imageUrl }
-
         for memoImage in existingImages {
-            guard let url = URL(string: memoImage.imageUrl) else { continue }
-            
+            guard let url = URL(string: memoImage.imageUrl) else {
+                print("잘못된 URL: \(memoImage.imageUrl)")
+                continue
+            }
             dispatchGroup.enter()
-            SDWebImageManager.shared.loadImage(with: url, options: .highPriority, progress: nil) { image, _, _, _, _, _ in
-                if let image = image {
-                    self.imagesToShow.append((id: memoImage.id, image: image ))
-                    self.existingImagesMap[memoImage.id] = image
-                } else {
-                    self.imagesToShow.append((id: memoImage.id, image: UIImage(named: "placeholder") ?? UIImage()))  // 기본 이미지 처리
+            SDWebImageManager.shared.loadImage(with: url, options: .highPriority, progress: nil) { [weak self] image, _, _, _, _, _ in
+                guard let self = self else { return }
+                DispatchQueue.main.async {
+                    if let image = image {
+                        self.imagesToShow.append((id: memoImage.id, image: image))
+                        self.existingImagesMap[memoImage.id] = image
+                    } else {
+                        let placeholder = UIImage(named: "Placeholder") ?? UIImage()
+                        self.imagesToShow.append((id: memoImage.id, image: placeholder))
+                    }
                 }
                 dispatchGroup.leave()
             }
         }
-
-        dispatchGroup.notify(queue: .main) {
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            guard let self = self else { return }
             self.imageSelectCollectionView.updateImages(self.imagesToShow.map { $0.image })
         }
     }
-    
+
     private func deleteImage(at index: Int) {
         let imageInfo = imagesToShow[index]
 
         if let imageId = imageInfo.id {
-            // ✅ 기존 이미지 삭제 → ID를 imageToDelete 배열에 추가
+            // 기존 이미지 삭제 → ID를 imageToDelete 배열에 추가
             imageToDelete.append(imageId)
         } else {
-            // ✅ 새로 추가한 이미지 삭제 → imageToSave 배열에서 제거
+            //  새로 추가한 이미지 삭제 → imageToSave 배열에서 제거
             if let indexInSave = imageToSave.firstIndex(of: imageInfo.image) {
                 imageToSave.remove(at: indexInSave)
             }
         }
-
-        // ✅ imagesToShow에서도 제거
         imagesToShow.remove(at: index)
-
-        // ✅ UICollectionView 업데이트
         imageSelectCollectionView.updateImages(imagesToShow.map { $0.image })
     }
 
-    
     
     //MARK: - Setup Actions
     @objc private func dateBtnClicked() {
@@ -289,31 +290,9 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
         }
     }
     
-    private func presentImagePicker() {
-        let maxImageCount = 5
-        let remainingCount = maxImageCount - imagesToShow.count
-        
-        guard remainingCount > 0 else {
-            Toaster.shared.makeToast("최대 5장의 이미지만 선택할 수 있습니다.")
-            return
-        }
-        
-        var config = PHPickerConfiguration()
-        config.selectionLimit = remainingCount
-        config.filter = .images  // 이미지만 선택
-        
-        let picker = PHPickerViewController(configuration: config)
-        picker.delegate = self
-        present(picker, animated: true)
-    }
-    
-    
     @objc private func deleteBtnClicked() {
         guard let planId = planId else { return }
         deleteHealthGoalData(planId: planId)
-        dismiss(animated: true) {  // ✅ 바텀시트가 완전히 닫힌 후 실행
-            self.delegate?.didUpdateHealthGoal()
-        }
     }
     
     @objc private func saveBtnClicked() {
@@ -322,20 +301,17 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
             Toaster.shared.makeToast("❌ 목표를 작성해주세요.")
             return
         }
-        guard let duration = duration, // 이거 아님!! 수정 필요
+        guard let duration = duration,
               let durationEnum = HealthPlanDuration.fromKorean(duration) else {
             Toaster.shared.makeToast("기간을 입력해주세요.")
             return
         }
-        
         guard let count = count else {
             Toaster.shared.makeToast("횟수를 입력해주세요.")
             return
         }
-        
-        // ✅ 새로 추가한 이미지들을 Data로 변환
+        // 새로 추가한 이미지들을 Data로 변환
         let newImageData = imageToSave.compactMap { $0.jpegData(compressionQuality: 0.8) }
-        
         let healthgoal = ChangeHealthGoalRequest(
             updateRequest: HealthGoalRequest(
                 duration: durationEnum.rawValue,
@@ -344,59 +320,82 @@ class HGBottomSheetVC: UIViewController, DropDownDataSourceDelegate  {
                 removeImageIds: imageToDelete),
             images: newImageData
         )
-        
-        changeHealthGoalData(planId: planId, goal: healthgoal)
-        
-        dismiss(animated: true) {  // ✅ 바텀시트가 완전히 닫힌 후 실행
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.delegate?.didUpdateHealthGoal()
-            }
-        }
+        updateHealthGoalAndDismiss(planId: planId, goal: healthgoal)
     }
     
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+
+    @objc private func dismissSheet() {
+        dismiss(animated: true)
+    }
+    
+    private func presentImagePicker() {
+        let maxImageCount = 5
+        let remainingCount = maxImageCount - imagesToShow.count
+        guard remainingCount > 0 else {
+            Toaster.shared.makeToast("최대 5장의 이미지만 선택할 수 있습니다.")
+            return
+        }
+        var config = PHPickerConfiguration()
+        config.selectionLimit = remainingCount
+        config.filter = .images  // 이미지만 선택
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = self
+        present(picker, animated: true)
+    }
     
     func dropDownDidSelect(item: String, from tag: Int) {
         switch tag {
         case 0:
-            self.duration = item  // ✅ 날짜 선택
+            self.duration = item  //  날짜 선택
             durationButton.label.text = item
         case 1:
-            self.count = item.extractNumber  // ✅ 횟수 선택
+            self.count = item.extractNumber  //  횟수 선택
             countButton.label.text = item
         default:
             break
         }
     }
     
-
-    @objc private func dismissSheet() {
-        dismiss(animated: true)
+    private func hideKeyboardWhenTappedAround() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
     }
+    
+
     
     
     //MARK: - API call
     private func deleteHealthGoalData(planId: Int) {
-        HealthGoalManager.deleteHealthGoal(planId) { isSuccess, response in
+        HealthGoalManager.deleteHealthGoal(planId) { [weak self] isSuccess, response in
+            guard let self = self else { return }
             if isSuccess {
-                print("건강목표 삭제 성공: \(response)")
-            } else {
-                if let data = response?.data,
-                   let errorMessage = String(data: data, encoding: .utf8) {
-                    print("건강목표 삭제 서버 에러 메시지: \(errorMessage)")
+                self.dismiss(animated: true) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.delegate?.didUpdateHealthGoal()
+                    }
                 }
+            } else {
+                Toaster.shared.makeToast("목표 삭제에 실패했습니다.")
             }
         }
     }
     
-    private func changeHealthGoalData(planId: Int, goal: ChangeHealthGoalRequest) {
-        HealthGoalManager.changeHealthGoal(goal, planId: planId) { isSuccess, response in
+    private func updateHealthGoalAndDismiss(planId: Int, goal: ChangeHealthGoalRequest) {
+        HealthGoalManager.changeHealthGoal(goal, planId: planId) { [weak self] isSuccess, response in
+            guard let self = self else { return }
+            
             if isSuccess {
-                print("건강목표 수정 성공: \(response)")
-            } else {
-                if let data = response?.data,
-                   let errorMessage = String(data: data, encoding: .utf8) {
-                    
+                self.dismiss(animated: true) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.delegate?.didUpdateHealthGoal()
+                    }
                 }
+            } else {
+                Toaster.shared.makeToast("목표 저장에 실패했습니다.")
             }
         }
     }

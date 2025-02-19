@@ -166,9 +166,9 @@ extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+   /* func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let marketVC = MarketVC()
         marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)
         navigationController?.pushViewController(marketVC, animated: true)
-    }
+    }*/
 }

@@ -87,6 +87,13 @@ class FilteredStoresView: UIView {
         addSubview(storeCollectionView)
     }
     
+    func configureForModal() {
+        self.backgroundColor = .white
+        self.layer.cornerRadius = 16
+        self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner] // 위쪽 모서리 둥글게
+        self.clipsToBounds = true
+    }
+    
     private func setConstraints() {
         setButtonStack.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(15)

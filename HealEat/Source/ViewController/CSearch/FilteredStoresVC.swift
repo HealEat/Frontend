@@ -40,6 +40,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         self.filteredData = results
         self.storeData = results.storeList
         self.reloadCollectionView()
+        print("didReceiveSearchResults")
         
         NotificationCenter.default.post(
             name: .updateMapsVC,
@@ -104,6 +105,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
                 //self.storeview.storeCollectionView.reloadData()
                 self.reloadCollectionView()
             }
+            print("서치 결과 받아왔어용")
             NotificationCenter.default.post(
                 name: .updateMapsVC,
                 object: nil,

@@ -55,7 +55,6 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         //setupUI()
       
         setupLocationManager()
-        storevc.delegate = self
     }
     
     private func setupMapView() {
@@ -316,13 +315,9 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     
     func updateCurrentDirectionMarker(heading: Double) {
         currentDirectionArrowPoi?.rotateAt(heading, duration: 150)
-
-    /*private func setupUI() {
-        view.addSubview(searchBar)
-        setupConstraints()
+        
+        
     }
-
-    
 
     // POI가 속할 LabelLayer를 생성
     func createStoreLabelLayer() {
@@ -335,14 +330,6 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         _ = manager.addLabelLayer(option: layerOption)
     }
 
-    private func setupConstraints() {
-        searchBar.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(15)
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-        }
-    }*/
-
-    
     // POI의 스타일을 생성
     func createStorePoiStyle() {
         guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
@@ -387,8 +374,8 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     func poiDidTapped(kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint) {
         print("🚀 poiDidTapped 호출됨! layerID: \(layerID), poiID: \(poiID)")
 
-        guard let storeId = Int(poiID),
-        let store = storeData.first(where: { $0.id == storeId }) else { return }
+        let storeId = poiID
+        guard let store = storeData.first(where: { $0.id == storeId }) else { return }
 
         // 기존의 클릭된 POI 스타일 되돌리기
         let manager = kakaoMap.getLabelManager()
@@ -457,23 +444,8 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     
     public func updateMapPosition(lat: Double, lon: Double) {
         // 지도 중심 이동
-        _ = MapPoint(longitude: lon, latitude: lat)
-
-    
-    @objc private func handleUpdateRequest(_ notification: Notification) {
-        if let coordinates = notification.userInfo,
-           let lat = coordinates["lat"] as? Double,
-           let lon = coordinates["lon"] as? Double {
-            updateMapPosition(lat: lat, lon: lon)
-        }
-    }
-    
-    
-    public func updateMapPosition(lat: Double, lon: Double) {
-        // 지도 중심 이동
         let currentPosition = MapPoint(longitude: lon, latitude: lat)
-        
-
+    
         if let mapView = mapController?.getView("mapview") as? KakaoMap {
             if isTracking { //  isTracking이 true일 때만 카메라 이동하도록 수정
                 let centerPosition = MapPoint(longitude: lon, latitude: lat)
@@ -482,6 +454,21 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
             }
         }
     }
+
+    
+    @objc private func handleUpdateRequest(_ notification: Notification) {
+        if let coordinates = notification.userInfo,
+           let lat = coordinates["lat"] as? Double,
+           let lon = coordinates["lon"] as? Double {
+            isTracking = true
+            DispatchQueue.main.async {
+                self.updateMapPosition(lat: lat, lon: lon)
+            }
+        }
+    }
+    
+    
+
 
     
     private func handleAuthorizationChange(_ status: CLAuthorizationStatus) {
@@ -526,6 +513,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
 
     private func updateHeading(_ heading: Double) {
         currentDirectionArrowPoi?.rotateAt(heading, duration: 100)
+        //print("🧭 방향 업데이트: \(heading)")
     }
 }
 
@@ -535,6 +523,7 @@ extension MapsVC: StoreVCDelegate {
     
     func didFetchStoreData(storeData: [StoreResponse]) {
         print("📢 새로운 storeData 받음: \(storeData.map { $0.id })")
+        storevc.delegate = self
         self.storeData = storeData
         addStorePois(storeData: storeData)
         
@@ -550,9 +539,6 @@ extension UIImage {
         return renderer.image { _ in
             self.draw(in: CGRect(origin: .zero, size: targetSize))
         }
-        //print("🧭 방향 업데이트: \(heading)")
-        currentDirectionArrow?.rotateAt(heading, duration: 100)
     }
 }
-
 
