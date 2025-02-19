@@ -90,6 +90,7 @@ class LoginVC: UIViewController {
             guard let self = self else { return }
             if let token = token {
                 self.checkTermStatus { isAgreed in
+                    //self.navigateToAgreement() // 개발용 임시 코드
                     if isAgreed {
                         self.navigateToBaseVC() // 약관 동의했으면 홈 화면 이동
                     } else {

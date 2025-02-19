@@ -32,16 +32,13 @@ class SplashVC: UIViewController {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            
-            /*self.tokenPlugin.checkAuthenticationStatus() { token in
+            self.tokenPlugin.checkAuthenticationStatus() { token in
                 if let token = token {
                     self.navigateToBaseVC()
                 } else {
                     self.navigateToLoginVC()
                 }
-            } */
-            
-            self.navigateToLoginVC()
+            }
         }
     }
     
@@ -57,11 +54,9 @@ class SplashVC: UIViewController {
     }
     
     private func navigateToLoginVC() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            let loginVC = LoginVC()
-            loginVC.modalTransitionStyle = .crossDissolve
-            loginVC.modalPresentationStyle = .fullScreen
-            self?.present(loginVC, animated: true, completion: nil)
-        }
+        let loginVC = LoginVC()
+        loginVC.modalTransitionStyle = .crossDissolve
+        loginVC.modalPresentationStyle = .fullScreen
+        present(loginVC, animated: true, completion: nil)
     }
 }

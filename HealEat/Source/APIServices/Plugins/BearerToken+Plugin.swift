@@ -25,12 +25,10 @@ final class BearerTokenPlugin: PluginType {
         let expiryDate = Date(milliseconds: expiryMillis)
         
         if Date() < expiryDate {
-            print("accessToken 만들어진 시각: \(accessTokenCreatedMillis)")
-            print("✅ AccessToken 유효. 사용 가능.")
-            completion(nil) // 재로그인 필요
+            print("AccessToken 유효. 사용 가능.")
             completion(accessToken)
         } else {
-            //forceLogout()
+            Toaster.shared.makeToast("재로그인 필요")
             completion(nil) // 재로그인 필요
         }
     }

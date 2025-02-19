@@ -8,32 +8,48 @@ import SwiftyToaster
 class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     public var filteredData: HomeResponse?
     public var storeData: [StoreResponse] = []
-    var filterArr: [String] = []
-    var finalArr: [String] = []
-    public let storeview = FilteredStoresView()
     private var isFetchingData = false
     var currentPage = 2
     var isLastPage = false
     
+    var filterArr: [String] = []
+    var finalArr: [String] = []
+    
+    public let storeview = FilteredStoresView()
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupView()
+    }
+    
+    private func setupView() {
         self.view = storeview
         storeview.isUserInteractionEnabled = true
         setupCollectionView()
+        setupButtons()
+        
+        if !storeData.isEmpty {
+            DispatchQueue.main.async { self.reloadCollectionView() }
+        }
+    }
+    
+    private func setupButtons() {
         storeview.filterButton.addTarget(self, action: #selector(goToFilterVC), for: .touchUpInside)
         storeview.setByUserInfoButton.addTarget(self, action: #selector(sortByUserInfo(_:)), for: .touchUpInside)
         storeview.setByResultButton.addTarget(self, action: #selector(sortByResult(_:)), for: .touchUpInside)
-        
-        if storeData.isEmpty {
-            //storeview.showEmptyState() // ✅ 예시 함수 (필요하면 추가)
-            print("검색 결과 없음..")
-        } else {
-            DispatchQueue.main.async {
-                self.reloadCollectionView()
-            }
-        }
-
+    }
+    
+    private func setupCollectionView() {
+        storeview.storeCollectionView.dataSource = self
+        storeview.storeCollectionView.delegate = self
+        storeview.filterCollectionView.dataSource = self
+        storeview.filterCollectionView.delegate = self
+        storeview.storeCollectionView.bounces = false
+        storeview.storeCollectionView.contentInsetAdjustmentBehavior = .never
+        storeview.storeCollectionView.isScrollEnabled = true
+        storeview.storeCollectionView.canCancelContentTouches = false
+        storeview.storeCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 55, right: 0)
     }
     
     func didReceiveSearchResults(_ results: HomeResponse) {
@@ -52,6 +68,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
 
     }
     
+    // MARK: - API Calls
     private func fetchStoreData(reset: Bool = false) {
         guard !isLastPage else { return }
         
@@ -61,81 +78,72 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
             isLastPage = false
         }
         
-        isFetchingData = true // API 호출 시작
-        
         if currentPage == 1 {
-            let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
-            let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
-            let searchBy = SortSelectionManager.shared.searchBy
-            let sortBy = SortSelectionManager.shared.sortBy
-            // ✅ `SearchRequestManager`에 업데이트
-            SearchRequestManager.shared.updateFilters(
-                x: "\(LocationManager.shared.currentLongitude)",
-                y: "\(LocationManager.shared.currentLatitude)",
-                categoryIdList: foodList,
-                featureIdList: nutritionList,
-                minRating: 0.0,
-                searchBy: searchBy,
-                sortBy: sortBy
-            )
+            updateSearchRequest()
         }
         
+        isFetchingData = true // API 호출 시작
         let searchRequest = SearchRequestManager.shared.currentRequest
         
-        
-        CSearchManager.search(page: currentPage, param: searchRequest) { isSuccess, result in
+        CSearchManager.search(page: currentPage, param: searchRequest) { [weak self] isSuccess, result in
+            guard let self = self else { return }
             self.isFetchingData = false
             guard isSuccess, let searchResults = result else {
                 Toaster.shared.makeToast("검색 요청 실패")
                 return
             }
-            let storeList = searchResults.storeList
-            if reset {
-                self.storeData = storeList
-            } else {
-                self.storeData.append(contentsOf: storeList)
-            }
-            if storeList.isEmpty {
-                self.isLastPage = true
-            }
-            self.currentPage += 1
-            self.isLastPage = searchResults.isLast ?? false
-            
-            DispatchQueue.main.async {
-                //self.storeview.storeCollectionView.reloadData()
-                self.reloadCollectionView()
-            }
-            print("서치 결과 받아왔어용")
-            NotificationCenter.default.post(
-                name: .updateMapsVC,
-                object: nil,
-                userInfo: [
-                    "lat": searchResults.searchInfo?.avgY ?? LocationManager.shared.currentLatitude,
-                    "lon": searchResults.searchInfo?.avgX ?? LocationManager.shared.currentLongitude ]
-            )
+
+            self.updateStoreData(with: searchResults, reset: reset)
+            self.notifyMapUpdate(with: searchResults)
     
         }
         
     }
-        
-
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-    }
-
-    private func setupCollectionView() {
-        storeview.storeCollectionView.dataSource = self
-        storeview.storeCollectionView.delegate = self
-        storeview.filterCollectionView.dataSource = self
-        storeview.filterCollectionView.delegate = self
-        storeview.storeCollectionView.bounces = false
-        storeview.storeCollectionView.contentInsetAdjustmentBehavior = .never
-        storeview.storeCollectionView.isScrollEnabled = true
-        storeview.storeCollectionView.canCancelContentTouches = false
-        storeview.storeCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 55, right: 0)
+    
+    
+    private func updateSearchRequest() {
+        let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
+        let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
+        let searchBy = SortSelectionManager.shared.searchBy
+        let sortBy = SortSelectionManager.shared.sortBy
+            
+        SearchRequestManager.shared.updateFilters(
+            x: "\(LocationManager.shared.currentLongitude)",
+            y: "\(LocationManager.shared.currentLatitude)",
+            categoryIdList: foodList,
+            featureIdList: nutritionList,
+            minRating: 0.0,
+            searchBy: searchBy,
+            sortBy: sortBy
+        )
     }
     
+    private func updateStoreData(with searchResults: HomeResponse, reset: Bool) {
+        if searchResults.storeList.isEmpty {
+            isLastPage = true
+        }
+        if reset {
+            storeData = searchResults.storeList
+        } else {
+            storeData.append(contentsOf: searchResults.storeList)
+        }
+        isLastPage = searchResults.isLast
+        currentPage += 1
+        DispatchQueue.main.async { self.reloadCollectionView() }
+    }
+    
+    private func notifyMapUpdate(with searchResults: HomeResponse) {
+        NotificationCenter.default.post(
+            name: .updateMapsVC,
+            object: nil,
+            userInfo: [
+                "lat": searchResults.searchInfo?.avgY ?? LocationManager.shared.currentLatitude,
+                "lon": searchResults.searchInfo?.avgX ?? LocationManager.shared.currentLongitude
+            ]
+        )
+    }
+        
+    // MARK: - UI Updates
     public func reloadCollectionView() {
         DispatchQueue.main.async {
             print("reloadCollectionView 실행 - 데이터 개수: \(self.finalArr.count)")
