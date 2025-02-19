@@ -12,6 +12,7 @@ class DiseaseManagementVC: UIViewController, UITableViewDelegate, UITableViewDat
         $0.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         $0.textAlignment = .center
         $0.textColor = .black
+        $0.numberOfLines = 0
     }
 
     private let subtitleLabel = UILabel().then {

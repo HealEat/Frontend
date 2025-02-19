@@ -19,37 +19,35 @@ extension ProfileAPI: TargetType {
     var path: String {
         switch self {
         case .createProfile:
-            return "/info/profile"
+            return "info/profile"
         }
     }
 
     var method: Moya.Method {
         switch self {
         case .createProfile:
-            return .post  // ✅ POST 요청 사용
+            return .post 
         }
     }
 
     var task: Task {
         switch self {
-        case let .createProfile(name, image):
+        case .createProfile(let name, let image):
             var multipartData: [MultipartFormData] = []
 
             // 닉네임 JSON 데이터 추가
-            let jsonData = try? JSONSerialization.data(withJSONObject: ["name": name], options: [])
-            let jsonPart = MultipartFormData(provider: .data(jsonData ?? Data()), name: "request")
-            multipartData.append(jsonPart)
-
+            if let jsonData = try? JSONSerialization.data(withJSONObject: ["name": name], options: []) {
+                multipartData.append(MultipartFormData(provider: .data(jsonData), name: "request"))
+            }
             // 이미지 파일 추가
             if let imageData = image {
-                let imagePart = MultipartFormData(provider: .data(imageData), name: "file", fileName: "profile.jpg", mimeType: "image/jpeg")
-                multipartData.append(imagePart)
+                multipartData.append(MultipartFormData(provider: .data(imageData), name: "file", fileName: "profile.jpg", mimeType: "image/jpeg"))
             }
 
             return .uploadMultipart(multipartData)
         }
     }
-    
+
     
     var headers: [String : String]? {
         switch self {

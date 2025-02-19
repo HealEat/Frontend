@@ -372,7 +372,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     }
     
     func poiDidTapped(kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint) {
-        print("🚀 poiDidTapped 호출됨! layerID: \(layerID), poiID: \(poiID)")
+        /*print("🚀 poiDidTapped 호출됨! layerID: \(layerID), poiID: \(poiID)")
 
         let storeId = poiID
         guard let store = storeData.first(where: { $0.id == storeId }) else { return }
@@ -395,7 +395,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         _clickedPoiID = poiID
         print("📌 새로운 클릭된 POI ID 저장: \(_clickedPoiID)")
         // 매장명 POI 추가
-        addStoreNamePois(name: store.place_name, at: position)
+        addStoreNamePois(name: store.place_name, at: position)*/
     }
     
     func addStoreNamePois(name: String, at position: MapPoint) {

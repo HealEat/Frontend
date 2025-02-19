@@ -21,7 +21,7 @@ final class BearerTokenPlugin: PluginType {
         }
         
         let expiryMillis: Int64
-        expiryMillis = createdMillis + (60 * 60 * 1000)
+        expiryMillis = createdMillis + (60 * 60 * 1000) // 1시간
         let expiryDate = Date(milliseconds: expiryMillis)
         
         if Date() < expiryDate {

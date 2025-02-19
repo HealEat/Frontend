@@ -5,7 +5,7 @@ import Moya
 
 class VegetarianService {
     static let shared = VegetarianService()
-    private let provider = MoyaProvider<VegetarianAPI>()
+    private let provider = MoyaProvider<VegetarianAPI>(plugins: [BearerTokenPlugin(), NetworkLoggerPlugin()])
 
     func updateVegetarianType(type: String, completion: @escaping (Result<Bool, Error>) -> Void) {
         provider.request(.updateVegetarian(type: type)) { result in

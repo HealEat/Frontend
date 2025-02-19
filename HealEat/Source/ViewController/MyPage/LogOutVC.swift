@@ -64,13 +64,13 @@ class LogOutVC: UIViewController {
             make.centerY.equalToSuperview().multipliedBy(0.8)
         }
         logOutButton.snp.makeConstraints { make in
-            make.centerY.equalToSuperview().multipliedBy(1.2)
+            make.centerY.equalToSuperview().multipliedBy(1.4)
             make.centerX.equalToSuperview().multipliedBy(0.5)
             make.width.equalTo(95)
             make.height.equalTo(34)
         }
         dismissButton.snp.makeConstraints { make in
-            make.centerY.equalToSuperview().multipliedBy(1.2)
+            make.centerY.equalToSuperview().multipliedBy(1.4)
             make.centerX.equalToSuperview().multipliedBy(1.5)
             make.width.equalTo(95)
             make.height.equalTo(34)
@@ -101,19 +101,9 @@ class LogOutVC: UIViewController {
                     self.showSplashVC()
                 } else {
                     print("로그아웃 중 에러")
-                    //임시 제거!!!
-                    UserDefaults.standard.removeObject(forKey: "lastLoginPlatform")
-                    KeychainSwift().delete("accessToken")
-                    KeychainSwift().delete("accessTokenCreatedAt")
-                    self.showSplashVC()
                 }
             case .failure(let error):
                 Toaster.shared.makeToast("로그아웃 중 에러가 발생했습니다.")
-                //임시 제거!!!
-                UserDefaults.standard.removeObject(forKey: "lastLoginPlatform")
-                KeychainSwift().delete("accessToken")
-                KeychainSwift().delete("accessTokenCreatedAt")
-                self.showSplashVC()
             }
         }
     }
