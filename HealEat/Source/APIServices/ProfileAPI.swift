@@ -10,7 +10,10 @@ enum ProfileAPI {
 
 extension ProfileAPI: TargetType {
     var baseURL: URL {
-        return URL(string: "http://13.124.70.231:8080")!
+        guard let url = URL(string: Constants.NetworkManager.baseURL) else {
+            fatalError("fatal error - invalid url")
+        }
+        return url
     }
 
     var path: String {
@@ -46,13 +49,14 @@ extension ProfileAPI: TargetType {
             return .uploadMultipart(multipartData)
         }
     }
-
-    var headers: [String: String]? {
-        return [
-            "accept": "*/*",
-            "Authorization": "Bearer 9999",
-            "Content-Type": "multipart/form-data"
-        ]
+    
+    
+    var headers: [String : String]? {
+        switch self {
+        default:
+            return ["Content-Type": "multipart/form-data"]
+        }
+        
     }
 
     var validationType: ValidationType {

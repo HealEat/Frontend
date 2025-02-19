@@ -33,13 +33,15 @@ class SplashVC: UIViewController {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             
-            self.tokenPlugin.checkAuthenticationStatus() { token in
+            /*self.tokenPlugin.checkAuthenticationStatus() { token in
                 if let token = token {
                     self.navigateToBaseVC()
                 } else {
                     self.navigateToLoginVC()
                 }
-            } 
+            } */
+            
+            self.navigateToLoginVC()
         }
     }
     

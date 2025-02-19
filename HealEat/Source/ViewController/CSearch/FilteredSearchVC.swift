@@ -22,6 +22,9 @@ class FilteredSearchVC: UIViewController {
         setupMapsVC()
         setupStoresVC()
         setupSearchBar()
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false // 다른 터치 이벤트도 정상 동작하게 유지
+        view.addGestureRecognizer(tapGesture)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.filteredStoresVC.reloadCollectionView() // StoreVC에서 컬렉션 뷰 강제 리로드
@@ -132,6 +135,10 @@ class FilteredSearchVC: UIViewController {
     
     @objc private func dismissVC() {
         navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {

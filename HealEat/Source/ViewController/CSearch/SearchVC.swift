@@ -8,10 +8,10 @@ class SearchVC: UIViewController {
     let foodTypeList = FoodCategory.allItems
     let nutritionList = NutritionCategory.allItems
     var recentSearches: [RecentSearchItem] = []
-    // ✅ 선택된 셀을 저장할 변수 (두 개의 컬렉션뷰를 개별적으로 관리)
+    //  선택된 셀을 저장할 변수 (두 개의 컬렉션뷰를 개별적으로 관리)
     var selectedFoodType: Set<IndexPath> = [] // 첫 번째 컬렉션뷰의 선택된 항목
     var selectedNutritionType: Set<IndexPath> = [] // 두 번째 컬렉션뷰의 선택된 항목
-    // ✅ 최대 선택 가능 개수
+    //  최대 선택 가능 개수
     let maxSelectionCount = 5
         
     
@@ -520,7 +520,11 @@ extension SearchVC: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
+
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        view.endEditing(true) // 스크롤 시작하면 키보드 내리기
+    }
+    
     
 }
-
 
