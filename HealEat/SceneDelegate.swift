@@ -26,8 +26,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = UINavigationController(rootViewController: marketVC)
         
         // Hosung.Kim 백엔드 분들 리뷰 추가하기 위한 툴 빌드용 ======================================
-        let testVC = BackTestViewController()
-        window?.rootViewController = UINavigationController(rootViewController: testVC)
+//        let testVC = BackTestViewController()
+//        window?.rootViewController = UINavigationController(rootViewController: testVC)
         window?.makeKeyAndVisible()
     }
 

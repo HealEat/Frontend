@@ -217,7 +217,6 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
         case .ratingReview:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: RatingReviewTableViewCell.self), for: indexPath) as? RatingReviewTableViewCell else { return UITableViewCell() }
             guard let storeDetailResponseModel = storeDetailResponseModel else { return cell }
-            cell.ratingReviewView.isUserInteractionEnabled = false
             cell.ratingReviewView.initializeView(
                 totalHealthScore: storeDetailResponseModel.isInDBDto.totalHealthScore,
                 totalCount: storeDetailResponseModel.isInDBDto.reviewCount,
@@ -254,10 +253,22 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
     }
     
     @objc private func onClickReviewMore() {
-        guard let storeDetailResponseModel = storeDetailResponseModel else { return }
-        let viewController = WriteReviewVC()
-        viewController.param = WriteReviewVC.Param(storeDetailResponseModel: storeDetailResponseModel)
-        navigationController?.pushViewController(viewController, animated: true)
+        BearerTokenPlugin().checkAuthenticationStatus(completion: { [weak self] token in
+            guard let self = self else { return }
+            if token == nil {
+                let alertDismiss: UIAlertController = UIAlertController(title: "로그인이 필요합니다.", message: "", preferredStyle: .alert)
+                let actionOk: UIAlertAction = UIAlertAction(title: "확인", style: .default, handler: { _ in
+                    self.dismiss(animated: true, completion: nil)
+                })
+                alertDismiss.addAction(actionOk)
+                present(alertDismiss, animated: true, completion: nil)
+                return
+            }
+            guard let storeDetailResponseModel = storeDetailResponseModel else { return }
+            let viewController = WriteReviewVC()
+            viewController.param = WriteReviewVC.Param(storeDetailResponseModel: storeDetailResponseModel)
+            navigationController?.pushViewController(viewController, animated: true)
+        })
     }
     
     private func onClickFilter(filterEnum: FilterEnum) {
