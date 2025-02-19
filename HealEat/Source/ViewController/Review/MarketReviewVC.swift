@@ -57,6 +57,10 @@ class MarketReviewVC: UIViewController {
         bind()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        reloadData()
+    }
+    
     private func bind() {
         requestReviews
             .throttle(for: 1, scheduler: RunLoop.main, latest: false)
@@ -148,7 +152,6 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
                 SortEnum.allCases.map({ [weak self] sortEnum in
                     UIAction(title: sortEnum.title, image: UserDefaultsManager.shared.reviewSort == sortEnum ? UIImage(resource: .check) : nil, handler: { _ in
                         UserDefaultsManager.shared.reviewSort = sortEnum
-                        tableView.reloadData()
                         self?.reloadData()
                     })
                 })

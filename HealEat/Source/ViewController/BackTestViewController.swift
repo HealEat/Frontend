@@ -65,9 +65,27 @@ class BackTestViewController: UIViewController {
     }()
     
     @objc private func onClickButton() {
-        let marketVC = MarketVC()
-        marketVC.param = MarketVC.Param(placeId: Int(placeId.text!)!)
+        let writeReviewVC = WriteReviewVC()
+        writeReviewVC.param = WriteReviewVC.Param(storeDetailResponseModel: StoreDetailResponseModel(storeDetailResponseEntity: StoreDetailResponseEntity(
+            storeId: nil,
+            createdAt: nil,
+            storeInfoDto: StoreDetailResponseEntity.StoreInfoDto(
+                placeId: Int(placeId.text!)!,
+                placeName: "백엔드용 툴",
+                categoryName: nil,
+                phone: nil,
+                addressName: nil,
+                roadAddressName: nil,
+                x: nil,
+                y: nil,
+                placeUrl: nil,
+                features: nil
+            ),
+            isInDBDto: nil,
+            totalStatDto: nil,
+            bookmarkId: nil
+        )))
         GlobalConst.memberId = Int(memberId.text!)!
-        navigationController?.pushViewController(marketVC, animated: true)
+        navigationController?.pushViewController(writeReviewVC, animated: true)
     }
 }

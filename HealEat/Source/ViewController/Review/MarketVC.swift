@@ -53,7 +53,7 @@ class MarketVC: UIViewController {
         initializeViewControllers()
         initializeHandlers()
         bind()
-        
+        print("viewdidload")
         getStoreDetail(placeId: param.placeId)
     }
     
