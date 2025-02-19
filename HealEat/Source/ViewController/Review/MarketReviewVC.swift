@@ -38,6 +38,8 @@ class MarketReviewVC: UIViewController {
     var storeDetailResponseModel: StoreDetailResponseModel?
     var reviewModels: [ReviewsResponseModel.ReviewList] = []
     
+    private var filters: Set<FilterEnum> = []
+    
     private var page: Int = 1
     private var isLast: Bool = false
     
@@ -52,7 +54,7 @@ class MarketReviewVC: UIViewController {
             placeId: param.placeId,
             page: page,
             sortBy: UserDefaultsManager.shared.reviewSort,
-            filters: UserDefaultsManager.shared.reviewFilters
+            filters: filters
         ))
         bind()
     }
@@ -70,7 +72,7 @@ class MarketReviewVC: UIViewController {
                     placeId: param.placeId,
                     page: page,
                     sortBy: UserDefaultsManager.shared.reviewSort,
-                    filters: UserDefaultsManager.shared.reviewFilters
+                    filters: filters
                 ))
             })
             .store(in: &cancellable)
@@ -113,7 +115,7 @@ class MarketReviewVC: UIViewController {
             placeId: param.placeId,
             page: page,
             sortBy: UserDefaultsManager.shared.reviewSort,
-            filters: UserDefaultsManager.shared.reviewFilters
+            filters: filters
         ))
     }
 }
@@ -158,19 +160,37 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
             )
             headerView.sickButton.configuration?.attributedTitle = AttributedString("질병관리", attributes: AttributeContainer([
                 .font: UIFont.systemFont(ofSize: 12),
-                .foregroundColor: UserDefaultsManager.shared.reviewFilters.contains(.sick) ? UIColor.healeatGreen1 : UIColor.healeatGray6,
+                .foregroundColor: filters.contains(.sick) ? UIColor.healeatGreen1 : UIColor.healeatGray6,
             ]))
             headerView.vegetButton.configuration?.attributedTitle = AttributedString("베지테리언", attributes: AttributeContainer([
                 .font: UIFont.systemFont(ofSize: 12),
-                .foregroundColor: UserDefaultsManager.shared.reviewFilters.contains(.veget) ? UIColor.healeatGreen1 : UIColor.healeatGray6,
+                .foregroundColor: filters.contains(.veget) ? UIColor.healeatGreen1 : UIColor.healeatGray6,
             ]))
             headerView.dietButton.configuration?.attributedTitle = AttributedString("다이어트", attributes: AttributeContainer([
                 .font: UIFont.systemFont(ofSize: 12),
-                .foregroundColor: UserDefaultsManager.shared.reviewFilters.contains(.diet) ? UIColor.healeatGreen1 : UIColor.healeatGray6,
+                .foregroundColor: filters.contains(.diet) ? UIColor.healeatGreen1 : UIColor.healeatGray6,
             ]))
-            headerView.sickButton.configuration?.image = UserDefaultsManager.shared.reviewFilters.contains(.sick) ? UIImage(resource: .check) : UIImage(resource: .nocheck)
-            headerView.vegetButton.configuration?.image = UserDefaultsManager.shared.reviewFilters.contains(.veget) ? UIImage(resource: .check) : UIImage(resource: .nocheck)
-            headerView.dietButton.configuration?.image = UserDefaultsManager.shared.reviewFilters.contains(.diet) ? UIImage(resource: .check) : UIImage(resource: .nocheck)
+            headerView.sickButton.configuration?.image = filters.contains(.sick) ? UIImage(resource: .check) : UIImage(resource: .nocheck)
+            headerView.vegetButton.configuration?.image = filters.contains(.veget) ? UIImage(resource: .check) : UIImage(resource: .nocheck)
+            headerView.dietButton.configuration?.image = filters.contains(.diet) ? UIImage(resource: .check) : UIImage(resource: .nocheck)
+            if filters.isEmpty {
+                headerView.sickButton.configuration?.attributedTitle = AttributedString("질병관리", attributes: AttributeContainer([
+                    .font: UIFont.systemFont(ofSize: 12),
+                    .foregroundColor: UIColor.healeatBlack.withAlphaComponent(0.2),
+                ]))
+                headerView.vegetButton.configuration?.attributedTitle = AttributedString("베지테리언", attributes: AttributeContainer([
+                    .font: UIFont.systemFont(ofSize: 12),
+                    .foregroundColor: UIColor.healeatBlack.withAlphaComponent(0.2),
+                ]))
+                headerView.dietButton.configuration?.attributedTitle = AttributedString("다이어트", attributes: AttributeContainer([
+                    .font: UIFont.systemFont(ofSize: 12),
+                    .foregroundColor: UIColor.healeatBlack.withAlphaComponent(0.2),
+                ]))
+                headerView.sickButton.configuration?.image = UIImage(resource: .nocheck).withTintColor(UIColor.healeatBlack.withAlphaComponent(0.2), renderingMode: .alwaysOriginal)
+                headerView.vegetButton.configuration?.image = UIImage(resource: .nocheck).withTintColor(UIColor.healeatBlack.withAlphaComponent(0.2), renderingMode: .alwaysOriginal)
+                headerView.dietButton.configuration?.image = UIImage(resource: .nocheck).withTintColor(UIColor.healeatBlack.withAlphaComponent(0.2), renderingMode: .alwaysOriginal)
+            }
+            
             headerView.sickButton.addTarget(self, action: #selector(onClickSick), for: .touchUpInside)
             headerView.vegetButton.addTarget(self, action: #selector(onClickVeget), for: .touchUpInside)
             headerView.dietButton.addTarget(self, action: #selector(onClickDiet), for: .touchUpInside)
@@ -255,7 +275,7 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
     @objc private func onClickReviewMore() {
         BearerTokenPlugin().checkAuthenticationStatus(completion: { [weak self] token in
             guard let self = self else { return }
-            if token == nil {
+            if token == nil && GlobalConst.memberId == nil {
                 let alertDismiss: UIAlertController = UIAlertController(title: "로그인이 필요합니다.", message: "", preferredStyle: .alert)
                 let actionOk: UIAlertAction = UIAlertAction(title: "확인", style: .default, handler: { _ in
                     self.dismiss(animated: true, completion: nil)
@@ -272,13 +292,11 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
     }
     
     private func onClickFilter(filterEnum: FilterEnum) {
-        var filters = UserDefaultsManager.shared.reviewFilters
         if filters.contains(filterEnum) {
             filters.remove(filterEnum)
         } else {
             filters.insert(filterEnum)
         }
-        UserDefaultsManager.shared.reviewFilters = filters
         reloadData()
     }
     @objc private func onClickSick() {

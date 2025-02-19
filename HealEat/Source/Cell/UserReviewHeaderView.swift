@@ -41,7 +41,7 @@ class UserReviewHeaderView: UIView {
     lazy var filterStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.spacing = 10
+        stackView.spacing = 0
         stackView.alignment = .fill
         stackView.distribution = .equalSpacing
         return stackView
