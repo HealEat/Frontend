@@ -25,7 +25,7 @@ struct HomeResponse: Codable {
 
 // 가게 정보 응답 모델
 struct StoreResponse: Codable {
-    let id: Int
+    let id: String
     let place_name: String
     let category_name: String
     let phone: String?
@@ -47,7 +47,7 @@ struct StoreResponse: Codable {
     }
 
     struct StoreInfo: Codable {
-        let placeId: Int
+        let placeId: String
         let placeName: String
         let categoryName: String
         let phone: String?

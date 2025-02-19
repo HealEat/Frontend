@@ -369,8 +369,8 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     func poiDidTapped(kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint) {
         print("🚀 poiDidTapped 호출됨! layerID: \(layerID), poiID: \(poiID)")
 
-        guard let storeId = Int(poiID),
-        let store = storeData.first(where: { $0.id == storeId }) else { return }
+        let storeId = poiID
+        guard let store = storeData.first(where: { $0.id == storeId }) else { return }
 
         // 기존의 클릭된 POI 스타일 되돌리기
         let manager = kakaoMap.getLabelManager()
