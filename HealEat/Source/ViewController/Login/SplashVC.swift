@@ -34,8 +34,8 @@ class SplashVC: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             self.tokenPlugin.checkAuthenticationStatus() { token in
                 if let token = token {
-                    //self.navigateToBaseVC()
-                    self.navigateToLoginVC() // 개발용 임시 코드
+                    self.navigateToBaseVC()
+                    //self.navigateToLoginVC() // 개발용 임시 코드
                 } else {
                     self.navigateToLoginVC()
                 }
