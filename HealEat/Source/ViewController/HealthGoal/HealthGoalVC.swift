@@ -5,9 +5,12 @@ import Then
 
 class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDelegate {
     
+    
     private var isFetchingData = false
     private var currentPage = 2
     private var isLastPage = false
+    var activeTextView: UITextView?
+    private var keyboardHeight: CGFloat = 0
     private var isFirstUpdate = true
     
     var userName: String?
@@ -108,25 +111,6 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         }
     }
 
-    private func updateCollectionViewHeight() {
-        let collectionViewHeight = max(335, healthGoalList.count * 335) // 최소 높이 보장
-        
-        if isFirstUpdate {
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
-                self.collectionView.snp.updateConstraints { make in
-                    make.height.equalTo(collectionViewHeight)
-                }
-                self.view.layoutIfNeeded()
-            })
-            isFirstUpdate = false
-        } else {
-            self.collectionView.snp.updateConstraints { make in
-                make.height.equalTo(collectionViewHeight)
-            }
-            self.view.layoutIfNeeded()
-        }
-    }
-
     
     
     
@@ -160,30 +144,61 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         self.isFirstUpdate = true
         fetchHealthGoalData()
     }
+    
+    private func updateCollectionViewHeight() {
+        let tempHeight = CGFloat(max(335, healthGoalList.count * 335)) // 최소 높이 보장
+        let collectionViewHeight = tempHeight + keyboardHeight
+        
+        if isFirstUpdate {
+            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+                self.collectionView.snp.updateConstraints { make in
+                    make.height.equalTo(collectionViewHeight)
+                }
+                self.view.layoutIfNeeded()
+            })
+            isFirstUpdate = false
+        } else {
+            self.collectionView.snp.updateConstraints { make in
+                make.height.equalTo(collectionViewHeight)
+            }
+            self.view.layoutIfNeeded()
+        }
+    }
 
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        guard let userInfo = notification.userInfo, let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
-            return
-        }
-        let keyboardHeight = keyboardFrame.height
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        let keyboardFrameInView = view.convert(keyboardFrame, from: nil)
+        keyboardHeight = keyboardFrameInView.height - view.safeAreaInsets.bottom
 
-        UIView.animate(withDuration: 0.2) { [weak self] in
-            self?.scrollView.contentInset.bottom += keyboardHeight
+        updateCollectionViewHeight()
+        
+        if let activeTextView = activeTextView {
+            let textViewFrame = activeTextView.convert(activeTextView.bounds, to: scrollView)
+
+            let textViewY = textViewFrame.origin.y
+            let targetY = textViewY - (scrollView.frame.height - keyboardHeight - 80)  // 80은 여유공간
+            if targetY > 0 {
+                scrollView.setContentOffset(CGPoint(x: 0, y: targetY), animated: true)
+            }
         }
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
-        guard let userInfo = notification.userInfo, let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
-            return
-        }
-        let keyboardHeight = keyboardFrame.height
+        guard notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] is CGRect else { return }
+        keyboardHeight = 0
         
-
-        UIView.animate(withDuration: 0.2) { [weak self] in
-            self?.scrollView.contentInset.bottom -= keyboardHeight
-        }
+        updateCollectionViewHeight()
     }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        activeTextView = textView
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        activeTextView = nil
+    }
+    
     
     @objc func dismissKeyboard() {
         view.endEditing(true)
@@ -333,5 +348,11 @@ extension HealthGoalVC: UIScrollViewDelegate {
             isFetchingData = true
             fetchHealthGoalData()
         }
+    }
+}
+
+extension CGPoint {
+    static func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+        return CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
     }
 }

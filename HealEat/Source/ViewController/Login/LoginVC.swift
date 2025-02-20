@@ -8,7 +8,7 @@ import SwiftyToaster
 class LoginVC: UIViewController {
     let tokenPlugin = BearerTokenPlugin()
     private let loginView = LoginView()
-
+    
     // MARK: - Lifecycle
     override func loadView() {
         self.view = loginView
@@ -67,7 +67,8 @@ class LoginVC: UIViewController {
         let yesAction = UIAlertAction(title: "예", style: .default) { _ in
             print("로그인 없이 이용 선택됨")
             // 다음 화면으로 이동하거나 다른 로직 추가
-
+            UserDefaults.standard.set(false, forKey: "isLoggedIn") // 로그인 상태 저장
+            UserDefaults.standard.synchronize()
             self.navigateToBaseVC()
         }
         
@@ -92,6 +93,10 @@ class LoginVC: UIViewController {
                 self.checkTermStatus { isAgreed in
                     //self.navigateToAgreement() // 개발용 임시 코드
                     if isAgreed {
+                        UserDefaults.standard.set(true, forKey: "isLoggedIn") // 로그인 상태 저장
+                        UserDefaults.standard.synchronize()
+                        NotificationCenter.default.post(name: .loginStatusChanged, object: nil) //  알림 보내기
+                        
                         self.navigateToBaseVC() // 약관 동의했으면 홈 화면 이동
                     } else {
                         self.navigateToAgreement() // 동의 안 했으면 약관 동의 화면 이동

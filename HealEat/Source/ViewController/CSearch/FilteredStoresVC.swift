@@ -56,7 +56,6 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         self.filteredData = results
         self.storeData = results.storeList
         self.reloadCollectionView()
-        print("didReceiveSearchResults")
         
         NotificationCenter.default.post(
             name: .updateMapsVC,
@@ -130,6 +129,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         isLastPage = searchResults.isLast
         currentPage += 1
         DispatchQueue.main.async { self.reloadCollectionView() }
+        hideLoadingIndicator()
     }
     
     private func notifyMapUpdate(with searchResults: HomeResponse) {
@@ -178,7 +178,6 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
             finalArr.append(randomItem)
         }
         DispatchQueue.main.async {
-            print("reloadData 실행 - 데이터 개수: \(self.finalArr.count)")
             self.storeview.filterCollectionView.reloadData()
             self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
             self.storeview.storeCollectionView.layoutIfNeeded()
@@ -389,6 +388,7 @@ extension FilteredStoresVC: SortingDropdownDelegate {
         } else {
             storeview.setByResultButton.buttonLabel.text = option
         }
+        showLoadingIndicator()
         fetchStoreData(reset: true)
         isLastPage = false
     }

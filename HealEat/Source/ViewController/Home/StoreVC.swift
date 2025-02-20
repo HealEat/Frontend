@@ -14,7 +14,7 @@ class StoreVC: UIViewController {
     private var storeData: [StoreResponse] = []
     public let storeview = StoreView()
     public let loginVC = LoginVC()
-    public var isloggedIn: Bool = true
+    public var isloggedIn: Bool = UserDefaults.standard.bool(forKey: "isLoggedIn")
     public var hasHealthInfo: Bool = false
     public let notloginview = NotloginView()
     public let healthsettingview = HealthInfoSettingView()
@@ -46,6 +46,7 @@ class StoreVC: UIViewController {
             }
         }
     }
+    
     
     func updateLocation(lat: Double, lon: Double) {
         self.currentLatitude = lat
@@ -156,11 +157,11 @@ extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
     
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let marketVC = MarketVC()
-        marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)
-        let nav = UINavigationController(rootViewController: marketVC)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
+       let marketVC = MarketVC()
+       marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)
+       let nav = UINavigationController(rootViewController: marketVC)
+       nav.modalPresentationStyle = .fullScreen
+       present(nav, animated: true)
 //        navigationController?.pushViewController(marketVC, animated: true)
     }
 }

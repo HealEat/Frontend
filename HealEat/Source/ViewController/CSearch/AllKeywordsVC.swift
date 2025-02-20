@@ -5,8 +5,9 @@ import UIKit
 import SwiftyToaster
 
 class AllKeywordsVC: UIViewController {
-    var isFoodType = true
-    let maxSelectionCount = 5
+    public var isFoodType = true
+    private let maxSelectionCount = 5
+    private var isProcessing = false
         
     
     // MARK: - UI Components
@@ -27,6 +28,8 @@ class AllKeywordsVC: UIViewController {
         $0.searchBar.text = SearchRequestManager.shared.query
         
         $0.returnKeyPressed = { text in
+            guard !self.isProcessing else { return }
+            self.isProcessing = true
             self.searchButtonClicked()
         }
     }
@@ -119,12 +122,14 @@ class AllKeywordsVC: UIViewController {
     }
     
     private func goToFilteredSearch(searchResults: HomeResponse) {
+        hideLoadingIndicator()
         let filteredSearchVC = FilteredSearchVC()
         filteredSearchVC.filteredStoresVC.filteredData = searchResults
         filteredSearchVC.filteredStoresVC.storeData = searchResults.storeList
         filteredSearchVC.avgX = searchResults.searchInfo?.avgX
         filteredSearchVC.avgY = searchResults.searchInfo?.avgY
         filteredSearchVC.hidesBottomBarWhenPushed = true // 탭바 숨겨주기
+        isProcessing = false
         navigationController?.pushViewController(filteredSearchVC, animated: true)
     }
     
@@ -149,8 +154,8 @@ class AllKeywordsVC: UIViewController {
     
     
     @objc private func searchButtonClicked() {
+        showLoadingIndicator()
         let filters = getSearchFilters()
-        
         SearchRequestManager.shared.updateFilters(
             query: filters.query,
             x: filters.x,
