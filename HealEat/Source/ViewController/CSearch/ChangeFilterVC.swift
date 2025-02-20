@@ -12,7 +12,6 @@ class ChangeFilterVC: UIViewController {
     
     weak var delegate: ChangeFilterVCDelegate?
         
-    
     // MARK: - UI Components
     private lazy var vcLabel = UILabel().then {
         $0.textColor = UIColor.healeatGray5
@@ -20,54 +19,8 @@ class ChangeFilterVC: UIViewController {
         $0.font = UIFont.systemFont(ofSize: 14, weight: .medium)
     }
     
-    private lazy var keywordBackground = KeywordChipsView().then {
+    private lazy var allKeywordsView = AllKeywordChipsView().then {
         $0.backgroundColor = .white
-        $0.allKeywordButton.addTarget(self, action: #selector(showKeywords), for: .touchUpInside)
-        $0.label.textColor = .black
-    }
-    
-    private lazy var foodTypeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then({
-        $0.scrollDirection = .horizontal
-        $0.minimumLineSpacing = 3
-        $0.minimumInteritemSpacing = 6
-    })).then {
-        $0.backgroundColor = .clear
-        $0.isScrollEnabled = true
-        $0.showsHorizontalScrollIndicator = false
-        $0.register(FoodKeywordCell.self, forCellWithReuseIdentifier: FoodKeywordCell.identifier)
-        $0.dataSource = self
-        $0.delegate = self
-        $0.tag = 0
-    }
-
-    private lazy var nutritionCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then({
-        $0.scrollDirection = .horizontal
-        $0.minimumLineSpacing = 3
-        $0.minimumInteritemSpacing = 6
-    })).then {
-        $0.backgroundColor = .clear
-        $0.isScrollEnabled = true
-        $0.showsHorizontalScrollIndicator = false
-        $0.register(FoodKeywordCell.self, forCellWithReuseIdentifier: FoodKeywordCell.identifier)
-        $0.dataSource = self
-        $0.delegate = self
-        $0.tag = 1
-    }
-    private lazy var foodTypeButton =  UIButton().then {
-        $0.setTitle("+\(foodTypeList.count)", for: .normal)
-        $0.setTitleColor(UIColor.healeatGreen1, for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        $0.backgroundColor = .healeatLightGreen
-        $0.layer.cornerRadius = 12
-        $0.layer.masksToBounds = true
-    }
-    private lazy var nutritionButton =  UIButton().then {
-        $0.setTitle("+\(nutritionList.count)", for: .normal)
-        $0.setTitleColor(UIColor.healeatGreen1, for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        $0.backgroundColor = .healeatLightGreen
-        $0.layer.cornerRadius = 12
-        $0.layer.masksToBounds = true
     }
     
     private lazy var openHoursLabel = UILabel().then {
@@ -127,13 +80,11 @@ class ChangeFilterVC: UIViewController {
         
     }
     
-
-        
-
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        allKeywordsView.isFoodType = true
         self.navigationController?.setNavigationBarHidden(true, animated: false)
 
         over3P5Button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
@@ -143,7 +94,6 @@ class ChangeFilterVC: UIViewController {
         resetButton.addTarget(self, action: #selector(resetFilters), for: .touchUpInside)
         applyFilterButton.addTarget(self, action: #selector(applyFilters), for: .touchUpInside)
     }
-    
 
     @objc private func filterButtonTapped(_ sender: FilterButton) {
         let allButtons = [over3P5Button, over4Button, over4P5Button]
@@ -179,11 +129,8 @@ class ChangeFilterVC: UIViewController {
     private func setupUI() {
         view.backgroundColor = .white
         
-        [vcLabel, keywordBackground, leastRatingLabel, leastRatingStack, bottomButtonStack].forEach {
+        [vcLabel, leastRatingLabel, leastRatingStack, allKeywordsView, bottomButtonStack].forEach {
             view.addSubview($0)
-        }
-        [foodTypeCollectionView, nutritionCollectionView, foodTypeButton, nutritionButton].forEach {
-            keywordBackground.addSubview($0)
         }
         
         setupConstraints()
@@ -194,47 +141,23 @@ class ChangeFilterVC: UIViewController {
             make.top.equalToSuperview().offset(15)
             make.leading.equalToSuperview().offset(15)
         }
-        keywordBackground.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview()
-            make.top.equalTo(vcLabel.snp.bottom).offset(10)
-            make.height.equalTo(150)
-        }
-        foodTypeCollectionView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(70)
-            make.trailing.equalToSuperview().offset(-60)
-            make.centerY.equalToSuperview()
-            make.height.equalTo(24)
-        }
-        nutritionCollectionView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(70)
-            make.trailing.equalToSuperview().offset(-60)
-            make.centerY.equalTo(foodTypeCollectionView.snp.bottom).offset(30)
-            make.height.equalTo(24)
-        }
-        foodTypeButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-15)
-            make.width.equalTo(37)
-            make.height.equalTo(24)
-            make.centerY.equalTo(foodTypeCollectionView.snp.centerY)
-        }
-        nutritionButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-15)
-            make.width.equalTo(37)
-            make.height.equalTo(24)
-            make.centerY.equalTo(nutritionCollectionView.snp.centerY)
-        }
         leastRatingLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(15)
-            make.top.equalTo(keywordBackground.snp.bottom).offset(15)
+            make.top.equalTo(vcLabel.snp.bottom).offset(15)
         }
         leastRatingStack.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(15)
             make.top.equalTo(leastRatingLabel.snp.bottom).offset(15)
         }
+        allKeywordsView.snp.makeConstraints { make in
+            make.top.equalTo(leastRatingStack.snp.bottom).offset(10)
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalTo(bottomButtonStack.snp.top).offset(-15)
+        }
         bottomButtonStack.snp.makeConstraints { make in
-            make.top.equalTo(leastRatingStack.snp.bottom).offset(20)
             make.horizontalEdges.equalToSuperview().inset(15)
             make.height.equalTo(42)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-10)
         }
         
     }

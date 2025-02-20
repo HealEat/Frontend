@@ -41,14 +41,6 @@ class AllKeywordsVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
-        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
-        searchBar.searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
-        
-        hideKeyboardWhenTappedAround()
-        
-        allKeywordsView.isFoodType = isFoodType
     }
 
     // MARK: - UI Methods
@@ -59,6 +51,10 @@ class AllKeywordsVC: UIViewController {
         }
         
         setupConstraints()
+        hideKeyboardWhenTappedAround()
+        setInteractivePopGesture()
+        allKeywordsView.isFoodType = isFoodType
+        searchBar.searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
     }
     
     private func setupConstraints() {
@@ -79,8 +75,12 @@ class AllKeywordsVC: UIViewController {
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
-
-        
+    }
+    
+    private func setInteractivePopGesture() {
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     //MARK: Setup Actions
@@ -154,8 +154,6 @@ class AllKeywordsVC: UIViewController {
     }
 
 }
-
-
 
 extension AllKeywordsVC: UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {

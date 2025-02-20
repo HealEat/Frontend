@@ -53,9 +53,10 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     }
     
     func didReceiveSearchResults(_ results: HomeResponse) {
-        self.filteredData = results
-        self.storeData = results.storeList
-        self.reloadCollectionView()
+        filteredData = results
+        storeData = results.storeList
+        reloadCollectionView()
+        updateSortButtons()
         
         NotificationCenter.default.post(
             name: .updateMapsVC,
@@ -65,6 +66,11 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
                  "lon": results.searchInfo?.avgX ?? LocationManager.shared.currentLongitude]
         )
 
+    }
+    
+    private func updateSortButtons() {
+        storeview.setByUserInfoButton.buttonLabel.text = SortSelectionManager.shared.sortBy.name
+        storeview.setByResultButton.buttonLabel.text = SortSelectionManager.shared.searchBy.name
     }
     
     // MARK: - API Calls
@@ -83,18 +89,19 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         
         isFetchingData = true // API 호출 시작
         let searchRequest = SearchRequestManager.shared.currentRequest
-        
+        showLoadingIndicator()
         CSearchManager.search(page: currentPage, param: searchRequest) { [weak self] isSuccess, result in
             guard let self = self else { return }
             self.isFetchingData = false
             guard isSuccess, let searchResults = result else {
                 Toaster.shared.makeToast("검색 요청 실패")
+                hideLoadingIndicator()
                 return
             }
 
             self.updateStoreData(with: searchResults, reset: reset)
             self.notifyMapUpdate(with: searchResults)
-    
+            hideLoadingIndicator()
         }
         
     }
@@ -190,7 +197,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         let bottomSheet = ChangeFilterVC()
         if let sheet = bottomSheet.sheetPresentationController {
             sheet.detents = [.custom(resolver: { context in
-                return context.maximumDetentValue * 0.45
+                return context.maximumDetentValue * 0.85
             })]
             sheet.prefersGrabberVisible = false
         }
@@ -357,7 +364,6 @@ extension FilteredStoresVC: SortingDropdownDelegate {
         } else {
             storeview.setByResultButton.buttonLabel.text = option
         }
-        showLoadingIndicator()
         fetchStoreData(reset: true)
         isLastPage = false
     }
