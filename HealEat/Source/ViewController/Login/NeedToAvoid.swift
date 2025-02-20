@@ -3,9 +3,11 @@
 import UIKit
 import SnapKit
 import Then
+import Combine
 
 class NeedToAvoidVC: UIViewController {
     weak var delegate: PurposeCompletionDelegate?
+    private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
 
     private let backButton = UIButton().then {
         $0.setTitle("< 이전", for: .normal)
@@ -158,8 +160,13 @@ class NeedToAvoidVC: UIViewController {
             print("옵션을 선택해주세요.")
             return
         }
-        let finalStepVC = FinalStepVC()
-        finalStepVC.modalPresentationStyle = .fullScreen
-        present(finalStepVC, animated: true, completion: nil)
+        InfoRepository.shared.saveQuestion(questionNum: 4, param: InfoAnswerRequest(selectedAnswers: Array(selectedOptions)))
+            .sinkHandledCompletion(receiveValue: { [weak self] savedAnswerResponseModel in
+                guard let parent = self?.parent as? QuestionBaseVC else { return }
+                print(savedAnswerResponseModel)
+                parent.viewControllers[.common]?.removeAll(where: { $0 == .needToAvoid })
+                parent.setupContainerViewController()
+            })
+            .store(in: &cancellable)
     }
 }

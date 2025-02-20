@@ -10,3 +10,7 @@ struct InfoProfileRequest: Codable {
 struct InfoAnswerRequest: Codable {
     let selectedAnswers: [String]
 }
+
+struct DiseaseRequest: Codable {
+    let diseaseName: String
+}

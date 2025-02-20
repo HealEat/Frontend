@@ -1,14 +1,10 @@
 // Copyright © 2025 HealEat. All rights reserved.
 
-
 import UIKit
-import SnapKit
-import Then
 import Combine
 
-class NeedDietVC: UIViewController {
-    weak var delegate: PurposeCompletionDelegate?
-    
+class DiseaseTroubleVC: UIViewController {
+
     private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
 
     // MARK: - UI Elements
@@ -20,7 +16,7 @@ class NeedDietVC: UIViewController {
     }
 
     private let titleLabel = UILabel().then {
-        $0.text = "건강관리를 위해 필요한 식사는 무엇인가요?"
+        $0.text = "질병으로 인해 겪는 건강 상의 불편함은 무엇인가요?"
         $0.font = UIFont.systemFont(ofSize: 18, weight: .bold)
         $0.textAlignment = .center
         $0.textColor = .black
@@ -34,7 +30,14 @@ class NeedDietVC: UIViewController {
         $0.textAlignment = .center
     }
 
-    private let options = ["기름기 적은 식사", "영양소가 고르게 포함된 식사", "싱겁게 먹는 식사", "채소가 많은 식사", "소화가 잘 되는 식사", "에너지를 보충해주는 식사"]
+    private let options = [
+        "체력/신체 기능 감소",
+        "체중 감소",
+        "소화 불량",
+        "식욕 부진",
+        "통증(두통, 관절통, 복통 등)",
+        "만성 피로"
+    ]
     private var selectedOptions: Set<String> = []
 
     private var optionButtons: [UIButton] = []
@@ -162,14 +165,18 @@ class NeedDietVC: UIViewController {
             print("옵션을 선택해주세요.")
             return
         }
+        guard let parent = self.parent as? QuestionBaseVC else { return }
+        parent.viewControllers[.sick]?.removeAll(where: { $0 == .diseaseTrouble })
+        parent.setupContainerViewController()
         
-        InfoRepository.shared.saveQuestion(questionNum: 2, param: InfoAnswerRequest(selectedAnswers: Array(selectedOptions)))
-            .sinkHandledCompletion(receiveValue: { [weak self] savedAnswerResponseModel in
-                guard let parent = self?.parent as? QuestionBaseVC else { return }
-                print(savedAnswerResponseModel)
-                parent.viewControllers[.common]?.removeAll(where: { $0 == .needDiet })
-                parent.setupContainerViewController()
-            })
-            .store(in: &cancellable)
+//        InfoRepository.shared.saveQuestion(questionNum: 2, param: InfoAnswerRequest(selectedAnswers: Array(selectedOptions)))
+//            .sinkHandledCompletion(receiveValue: { [weak self] savedAnswerResponseModel in
+//                guard let parent = self?.parent as? QuestionBaseVC else { return }
+//                print(savedAnswerResponseModel)
+//                parent.viewControllers[.common]?.removeAll(where: { $0 == .needDiet })
+//                parent.setupContainerViewController()
+//            })
+//            .store(in: &cancellable)
     }
+
 }
