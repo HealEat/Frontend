@@ -29,6 +29,8 @@ extension UIViewController {
         }
     }
 
+
+
     func hideLoadingIndicator() {
         DispatchQueue.main.async {
             guard let topVC = UIApplication.getMostTopViewController() else { return }
