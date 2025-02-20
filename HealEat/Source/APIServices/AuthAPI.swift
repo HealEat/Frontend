@@ -11,7 +11,7 @@ enum AuthAPI {
     case kakaoUnlink
     
     case getTerms
-    case agreeToTerms
+    case agreeToTerms(param: TermsRequest)
     case getTermStatus
 }
 
@@ -31,7 +31,7 @@ extension AuthAPI: TargetType {
         case .kakaoUnlink: return "auth/kakao/unlink"
             
         case .getTerms: return "terms"
-        case .agreeToTerms: return "terms/agree"
+        case .agreeToTerms(_): return "terms/agree"
         case .getTermStatus: return "terms/status"
         }
     }
@@ -51,8 +51,10 @@ extension AuthAPI: TargetType {
         switch self {
         case .logout, .naverUnlink, .kakaoUnlink:
             return .requestPlain
-        case .getTerms, .agreeToTerms, .getTermStatus:
+        case .getTerms, .getTermStatus:
             return .requestPlain
+        case .agreeToTerms(let param):
+            return .requestJSONEncodable(param)
         }
         
     }

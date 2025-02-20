@@ -48,7 +48,6 @@ class MarketVC: UIViewController {
         
         self.view = marketView
         self.navigationController?.navigationBar.isHidden = true
-        self.navigationController?.tabBarController?.tabBar.isHidden = true
         
         initializeViewControllers()
         initializeHandlers()
@@ -161,7 +160,7 @@ class MarketVC: UIViewController {
     }()
     
     @objc private func onClickNavBack() {
-        navigationController?.popViewController(animated: true)
+        dismiss(animated: true)
     }
     
     @objc private func onClickNaver() {

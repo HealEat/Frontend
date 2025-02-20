@@ -14,13 +14,13 @@ class BaseVC: UITabBarController {
     func setTabBar() {
         let vc1 = UINavigationController(rootViewController: HomeVC())
         //let vc1 = UINavigationController(rootViewController: SearchVC())
-        vc1.tabBarItem = UITabBarItem(title: "홈", image: UIImage(named: "Home"), tag: 1)
+        vc1.tabBarItem = UITabBarItem(title: "홈", image: UIImage(named: "Home")?.withRenderingMode(.alwaysTemplate), tag: 1)
         let vc2 = UINavigationController(rootViewController: SearchVC())
-        vc2.tabBarItem = UITabBarItem(title: "검색", image: UIImage(named: "Search"), tag: 2)
+        vc2.tabBarItem = UITabBarItem(title: "검색", image: UIImage(named: "Search")?.withRenderingMode(.alwaysTemplate), tag: 2)
         let vc3 = UINavigationController(rootViewController: HealthGoalVC())
-        vc3.tabBarItem = UITabBarItem(title: "건강목표", image: UIImage(named: "Goals"), tag: 3)
+        vc3.tabBarItem = UITabBarItem(title: "건강목표", image: UIImage(named: "Goals")?.withRenderingMode(.alwaysTemplate), tag: 3)
         let vc4 = UINavigationController(rootViewController: MyPageVC())
-        vc4.tabBarItem = UITabBarItem(title: "MY", image: UIImage(named: "My"), tag: 4)
+        vc4.tabBarItem = UITabBarItem(title: "MY", image: UIImage(named: "My")?.withRenderingMode(.alwaysTemplate), tag: 4)
         self.viewControllers = [vc1, vc2, vc3, vc4]
     }
     
@@ -29,12 +29,12 @@ class BaseVC: UITabBarController {
         tabBarAppearance.configureWithOpaqueBackground()
         
         // 아이콘 기본 색상 설정
-        tabBarAppearance.stackedLayoutAppearance.normal.iconColor = UIColor(hex: "#6A6A6A")
+        tabBarAppearance.stackedLayoutAppearance.normal.iconColor = UIColor.healeatGray4P5
         
         self.tabBar.standardAppearance = tabBarAppearance
         
         self.tabBar.layer.masksToBounds = false
-        self.tabBar.tintColor = UIColor(hex: "#009459")
+        self.tabBar.tintColor = UIColor.healeatGreen1
         self.tabBar.backgroundColor = .white
         
         // 그림자 설정

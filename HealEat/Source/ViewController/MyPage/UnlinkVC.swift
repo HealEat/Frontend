@@ -29,11 +29,17 @@ class UnlinkVC: UIViewController {
         $0.setTitle("예", for: .normal)
         $0.setTitleColor(.black, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        $0.backgroundColor = .healeatGray3
+        $0.layer.masksToBounds = true
+        $0.layer.cornerRadius = 12
     }
     private lazy var dismissButton = UIButton().then {
         $0.setTitle("아니요", for: .normal)
         $0.setTitleColor(.black, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        $0.backgroundColor = .healeatGray3
+        $0.layer.masksToBounds = true
+        $0.layer.cornerRadius = 12
     }
     
     
@@ -67,13 +73,21 @@ class UnlinkVC: UIViewController {
             make.top.equalTo(label.snp.bottom).offset(3)
         }
         unlinkButton.snp.makeConstraints { make in
-            make.centerY.equalToSuperview().multipliedBy(1.2)
+            make.centerY.equalToSuperview().multipliedBy(1.4)
             make.centerX.equalToSuperview().multipliedBy(0.5)
+            make.width.equalTo(95)
+            make.height.equalTo(34)
         }
         dismissButton.snp.makeConstraints { make in
-            make.centerY.equalToSuperview().multipliedBy(1.2)
+            make.centerY.equalToSuperview().multipliedBy(1.4)
             make.centerX.equalToSuperview().multipliedBy(1.5)
+            make.width.equalTo(95)
+            make.height.equalTo(34)
         }
+        
+        unlinkButton.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
+        dismissButton.addTarget(self, action: #selector(dismissTapped), for: .touchUpInside)
+
 
     }
     
@@ -100,6 +114,7 @@ class UnlinkVC: UIViewController {
                     if response.statusCode == 200 {
                         UserDefaults.standard.removeObject(forKey: "lastLoginPlatform")
                         KeychainSwift().delete("accessToken")
+                        KeychainSwift().delete("accessTokenCreatedAt")
                         self.showSplashVC()
                     } else {
                         print("네이버 회원 탈퇴 중 에러")
@@ -117,6 +132,7 @@ class UnlinkVC: UIViewController {
                     if response.statusCode == 200 {
                         UserDefaults.standard.removeObject(forKey: "lastLoginPlatform")
                         KeychainSwift().delete("accessToken")
+                        KeychainSwift().delete("accessTokenCreatedAt")
                         self.showSplashVC()
                     } else {
                         print("카카오 회원 탈퇴 중 에러")

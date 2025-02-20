@@ -6,6 +6,7 @@ import Then
 
 class TermsAgreementVC: UIViewController {
     
+    //MARK: - UI Components
     private let logoImageView = UIImageView().then {
         $0.image = UIImage(named: "LogoImage")
         $0.contentMode = .scaleAspectFit
@@ -18,11 +19,8 @@ class TermsAgreementVC: UIViewController {
         $0.layer.borderColor = UIColor.lightGray.cgColor
     }
 
-    private let termsOptions = [
-        "이용 약관 동의 (필수)",
-        "개인정보 수집 및 이용 동의 (필수)",
-        "위치기반 정보 수집 동의 (필수)"
-    ]
+    private var termsOptions: [String] = []
+    private var termsIds: [Int] = []
     
     private var termsIcons: [UIImageView] = []
 
@@ -72,16 +70,17 @@ class TermsAgreementVC: UIViewController {
 
     private var selectedTerms: Set<String> = []
 
+    
+    //MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        setupViews()
-        setupLayout()
-        setupActions()
         
         getTerms()
     }
     
+    
+    //MARK: - UI Methods
     private func setupViews() {
         view.addSubview(contentStackView)
         view.addSubview(nextButton)
@@ -181,6 +180,23 @@ class TermsAgreementVC: UIViewController {
         }
     }
     
+    private func animateCheckmark(for icon: UIImageView, isChecked: Bool) {
+        let iconName = isChecked ? "checkmark.circle.fill" : "circle"
+        UIView.transition(with: icon, duration: 0.2, options: .transitionCrossDissolve, animations: {
+            icon.image = UIImage(systemName: iconName)?.withConfiguration(UIImage.SymbolConfiguration(pointSize: 18))
+            icon.tintColor = isChecked ? UIColor(hex: "#009459") : .gray
+        }, completion: nil)
+    }
+
+    private func updateNextButtonState() {
+        let allSelected = selectedTerms.count == termsOptions.count
+        nextButton.isEnabled = allSelected
+        nextButton.alpha = allSelected ? 1.0 : 0.5
+    }
+    
+    
+    
+    //MARK: - Action Methods
     private func setupActions() {
         let allAgreeTapGesture = UITapGestureRecognizer(target: self, action: #selector(allAgreeTapped))
         allAgreeIcon.addGestureRecognizer(allAgreeTapGesture) // ✅ 전체 동의도 터치 가능하도록 수정
@@ -222,36 +238,45 @@ class TermsAgreementVC: UIViewController {
 
         updateNextButtonState()
     }
-    
-    private func animateCheckmark(for icon: UIImageView, isChecked: Bool) {
-        let iconName = isChecked ? "checkmark.circle.fill" : "circle"
-        UIView.transition(with: icon, duration: 0.2, options: .transitionCrossDissolve, animations: {
-            icon.image = UIImage(systemName: iconName)?.withConfiguration(UIImage.SymbolConfiguration(pointSize: 18))
-            icon.tintColor = isChecked ? UIColor(hex: "#009459") : .gray
-        }, completion: nil)
-    }
 
-    private func updateNextButtonState() {
-        let allSelected = selectedTerms.count == termsOptions.count
-        nextButton.isEnabled = allSelected
-        nextButton.alpha = allSelected ? 1.0 : 0.5
-    }
+    
+    
     
     @objc private func nextButtonTapped() {
         guard selectedTerms.count == termsOptions.count else { return }
+        let param = TermsRequest(agreements: termsIds.map { Term(termId: $0, agree: true) })
+        
+        AuthManager.postAgreeToTerms(param) { isSuccess, result in
+            if isSuccess {
+                print("이용약관 동의 성공")
+            } else {
+                if let data = result?.data,
+                   let errorMessage = String(data: data, encoding: .utf8) {
+                    print("이용약관 동의 에러 메시지: \(errorMessage)")
+                }
+                return
+            }
+        }
+        
         let profileVC = ProfileVC()
         profileVC.modalPresentationStyle = .fullScreen
         present(profileVC, animated: false, completion: nil)
     }
     
     
-    //MARK: - API call
-    
+
     private func getTerms() {
-        AuthManager.fetchTermsData { result in
+        AuthManager.fetchTermsData { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .success(let data):
-                print(data)
+                self.termsOptions = data.result.map { $0.title }
+                self.termsIds = data.result.map { $0.id }
+                DispatchQueue.main.async {
+                    self.setupViews()
+                    self.setupLayout()
+                    self.setupActions()
+                }
             case .failure(let error):
                 print("Error occurred: \(error.localizedDescription)")
             }

@@ -30,32 +30,9 @@ class AllKeywordsVC: UIViewController {
             self.searchButtonClicked()
         }
     }
-    private lazy var foodTypeButton = UIButton().then {
-        let unselected = NSAttributedString(string: "음식 종류", attributes: [
-            .font: UIFont.systemFont(ofSize: 12, weight: .regular),
-            .foregroundColor: UIColor(hex: "A3A3A3") ?? UIColor.healeatGray5
-        ])
-        let selected = NSAttributedString(string: "음식 종류", attributes: [
-            .font: UIFont.systemFont(ofSize: 14, weight: .medium),
-            .foregroundColor: UIColor.healeatGray6
-        ])
-        $0.setAttributedTitle(unselected, for: .normal)
-        $0.setAttributedTitle(selected, for: .selected)
-        $0.addTarget(self, action: #selector(toggleButtonState), for: .touchUpInside)
-    }
-    private lazy var nutritionButton = UIButton().then {
-        let unselected = NSAttributedString(string: "음식 특징", attributes: [
-            .font: UIFont.systemFont(ofSize: 12, weight: .regular),
-            .foregroundColor: UIColor(hex: "A3A3A3") ?? UIColor.healeatGray5
-        ])
-        let selected = NSAttributedString(string: "음식 특징", attributes: [
-            .font: UIFont.systemFont(ofSize: 14, weight: .medium),
-            .foregroundColor: UIColor.healeatGray6
-        ])
-        $0.setAttributedTitle(unselected, for: .normal)
-        $0.setAttributedTitle(selected, for: .selected)
-        $0.addTarget(self, action: #selector(toggleButtonState), for: .touchUpInside)
-    }
+    private lazy var foodTypeButton = createCategoryButton(title: "음식 종류")
+    private lazy var nutritionButton = createCategoryButton(title: "음식 특징")
+    
     private lazy var typeStack = UIStackView(arrangedSubviews: [foodTypeButton, nutritionButton]).then {
         $0.axis = .horizontal
         $0.spacing = 10
@@ -67,36 +44,6 @@ class AllKeywordsVC: UIViewController {
         $0.collectionview.dataSource = self
         $0.collectionview.register(AllKeywordCollectionViewHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: AllKeywordCollectionViewHeader.identifier)
         $0.collectionview.isUserInteractionEnabled = true
-    }
-    
-    
-    
-    private lazy var foodTypeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then({
-        $0.scrollDirection = .horizontal
-        $0.minimumLineSpacing = 3
-        $0.minimumInteritemSpacing = 6
-    })).then {
-        $0.backgroundColor = .clear
-        $0.isScrollEnabled = true
-        $0.showsHorizontalScrollIndicator = false
-        $0.register(FoodKeywordCell.self, forCellWithReuseIdentifier: FoodKeywordCell.identifier)
-        $0.register(AllKeywordCollectionViewHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: AllKeywordCollectionViewHeader.identifier)
-        $0.dataSource = self
-        $0.delegate = self
-    }
-
-    private lazy var nutritionCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then({
-        $0.scrollDirection = .horizontal
-        $0.minimumLineSpacing = 3
-        $0.minimumInteritemSpacing = 6
-    })).then {
-        $0.backgroundColor = .clear
-        $0.isScrollEnabled = true
-        $0.showsHorizontalScrollIndicator = false
-        $0.register(FoodKeywordCell.self, forCellWithReuseIdentifier: FoodKeywordCell.identifier)
-        $0.register(AllKeywordCollectionViewHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: AllKeywordCollectionViewHeader.identifier)
-        $0.dataSource = self
-        $0.delegate = self
     }
 
  
@@ -111,6 +58,8 @@ class AllKeywordsVC: UIViewController {
         foodTypeButton.isSelected = isFoodType
         nutritionButton.isSelected = !isFoodType
         searchBar.searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
+        
+        hideKeyboardWhenTappedAround()
     }
     
 
@@ -159,10 +108,22 @@ class AllKeywordsVC: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    private func hideKeyboardWhenTappedAround() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
     private func goToFilteredSearch(searchResults: HomeResponse) {
         let filteredSearchVC = FilteredSearchVC()
         filteredSearchVC.filteredStoresVC.filteredData = searchResults
         filteredSearchVC.filteredStoresVC.storeData = searchResults.storeList
+        filteredSearchVC.avgX = searchResults.searchInfo?.avgX
+        filteredSearchVC.avgY = searchResults.searchInfo?.avgY
         filteredSearchVC.hidesBottomBarWhenPushed = true // 탭바 숨겨주기
         navigationController?.pushViewController(filteredSearchVC, animated: true)
     }
@@ -174,35 +135,38 @@ class AllKeywordsVC: UIViewController {
         allKeywordsView.collectionview.reloadData()
     }
     
+    private func getSearchFilters() -> (query: String, x: String, y: String, foodList: [Int], nutritionList: [Int], searchBy: SearchBy, sortBy: SortBy) {
+        return (
+            query: searchBar.searchBar.text ?? "",
+            x: "\(LocationManager.shared.currentLongitude)",
+            y: "\(LocationManager.shared.currentLatitude)",
+            foodList: Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0)),
+            nutritionList: Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1)),
+            searchBy: SortSelectionManager.shared.searchBy,
+            sortBy: SortSelectionManager.shared.sortBy
+        )
+    }
+    
     
     @objc private func searchButtonClicked() {
-        let query = searchBar.searchBar.text ?? ""
-        let foodList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 0))
-        let nutritionList = Array(CategorySelectionManager.shared.getSelectedItems(forCategory: 1))
-        let x = LocationManager.shared.currentLongitude
-        let y = LocationManager.shared.currentLatitude
-        let searchBy = SortSelectionManager.shared.searchBy
-        let sortBy = SortSelectionManager.shared.sortBy
+        let filters = getSearchFilters()
         
-        //  `SearchRequestManager`에 업데이트
         SearchRequestManager.shared.updateFilters(
-            query: query,
-            x: "\(x)",
-            y: "\(y)",
-            categoryIdList: foodList,
-            featureIdList: nutritionList,
+            query: filters.query,
+            x: filters.x,
+            y: filters.y,
+            categoryIdList: filters.foodList,
+            featureIdList: filters.nutritionList,
             minRating: 0.0,
-            searchBy: searchBy,
-            sortBy: sortBy
+            searchBy: filters.searchBy,
+            sortBy: filters.sortBy
         )
         
-        //  검색 API 요청
         search()
     }
 
     
     //MARK: API call
-    
     private func search() {
         let param = SearchRequestManager.shared.currentRequest
 
@@ -224,26 +188,15 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return isFoodType ? FoodCategory.allCases[section].sections.count : NutritionCategory.allCases[section].sections.count
+        return isFoodType ?
+        FoodCategory.allCases[section].sections.count : NutritionCategory.allCases[section].sections.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FoodKeywordCell.identifier, for: indexPath) as! FoodKeywordCell
-
-        //  ID 및 이름 가져오기
-        let id: Int
-        let item: String
-        if isFoodType {
-            let foodCategory = FoodCategory.allCases[indexPath.section].sections[indexPath.row]
-            id = foodCategory.id
-            item = foodCategory.name
-        } else {
-            let nutritionCategory = NutritionCategory.allCases[indexPath.section].sections[indexPath.row]
-            id = nutritionCategory.id
-            item = nutritionCategory.name
-        }
+        let (id, name) = getCategoryItemInfo(at: indexPath)
         
-        cell.label.text = item
+        cell.label.text = name
         
         let categoryType = isFoodType ? 0 : 1
         let isSelected = CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id)
@@ -254,26 +207,9 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let categoryType = isFoodType ? 0 : 1
+        let (id, _) = getCategoryItemInfo(at: indexPath)
 
-        // ✅ ID 가져오기
-        let id = isFoodType
-        ? FoodCategory.allCases[indexPath.section].sections[indexPath.row].id
-        : NutritionCategory.allCases[indexPath.section].sections[indexPath.row].id
-
-        if CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id) {
-            // ✅ 선택 해제
-            CategorySelectionManager.shared.removeSelection(id, forCategory: categoryType)
-        } else {
-            // ✅ 현재 선택된 총 개수 확인 (새로운 선택만 제한)
-            if CategorySelectionManager.shared.getTotalSelectedCount() >= maxSelectionCount {
-                Toaster.shared.makeToast("5개 이상 선택할 수 없습니다.", .short)
-                return
-            }
-            // ✅ 새로운 선택 추가
-            CategorySelectionManager.shared.addSelection(id, forCategory: categoryType)
-        }
-
-        // ✅ UI 업데이트 → 특정 셀만 다시 로드
+        updateSelection(id: id, categoryType: categoryType)
         collectionView.reloadItems(at: [indexPath])
     }
 
@@ -292,29 +228,71 @@ extension AllKeywordsVC: UICollectionViewDelegate, UICollectionViewDataSource, U
     
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        switch kind {
-        case UICollectionView.elementKindSectionHeader:
-            guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: AllKeywordCollectionViewHeader.identifier, for: indexPath) as? AllKeywordCollectionViewHeader else { fatalError() }
-            if isFoodType {
-                header.configure(with: FoodCategory.allCases[indexPath.section].rawValue)
-            } else {
-                header.configure(with: NutritionCategory.allCases[indexPath.section].rawValue)
-            }
-            
-            return header
-        default: return UICollectionReusableView()
+        guard kind == UICollectionView.elementKindSectionHeader,
+              let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: AllKeywordCollectionViewHeader.identifier, for: indexPath) as? AllKeywordCollectionViewHeader else {
+            return UICollectionReusableView()
         }
+        let title = isFoodType ? FoodCategory.allCases[indexPath.section].rawValue : NutritionCategory.allCases[indexPath.section].rawValue
+        header.configure(with: title)
+        return header
     }
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: collectionView.frame.width, height: 45) //  헤더 높이
     }
+    
+    private func getCategoryItemInfo(at indexPath: IndexPath) -> (id: Int, name: String) {
+        let categoryType = isFoodType ? 0 : 1
+        let item: (id: Int, name: String)
+
+        if isFoodType {
+            let foodCategory = FoodCategory.allCases[indexPath.section].sections[indexPath.row]
+            item = (foodCategory.id, foodCategory.name)
+        } else {
+            let nutritionCategory = NutritionCategory.allCases[indexPath.section].sections[indexPath.row]
+            item = (nutritionCategory.id, nutritionCategory.name)
+        }
+        return (item.id, item.name)
+    }
+    
+    
+    private func updateSelection(id: Int, categoryType: Int) {
+        if CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id) {
+            CategorySelectionManager.shared.removeSelection(id, forCategory: categoryType)
+        } else if CategorySelectionManager.shared.getTotalSelectedCount() < maxSelectionCount {
+            CategorySelectionManager.shared.addSelection(id, forCategory: categoryType)
+        } else {
+            Toaster.shared.makeToast("5개 이상 선택할 수 없습니다.", .short)
+        }
+    }
+
 }
 
 
 extension AllKeywordsVC: UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return self.navigationController?.viewControllers.count ?? 0 > 1
+    }
+}
+
+// MARK: - Helpers
+extension AllKeywordsVC {
+    private func createCategoryButton(title: String) -> UIButton {
+        let button = UIButton()
+        let unselected = NSAttributedString(string: title, attributes: [
+            .font: UIFont.systemFont(ofSize: 12, weight: .regular),
+            .foregroundColor: UIColor.healeatGray4P5
+        ])
+        let selected = NSAttributedString(string: title, attributes: [
+            .font: UIFont.systemFont(ofSize: 14, weight: .medium),
+            .foregroundColor: UIColor.healeatGray6
+        ])
+        
+        button.setAttributedTitle(unselected, for: .normal)
+        button.setAttributedTitle(selected, for: .selected)
+        button.addTarget(self, action: #selector(toggleButtonState), for: .touchUpInside)
+        
+        return button
     }
 }

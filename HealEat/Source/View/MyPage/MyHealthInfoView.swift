@@ -133,17 +133,14 @@ class MyHealthInfoView: UIView {
     }
     
     private func createGoalButton(title: String) -> UIButton {
-        let button = UIButton(type: .system)
+        let button = DynamicTagButton(type: .system)
         button.setTitle(title, for: .normal)
         button.setTitleColor(UIColor(hex: "009459"), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = UIColor(hex: "EEFAF5")
-        config.background.strokeColor = UIColor(hex: "C4E9BE")
-        config.background.strokeWidth = 1
-        config.background.cornerRadius = 12
-        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 11, bottom: 6, trailing: 11)
-        button.configuration = config
+        button.backgroundColor = UIColor(hex: "EEFAF5")
+        button.layer.borderColor = UIColor(hex: "C4E9BE")?.cgColor
+        button.layer.borderWidth = 1
+        button.layer.cornerRadius = 12
         button.isUserInteractionEnabled = false
         button.sizeToFit()
         return button

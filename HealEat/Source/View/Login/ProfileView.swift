@@ -13,6 +13,7 @@ class ProfileView: UIView {
         $0.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         $0.textAlignment = .center
         $0.textColor = .black
+        $0.numberOfLines = 0
     }
 
     let profileImageView = UIImageView().then {

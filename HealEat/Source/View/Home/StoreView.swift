@@ -51,7 +51,7 @@ class StoreView: UIView {
         $0.scrollDirection = .vertical
     }).then {
         $0.backgroundColor = .clear
-        $0.isScrollEnabled = false
+        $0.isScrollEnabled = true
         $0.register(StoreCollectionViewCell.self, forCellWithReuseIdentifier: StoreCollectionViewCell.identifier)
     }
     
@@ -80,7 +80,6 @@ class StoreView: UIView {
             $0.top.equalTo(userRecommendLabel.snp.bottom).offset(7)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
-            $0.height.greaterThanOrEqualTo(200)
         }
     }
     

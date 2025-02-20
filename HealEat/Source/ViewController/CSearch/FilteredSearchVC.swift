@@ -19,13 +19,24 @@ class FilteredSearchVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupViews()
+        setupGestures()
+        setupNotifications()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.filteredStoresVC.reloadCollectionView()
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Setup Methods
+    private func setupViews() {
         setupMapsVC()
         setupStoresVC()
         setupSearchBar()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.filteredStoresVC.reloadCollectionView() // StoreVC에서 컬렉션 뷰 강제 리로드
-        }
     }
     
     private func setupSearchBar() {
@@ -37,13 +48,11 @@ class FilteredSearchVC: UIViewController {
             ])
             $0.searchBar.attributedPlaceholder = placeholder
             $0.searchBar.text = SearchRequestManager.shared.query
-            
             $0.returnKeyPressed = { text in
                 SearchRequestManager.shared.updateFilters(query: text)
                 self.search()
             }
         }
-        
         view.addSubview(searchBar)
         view.bringSubviewToFront(searchBar)
         
@@ -54,7 +63,6 @@ class FilteredSearchVC: UIViewController {
         }
     }
 
-    
     private func setupMapsVC() {
         let mapsVC = MapsVC()
         self.mapsVC = mapsVC
@@ -66,13 +74,8 @@ class FilteredSearchVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(mapsVCDidLoad), name: .mapsVCDidLoad, object: nil)
     }
     
-    
     private func setupStoresVC() {
-        filteredStoreView.backgroundColor = .white
-        filteredStoreView.layer.cornerRadius = 16
-        filteredStoreView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        filteredStoreView.clipsToBounds = true
-            
+        filteredStoreView.configureForModal()
         view.addSubview(filteredStoreView)
             
         filteredStoreView.snp.makeConstraints {
@@ -80,38 +83,31 @@ class FilteredSearchVC: UIViewController {
             $0.height.greaterThanOrEqualTo(370)
         }
         
-        _ = UIScreen.main.bounds.height - 130
         modalHeightConstraint = filteredStoreView.heightAnchor.constraint(equalToConstant: 370)
         modalHeightConstraint.isActive = true
             
         DispatchQueue.main.async {
             self.addGrabber()
         }
-            
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
-        storePanGesture = panGesture
-        storePanGesture?.delegate = self
-        filteredStoreView.addGestureRecognizer(panGesture)
 
         //StoreVC 추가
         addChild(filteredStoresVC)
         filteredStoreView.addSubview(filteredStoresVC.view)
+        filteredStoresVC.didMove(toParent: self)
         filteredStoresVC.view.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        filteredStoresVC.didMove(toParent: self)
         
         filteredStoresVC.storeview.storeCollectionView.isScrollEnabled = true
-        
     }
     
     private func addGrabber() {
-        let grabber = UIView()
-        grabber.backgroundColor = .lightGray
-        grabber.layer.cornerRadius = 3
-
+        let grabber = UIView().then {
+            $0.backgroundColor = .lightGray
+            $0.layer.cornerRadius = 3
+        }
+        
         filteredStoreView.addSubview(grabber)
-
         grabber.snp.makeConstraints {
             $0.top.equalTo(filteredStoreView.snp.top).offset(8)
             $0.centerX.equalTo(filteredStoreView.snp.centerX)
@@ -120,12 +116,20 @@ class FilteredSearchVC: UIViewController {
         }
     }
     
-    // ✅ MapsVC가 완전히 로딩된 후 실행됨
-    @objc private func mapsVCDidLoad() {
-        mapsVC?.updateMapPosition(lat: avgY ?? LocationManager.shared.currentLatitude,
-                                  lon: avgX ?? LocationManager.shared.currentLongitude)
+    private func setupGestures() {
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        storePanGesture = panGesture
+        storePanGesture?.delegate = self
+        filteredStoreView.addGestureRecognizer(panGesture)
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(mapsVCDidLoad), name: .mapsVCDidLoad, object: nil)
+    }
         
     
     //MARK: - Setup Actions
@@ -133,6 +137,21 @@ class FilteredSearchVC: UIViewController {
     @objc private func dismissVC() {
         navigationController?.popViewController(animated: true)
     }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    //  MapsVC가 완전히 로딩된 후 실행됨
+    @objc private func mapsVCDidLoad() {
+        mapsVC?.isTracking = true
+        mapsVC?.updateMapPosition(
+            lat: avgY ?? LocationManager.shared.currentLatitude,
+            lon: avgX ?? LocationManager.shared.currentLongitude
+        )
+    }
+    
+
     
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: view)
@@ -166,31 +185,33 @@ class FilteredSearchVC: UIViewController {
             break
         }
     }
+    
+    private func updateSearchResults(with searchResults: HomeResponse) {
+        filteredStoresVC.filteredData = searchResults
+        filteredStoresVC.storeData = searchResults.storeList
+        filteredStoresVC.reloadCollectionView()
+        avgX = searchResults.searchInfo?.avgX
+        avgY = searchResults.searchInfo?.avgY
+        mapsVCDidLoad()
+    }
  
 
     
     //MARK: - API call
     private func search() {
         let param = SearchRequestManager.shared.currentRequest
-        
-        CSearchManager.search(page: 1, param: param) { isSuccess, searchResults in
+        CSearchManager.search(page: 1, param: param) { [weak self] isSuccess, searchResults in
+            guard let self = self else { return }
             guard isSuccess, let searchResults = searchResults else {
                 Toaster.shared.makeToast("검색 요청 실패")
                 return
             }
-            self.filteredStoresVC.filteredData = searchResults
-            self.filteredStoresVC.storeData = searchResults.storeList
-            self.filteredStoresVC.reloadCollectionView()
-            self.avgX = searchResults.searchInfo?.avgX
-            self.avgY = searchResults.searchInfo?.avgY
-            self.mapsVCDidLoad()
+            self.updateSearchResults(with: searchResults)
         }
         
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: .mapsVCDidLoad, object: nil)
-    }
+
 
   
 

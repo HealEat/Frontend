@@ -184,6 +184,11 @@ extension MyPageVC: UITableViewDelegate, UITableViewDataSource {
             logoutVC.modalPresentationStyle = .overCurrentContext
             logoutVC.modalTransitionStyle = .crossDissolve
             present(logoutVC, animated: true, completion: nil)
+        case 4:
+            let unlinkVC = UnlinkVC()
+            unlinkVC.modalPresentationStyle = .overCurrentContext
+            unlinkVC.modalTransitionStyle = .crossDissolve
+            present(unlinkVC, animated: true, completion: nil)
         default:
             break
         }
