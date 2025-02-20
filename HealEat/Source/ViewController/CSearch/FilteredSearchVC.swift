@@ -135,6 +135,7 @@ class FilteredSearchVC: UIViewController {
     //MARK: - Setup Actions
     
     @objc private func dismissVC() {
+        hideLoadingIndicator()
         navigationController?.popViewController(animated: true)
     }
     
@@ -199,6 +200,7 @@ class FilteredSearchVC: UIViewController {
     
     //MARK: - API call
     private func search() {
+        showLoadingIndicator()
         let param = SearchRequestManager.shared.currentRequest
         CSearchManager.search(page: 1, param: param) { [weak self] isSuccess, searchResults in
             guard let self = self else { return }
@@ -206,6 +208,7 @@ class FilteredSearchVC: UIViewController {
                 Toaster.shared.makeToast("검색 요청 실패")
                 return
             }
+            hideLoadingIndicator()
             self.updateSearchResults(with: searchResults)
         }
         

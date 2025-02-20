@@ -11,8 +11,9 @@ class SearchVC: UIViewController {
     //  선택된 셀을 저장
     var selectedFoodType: Set<IndexPath> = []
     var selectedNutritionType: Set<IndexPath> = []
-    //  최대 선택 가능 개수
-    let maxSelectionCount = 5
+    
+    private let maxSelectionCount = 5 //  최대 선택 가능 개수
+    private var isProcessing = false
         
     
     // MARK: - UI Components
@@ -25,6 +26,8 @@ class SearchVC: UIViewController {
         $0.searchBar.text = SearchRequestManager.shared.query
         
         $0.returnKeyPressed = { text in
+            guard !self.isProcessing else { return }
+            self.isProcessing = true
             self.searchButtonClicked()
         }
     }
@@ -121,6 +124,7 @@ class SearchVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        searchBar.searchButton.isEnabled = true
         getRecentSearches()
         foodTypeCollectionView.reloadData()
         nutritionCollectionView.reloadData()
@@ -206,6 +210,8 @@ class SearchVC: UIViewController {
     }
     
     @objc private func searchButtonClicked() {
+        searchBar.searchButton.isEnabled = false
+        showLoadingIndicator()
         let filters = getSearchFilters()
         SearchRequestManager.shared.updateFilters(
             query: filters.query,
@@ -235,12 +241,14 @@ class SearchVC: UIViewController {
     
     
     private func goToFilteredSearch(searchResults: HomeResponse) {
+        hideLoadingIndicator()
         let filteredSearchVC = FilteredSearchVC()
         filteredSearchVC.filteredStoresVC.filteredData = searchResults
         filteredSearchVC.filteredStoresVC.storeData = searchResults.storeList
         filteredSearchVC.avgX = searchResults.searchInfo?.avgX
         filteredSearchVC.avgY = searchResults.searchInfo?.avgY
         filteredSearchVC.hidesBottomBarWhenPushed = true
+        isProcessing = false
         navigationController?.pushViewController(filteredSearchVC, animated: true)
     }
 
