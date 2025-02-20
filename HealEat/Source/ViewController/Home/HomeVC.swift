@@ -21,18 +21,9 @@ class HomeVC: UIViewController {
         
         setupMapsVC()
         gotocurrentButton.addTarget(self, action: #selector(gotocurrentposition), for: .touchUpInside)
-        if !storeVC.isloggedIn {
-            setupNotloginView()
-        }
-        else {
-            if !storeVC.hasHealthInfo {
-                setupStoreView()
-                storeVC.delegate = self
-            }
-            else {
-                setupHealthSettingView()
-            }
-        }
+        NotificationCenter.default.addObserver(self, selector: #selector(handleLoginStatusChanged), name: .loginStatusChanged, object: nil)
+
+        checkLoginStatus()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -44,7 +35,19 @@ class HomeVC: UIViewController {
         super.viewDidLayoutSubviews()
     }
     
-    
+    private func checkLoginStatus() {
+        if !UserDefaults.standard.bool(forKey: "isLoggedIn") {
+            setupNotloginView()
+        } else {
+            if !storeVC.hasHealthInfo {
+                setupStoreView()
+                storeVC.delegate = self
+            } else {
+                setupHealthSettingView()
+            }
+        }
+    }
+
     private func setupMapsVC() {
         let mapsVC = MapsVC()
         self.mapsVC = mapsVC
@@ -64,10 +67,10 @@ class HomeVC: UIViewController {
             // 위치 업데이트 후 매장 요청
             if self.isFirstLocationUpdate {
                 self.isFirstLocationUpdate = false
-                self.storeVC.updateLocation(lat: lat, lon: lon)
+                self.storeVC.updateLocation(lat: 37.4682787075426, lon: 127.039136433366)
             }
-            self.mapsVC?.updateMapPosition(lat: lat, lon: lon)
-            self.mapsVC?.updateCurrentLocationMarker(lat: lat, lon: lon)
+            self.mapsVC?.updateMapPosition(lat: 37.4682787075426, lon: 127.039136433366)
+            self.mapsVC?.updateCurrentLocationMarker(lat: 37.4682787075426, lon: 127.039136433366)
         }
     }
     
@@ -311,6 +314,13 @@ class HomeVC: UIViewController {
         }
     }
     
+    @objc private func handleLoginStatusChanged() {
+        DispatchQueue.main.async {
+            self.view.subviews.forEach { $0.removeFromSuperview() } // 기존 뷰 제거
+            self.checkLoginStatus()
+        }
+    }
+    
     @objc func gotocurrentposition() {
         mapsVC?.startTracking()
     }
@@ -379,5 +389,9 @@ extension HomeVC: UIGestureRecognizerDelegate {
         }
         return false
     }
+}
+
+extension Notification.Name {
+    static let loginStatusChanged = Notification.Name("loginStatusChanged")
 }
 
