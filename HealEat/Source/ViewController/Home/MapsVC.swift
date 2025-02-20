@@ -98,7 +98,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
 
     override func viewDidDisappear(_ animated: Bool) {
         removeObservers()
-   //   mapController?.resetEngine()     //엔진 정지. 추가되었던 ViewBase들이 삭제된다.
+    //   mapController?.resetEngine()     //엔진 정지. 추가되었던 ViewBase들이 삭제된다.
     }
     
     // 인증 성공시 delegate 호출.
