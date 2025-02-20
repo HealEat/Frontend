@@ -323,13 +323,10 @@ extension ChangeFilterVC: UICollectionViewDelegate, UICollectionViewDataSource, 
         let categoryType = collectionView.tag
         let item = (categoryType == 0) ? foodTypeList[indexPath.row].name : nutritionList[indexPath.row].name
 
-        // ✅ ID 가져오기
         let id = (categoryType == 0) ? foodTypeList[indexPath.row].id : nutritionList[indexPath.row].id
         
-        // ✅ 셀에 데이터 적용
         cell.label.text = item
 
-        // ✅ 선택된 상태 반영
         let isSelected = CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id)
         cell.updateUI(isSelected: isSelected)
 
@@ -339,23 +336,17 @@ extension ChangeFilterVC: UICollectionViewDelegate, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let categoryType = collectionView.tag
 
-        // ✅ ID 가져오기
         let id = (categoryType == 0) ? foodTypeList[indexPath.row].id : nutritionList[indexPath.row].id
 
         if CategorySelectionManager.shared.getSelectedItems(forCategory: categoryType).contains(id) {
-            // ✅ 선택 해제
             CategorySelectionManager.shared.removeSelection(id, forCategory: categoryType)
         } else {
-            // ✅ 현재 선택된 총 개수 확인 (새로운 선택만 제한)
             if CategorySelectionManager.shared.getTotalSelectedCount() >= maxSelectionCount {
                 Toaster.shared.makeToast("5개 이상 선택할 수 없습니다.", .short)
                 return
             }
-            // ✅ 새로운 선택 추가
             CategorySelectionManager.shared.addSelection(id, forCategory: categoryType)
         }
-
-        // ✅ UI 업데이트 → 특정 셀만 다시 로드
         collectionView.reloadItems(at: [indexPath])
     }
 

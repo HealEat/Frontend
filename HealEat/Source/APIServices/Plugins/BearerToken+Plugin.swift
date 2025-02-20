@@ -12,13 +12,6 @@ final class BearerTokenPlugin: PluginType {
     }
     
     func checkAuthenticationStatus(completion: @escaping (String?) -> Void) {
-        guard let lastPlatform = UserDefaults.standard.string(forKey: "lastLoginPlatform"),
-              let platform = LoginPlatform(rawValue: lastPlatform) else {
-            print("🚨 저장된 로그인 플랫폼이 없음")
-            completion(nil)
-            return
-        }
-        
         guard let accessToken = KeychainSwift().get("accessToken"),
               let accessTokenCreatedMillis = KeychainSwift().get("accessTokenCreatedAt"),
               let createdMillis = Int64(accessTokenCreatedMillis) else {
@@ -28,25 +21,19 @@ final class BearerTokenPlugin: PluginType {
         }
         
         let expiryMillis: Int64
-        switch platform {
-        case .naver:
-            expiryMillis = createdMillis + (60 * 60 * 1000) // 🔹 네이버 (1시간)
-        case .kakao:
-            expiryMillis = createdMillis + (6 * 60 * 60 * 1000) // 🔹 카카오 (6시간)
-        }
-        
+        expiryMillis = createdMillis + (60 * 60 * 1000) // 1시간
         let expiryDate = Date(milliseconds: expiryMillis)
         
         if Date() < expiryDate {
-            print("✅ AccessToken 유효. 사용 가능.")
+            print("AccessToken 유효. 사용 가능.")
             completion(accessToken)
         } else {
-            //forceLogout()
+            Toaster.shared.makeToast("재로그인 필요")
             completion(nil) // 재로그인 필요
         }
     }
     
-    private func forceLogout() { // 무한 회귀
+    private func forceLogout() { // 무한 회귀, 쓰면 안됨
         DispatchQueue.main.async {
             if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = scene.windows.first {

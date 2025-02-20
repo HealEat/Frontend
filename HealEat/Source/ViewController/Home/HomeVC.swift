@@ -381,4 +381,3 @@ extension HomeVC: UIGestureRecognizerDelegate {
     }
 }
 
-

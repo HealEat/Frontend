@@ -5,7 +5,7 @@ import Foundation
 
 class DietService {
     static let shared = DietService()
-    private let provider = MoyaProvider<DietAPI>()
+    private let provider = MoyaProvider<DietAPI>(plugins: [BearerTokenPlugin(), NetworkLoggerPlugin()])
 
     func updateDietType(type: String, completion: @escaping (Result<Void, Error>) -> Void) {
         provider.request(.updateDietType(type: type)) { result in

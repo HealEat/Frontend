@@ -90,7 +90,7 @@ class LoginView: UIView {
         mainStackView.addArrangedSubview(spacerView)
         mainStackView.addArrangedSubview(naverButton)
         mainStackView.addArrangedSubview(kakaoButton)
-        mainStackView.addArrangedSubview(appleButton)
+        //mainStackView.addArrangedSubview(appleButton)
         mainStackView.addArrangedSubview(skipButton)
 
         setupConstraints()
@@ -107,7 +107,7 @@ class LoginView: UIView {
             make.height.equalTo(120)
         }
 
-        [naverButton, kakaoButton, appleButton].forEach { button in
+        [naverButton, kakaoButton].forEach { button in
             button.snp.makeConstraints { make in
                 make.height.equalTo(42)
                 make.width.equalTo(269)

@@ -25,12 +25,16 @@ class LogOutVC: UIViewController {
         $0.setTitleColor(.black, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         $0.backgroundColor = .healeatGray3
+        $0.layer.masksToBounds = true
+        $0.layer.cornerRadius = 12
     }
     private lazy var dismissButton = UIButton().then {
         $0.setTitle("아니요", for: .normal)
         $0.setTitleColor(.black, for: .normal)
         $0.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         $0.backgroundColor = .healeatGray3
+        $0.layer.masksToBounds = true
+        $0.layer.cornerRadius = 12
     }
     
     
@@ -60,13 +64,13 @@ class LogOutVC: UIViewController {
             make.centerY.equalToSuperview().multipliedBy(0.8)
         }
         logOutButton.snp.makeConstraints { make in
-            make.centerY.equalToSuperview().multipliedBy(1.2)
+            make.centerY.equalToSuperview().multipliedBy(1.4)
             make.centerX.equalToSuperview().multipliedBy(0.5)
             make.width.equalTo(95)
             make.height.equalTo(34)
         }
         dismissButton.snp.makeConstraints { make in
-            make.centerY.equalToSuperview().multipliedBy(1.2)
+            make.centerY.equalToSuperview().multipliedBy(1.4)
             make.centerX.equalToSuperview().multipliedBy(1.5)
             make.width.equalTo(95)
             make.height.equalTo(34)
@@ -93,20 +97,13 @@ class LogOutVC: UIViewController {
                 if response.statusCode == 200 {
                     UserDefaults.standard.removeObject(forKey: "lastLoginPlatform")
                     KeychainSwift().delete("accessToken")
+                    KeychainSwift().delete("accessTokenCreatedAt")
                     self.showSplashVC()
                 } else {
                     print("로그아웃 중 에러")
-                    //임시 제거!!!
-                    UserDefaults.standard.removeObject(forKey: "lastLoginPlatform")
-                    KeychainSwift().delete("accessToken")
-                    self.showSplashVC()
                 }
             case .failure(let error):
                 Toaster.shared.makeToast("로그아웃 중 에러가 발생했습니다.")
-                //임시 제거!!!
-                UserDefaults.standard.removeObject(forKey: "lastLoginPlatform")
-                KeychainSwift().delete("accessToken")
-                self.showSplashVC()
             }
         }
     }

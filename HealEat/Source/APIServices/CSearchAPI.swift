@@ -27,12 +27,12 @@ extension CSearchAPI: TargetType {
     
     var path: String {
         switch self {
-        case .search(let page, let param): return "search/location"
+        case .search(_, _): return "search/location"
         case .searchStore(let placeId): return "search/\(placeId)"
         case .searchRecent: return "search/recent"
         case .deleteRecentSearch(let recentId): return "search/recent/\(recentId)"
             
-        case .searchRect(let page, let param): return "search/map-rect"
+        case .searchRect(_, _): return "search/map-rect"
         }
     }
     
@@ -70,7 +70,7 @@ extension CSearchAPI: TargetType {
         case .searchRecent:
             return .requestPlain
             
-        case .deleteRecentSearch(let recentId):
+        case .deleteRecentSearch(_):
             return .requestPlain
             
         case .searchRect(let page, let param):

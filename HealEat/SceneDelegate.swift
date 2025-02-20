@@ -20,7 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let splashVC = SplashVC() // SplashViewController -> SplashVC로 변경
         window?.rootViewController = splashVC
         let baseVC = BaseVC()
-       // window?.rootViewController = baseVC
+        //window?.rootViewController = baseVC
         let marketVC = MarketVC()
         marketVC.param = MarketVC.Param(placeId: 13284457)
         //window?.rootViewController = UINavigationController(rootViewController: marketVC)

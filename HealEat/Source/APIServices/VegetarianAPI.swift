@@ -9,7 +9,10 @@ enum VegetarianAPI {
 
 extension VegetarianAPI: TargetType {
     var baseURL: URL {
-        return URL(string: "http://13.124.70.231:8080")!
+        guard let url = URL(string: Constants.NetworkManager.baseURL) else {
+            fatalError("fatal error - invalid url")
+        }
+        return url
     }
 
     var path: String {
@@ -34,11 +37,8 @@ extension VegetarianAPI: TargetType {
         }
     }
 
-    var headers: [String: String]? {
-        return [
-            "accept": "*/*",
-            "Authorization": "Bearer 9999"
-        ]
+    var headers: [String : String]? {
+        return ["Content-Type": "application/json"]
     }
 
     var validationType: ValidationType {

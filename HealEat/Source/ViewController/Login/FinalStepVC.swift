@@ -5,8 +5,8 @@ import SnapKit
 
 class FinalStepVC: UIViewController {
     // MARK: - UI Elements
-    private let messageLabel = UILabel().then {
-        $0.text = "김현우님을 위한 추천 매장을 선정하고 있습니다."
+    private var messageLabel = UILabel().then {
+        $0.text = "이용자님을 위한 추천 매장을 선정하고 있습니다."
         $0.numberOfLines = 0
         $0.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         $0.textAlignment = .center
@@ -30,6 +30,7 @@ class FinalStepVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupLayout()
+        fetchProfile()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             self.animateTransitionToBaseVC()
@@ -55,6 +56,22 @@ class FinalStepVC: UIViewController {
         activityIndicator.snp.makeConstraints { make in
             make.top.equalTo(subtitleLabel.snp.bottom).offset(20)
             make.centerX.equalToSuperview()
+        }
+    }
+    
+    //MARK: - API call
+    private func fetchProfile(completion: (() -> Void)? = nil) {
+        MyPageManager.getProfile { result in
+            switch result {
+            case .success(let profile):
+                guard let data = profile.result else { return }
+                DispatchQueue.main.async {
+                    self.messageLabel.text = "\(data.name)님을 위한 추천 매장을 선정하고 있습니다."
+                    completion?()
+                }
+            case .failure(let error):
+                print("프로필 조회 실패: \(error.localizedDescription)")
+            }
         }
     }
     

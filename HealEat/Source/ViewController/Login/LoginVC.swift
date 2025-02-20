@@ -23,7 +23,7 @@ class LoginVC: UIViewController {
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-    NotificationCenter.default.removeObserver(self, name: .loginSuccess, object: nil)
+        NotificationCenter.default.removeObserver(self)
     }
     
     
@@ -41,8 +41,6 @@ class LoginVC: UIViewController {
         UserDefaults.standard.set("naver", forKey: "lastLoginPlatform")
         guard let url = URL(string: "https://healeatapp.com/auth/naver") else { return }
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        print("validateLogin 호출안돼???")
-        validateLogin()
     }
 
     @objc private func kakaoLoginTapped() {
@@ -50,7 +48,6 @@ class LoginVC: UIViewController {
         UserDefaults.standard.set("kakao", forKey: "lastLoginPlatform")
         guard let url = URL(string: "https://healeatapp.com/auth/kakao") else { return }
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        validateLogin()
     }
 
     @objc private func appleLoginTapped() {
@@ -89,32 +86,44 @@ class LoginVC: UIViewController {
     
     @objc private func validateLogin() {
         print("validateLogin")
-        self.tokenPlugin.checkAuthenticationStatus() { token in
+        self.tokenPlugin.checkAuthenticationStatus() { [weak self] token in
+            guard let self = self else { return }
             if let token = token {
-                self.navigateToAgreement()
-                //self.checkTermStatus()
+                self.checkTermStatus { isAgreed in
+                    //self.navigateToAgreement() // 개발용 임시 코드
+                    if isAgreed {
+                        self.navigateToBaseVC() // 약관 동의했으면 홈 화면 이동
+                    } else {
+                        self.navigateToAgreement() // 동의 안 했으면 약관 동의 화면 이동
+                    }
+                }
             } else {
                 Toaster.shared.makeToast("로그인에 실패했습니다.")
             }
         }
     }
     
-    private func checkTermStatus() {
-        AuthManager.fetchTermsStatus { [weak self] result in
-            guard let self = self else { return }
+    private func checkTermStatus(completion: @escaping (Bool) -> Void) {
+        APIManager.AuthProvider.request(.getTermStatus) { result in
             switch result {
             case .success(let response):
-                if response {
-                    navigateToBaseVC()
-                } else {
-                    navigateToAgreement()
+                do {
+                    let data = try JSONDecoder().decode(DefaultMultiResponse<TermStatusResponse>.self, from: response.data)
+                    // 동의여부 하나만 확인
+                    let isAgreed = data.result.first?.agree ?? false
+                    completion(isAgreed)
+                } catch {
+                    print("❌ JSON 디코딩 오류: \(error.localizedDescription)")
+                    completion(false)
                 }
             case .failure(let error):
+                print("❌ 이용약관 상태 조회 실패: \(error.localizedDescription)")
                 Toaster.shared.makeToast("이용약관 동의 확인 중 에러가 발생했습니다.")
+                completion(false)
             }
         }
     }
-    
+
     
     // MARK: - Navigation
     func navigateToBaseVC() {

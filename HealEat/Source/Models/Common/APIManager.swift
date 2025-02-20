@@ -14,5 +14,6 @@ class APIManager {
     static let InfoProvider = MoyaProvider<InfoAPI>(plugins: [BearerTokenPlugin(), NetworkLoggerPlugin()])
     static let MyPageProvider = MoyaProvider<MyPageAPI>(plugins: [BearerTokenPlugin(), NetworkLoggerPlugin()])
     static let StoreProvider = MoyaProvider<StoreAPI>(plugins: [BearerTokenPlugin(), NetworkLoggerPlugin()])
+    static let ProfileProvider = MoyaProvider<ProfileAPI>(plugins: [BearerTokenPlugin(), NetworkLoggerPlugin()])
 }
 

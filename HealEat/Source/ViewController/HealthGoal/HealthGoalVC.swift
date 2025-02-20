@@ -28,7 +28,7 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         $0.showsHorizontalScrollIndicator = false
         $0.alwaysBounceVertical = true
         $0.alwaysBounceHorizontal = false
-        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 45, right: 0)
+        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
     }
     
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then({
@@ -56,6 +56,8 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         fetchUserProfile()
     
         scrollView.delegate = self
+        hideKeyboardWhenTappedAround()
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -63,6 +65,15 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         isFirstUpdate = true
         currentPage = 1
         fetchHealthGoalData()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification: )), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification: )), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self)
     }
 
     
@@ -149,6 +160,44 @@ class HealthGoalVC: UIViewController, HealthGoalCellDelegate, HealthGoalUpdateDe
         self.isFirstUpdate = true
         fetchHealthGoalData()
     }
+
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        guard let userInfo = notification.userInfo, let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
+        }
+        let keyboardHeight = keyboardFrame.height
+
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            self?.scrollView.contentInset.bottom += keyboardHeight
+        }
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        guard let userInfo = notification.userInfo, let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
+        }
+        let keyboardHeight = keyboardFrame.height
+        
+
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            self?.scrollView.contentInset.bottom -= keyboardHeight
+        }
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    private func hideKeyboardWhenTappedAround() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+
+
+
     
     
     

@@ -28,16 +28,16 @@ extension HealthGoalAPI: TargetType {
     
     var path: String {
         switch self {
-        case .getHealthGoal(let page): return "plans"
+        case .getHealthGoal(_): return "plans"
             
-        case .postHealthGoal(let param): return "plans"
+        case .postHealthGoal(_): return "plans"
             
         case .deleteHealthGoal(let planId): return "plans/\(planId)"
-        case .changeHealthGoal(let planId, let param): return "plans/\(planId)"
+        case .changeHealthGoal(let planId, _): return "plans/\(planId)"
             
-        case .uploadStatus(let planId, let status): 
+        case .uploadStatus(let planId, _): 
             return "plans/\(planId)/status"
-        case .uploadMemo(let planId, let memo):
+        case .uploadMemo(let planId, _):
             return "plans/\(planId)/memo"
         }
     }
@@ -74,7 +74,7 @@ extension HealthGoalAPI: TargetType {
             return .requestPlain
             
             
-        case .changeHealthGoal(let planId, let param) :
+        case .changeHealthGoal(_, let param) :
             var multipartFormDatas: [MultipartFormData] = []
             if let requestData = try? JSONEncoder().encode(param.updateRequest) {
                 multipartFormDatas.append(MultipartFormData(provider: .data(requestData), name: "updateRequest"))
@@ -86,11 +86,11 @@ extension HealthGoalAPI: TargetType {
             return .uploadMultipart(multipartFormDatas)
             
             
-        case .uploadStatus(let planId, let status):
+        case .uploadStatus(_, let status):
             let requestBody: [String: Any] = ["status": status]
             return .requestParameters(parameters: requestBody, encoding: JSONEncoding.default)
             
-        case .uploadMemo(let planId, let memo):
+        case .uploadMemo(_, let memo):
             let requestBody: [String: Any] = ["memo": memo]
             return .requestParameters(parameters: requestBody, encoding: JSONEncoding.default)
         }

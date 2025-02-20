@@ -17,7 +17,7 @@ class ImageSelectionCollectionView: UICollectionView, UICollectionViewDelegate, 
     init() {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 5  // 아이템 간격
-        layout.minimumLineSpacing = 8       // 줄 간격
+        layout.minimumLineSpacing = 5       // 줄 간격
         super.init(frame: .zero, collectionViewLayout: layout)
         
         self.delegate = self
@@ -60,8 +60,10 @@ class ImageSelectionCollectionView: UICollectionView, UICollectionViewDelegate, 
         }
     }
 
-    // ✅ 한 줄에 3개씩 배치
+    // 한 줄에 3개씩 배치
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 113, height: 113)
+        let totalWidth = collectionView.bounds.width
+        let adjustedWidth = (totalWidth - 10) / 3 
+        return CGSize(width: adjustedWidth, height: adjustedWidth)
     }
 }

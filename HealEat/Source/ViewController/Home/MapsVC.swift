@@ -328,7 +328,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         
         _ = manager.addLabelLayer(option: layerOption)
     }
-    
+  
     // POI의 스타일을 생성
     func createStorePoiStyle() {
         guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
@@ -377,6 +377,47 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         }
     }
     
+    func poiDidTapped(kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint) {
+        /*print("🚀 poiDidTapped 호출됨! layerID: \(layerID), poiID: \(poiID)")
+
+        let storeId = poiID
+        guard let store = storeData.first(where: { $0.id == storeId }) else { return }
+
+        // 기존의 클릭된 POI 스타일 되돌리기
+        let manager = kakaoMap.getLabelManager()
+        let layer = manager.getLabelLayer(layerID: layerID)
+
+        if let clickedPoi = layer?.getPoi(poiID: _clickedPoiID) {
+            print("🔄 기존 클릭된 POI 스타일 변경")
+            clickedPoi.changeStyle(styleID: "storeStyle")
+        }
+
+        // 클릭된 POI의 스타일 변경
+        if let clickedPoi = layer?.getPoi(poiID: poiID) {
+            print("✨ 새로 클릭된 POI 스타일 변경")
+            clickedPoi.changeStyle(styleID: "highlightedStoreStyle") //  새로운 스타일 적용 가능
+        }
+
+        _clickedPoiID = poiID
+        print("📌 새로운 클릭된 POI ID 저장: \(_clickedPoiID)")
+        // 매장명 POI 추가
+        addStoreNamePois(name: store.place_name, at: position)*/
+    }
+    
+    func addStoreNamePois(name: String, at position: MapPoint) {
+        guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
+        let manager = mapView.getLabelManager()
+        guard let layer = manager.getLabelLayer(layerID: "StoreNameLabelLayer") else { return }
+        
+        let poiOptions = PoiOptions(styleID: "storeNameStyle", poiID: "storeNamePoi")
+        poiOptions.rank = 1
+        poiOptions.clickable = true
+        poiOptions.addText(PoiText(text: name, styleIndex: 0)) // POI에 텍스트 추가
+        
+        let namePoi = layer.addPoi(option: poiOptions, at: position)
+        namePoi?.show()
+    }
+
     @objc func willResignActive(){
         mapController?.pauseEngine()  //뷰가 inactive 상태로 전환되는 경우 렌더링 중인 경우 렌더링을 중단.
     }
@@ -425,7 +466,10 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         if let coordinates = notification.userInfo,
            let lat = coordinates["lat"] as? Double,
            let lon = coordinates["lon"] as? Double {
-            updateMapPosition(lat: lat, lon: lon)
+            isTracking = true
+            DispatchQueue.main.async {
+                self.updateMapPosition(lat: lat, lon: lon)
+            }
         }
     }
     
