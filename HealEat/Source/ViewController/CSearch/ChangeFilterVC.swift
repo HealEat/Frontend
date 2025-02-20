@@ -287,8 +287,6 @@ class ChangeFilterVC: UIViewController {
         search()
     }
     
-    
-    
     //MARK: API call
     private func search() {
         let param = SearchRequestManager.shared.currentRequest
@@ -303,11 +301,6 @@ class ChangeFilterVC: UIViewController {
             self.dismiss(animated: true)
         }
     }
-    
-
-
-    
-    
 
 }
 

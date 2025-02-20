@@ -103,7 +103,7 @@ class MyPageManager {
                 }
             case .failure(let error):
                 Toaster.shared.makeToast("내가 쓴 리뷰를 불러오는 중 에러가 발생했습니다.")
-                completion(.failure(error)) // 네트워크 실패 전달
+                completion(.failure(error)) 
             }
         }
     }

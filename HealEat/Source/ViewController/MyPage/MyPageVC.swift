@@ -10,13 +10,12 @@ class MyPageVC: UIViewController {
             profileImageView.image = selectedImage
         }
     }
-    let menu = ["나의 건강 정보", "저장 목록", "내가 남긴 후기", "로그아웃", "회원 탈퇴"]
+    private let menu = ["나의 건강 정보", "저장 목록", "내가 남긴 후기", "로그아웃", "회원 탈퇴"]
     
     // MARK: - UI Properties
     private lazy var profileImageView = UIImageView().then {
         $0.image = UIImage(named: "profile")
         $0.layer.borderColor = UIColor.healeatGray4.cgColor
-        //$0.layer.borderWidth = 5
         $0.layer.cornerRadius = 42
         $0.clipsToBounds = true
     }
@@ -85,7 +84,7 @@ class MyPageVC: UIViewController {
         }
         tableview.dataSource = self
         tableview.delegate = self
-        tableview.register(UITableViewCell.self, forCellReuseIdentifier: "cell") // ✅ 기본 셀 등록
+        tableview.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
         profileEditButton.addTarget(self, action: #selector(editBtnClicked), for: .touchUpInside)
         

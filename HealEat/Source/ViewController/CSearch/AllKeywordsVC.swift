@@ -9,7 +9,6 @@ class AllKeywordsVC: UIViewController {
     private let maxSelectionCount = 5
     private var isProcessing = false
         
-    
     // MARK: - UI Components
     private lazy var customBackButton = UIButton().then {
         let image = UIImage(systemName: "lessthan")?.withRenderingMode(.alwaysTemplate)
@@ -49,8 +48,6 @@ class AllKeywordsVC: UIViewController {
         $0.collectionview.isUserInteractionEnabled = true
     }
 
- 
-
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,9 +61,6 @@ class AllKeywordsVC: UIViewController {
         
         hideKeyboardWhenTappedAround()
     }
-    
-
-
 
     // MARK: - UI Methods
     private func setupUI() {
@@ -152,7 +146,6 @@ class AllKeywordsVC: UIViewController {
         )
     }
     
-    
     @objc private func searchButtonClicked() {
         showLoadingIndicator()
         let filters = getSearchFilters()
@@ -170,7 +163,6 @@ class AllKeywordsVC: UIViewController {
         search()
     }
 
-    
     //MARK: API call
     private func search() {
         let param = SearchRequestManager.shared.currentRequest

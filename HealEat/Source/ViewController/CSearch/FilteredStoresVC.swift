@@ -30,7 +30,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         setupButtons()
         
         if !storeData.isEmpty {
-            DispatchQueue.main.async { self.reloadCollectionView() }
+            reloadCollectionView()
         }
     }
     
@@ -146,12 +146,11 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     // MARK: - UI Updates
     public func reloadCollectionView() {
         DispatchQueue.main.async {
-            print("reloadCollectionView 실행 - 데이터 개수: \(self.finalArr.count)")
             self.storeview.storeCollectionView.reloadData()
             self.storeview.storeCollectionView.collectionViewLayout.invalidateLayout()
             self.storeview.storeCollectionView.layoutIfNeeded()
             
-            // ✅ 특정 필터가 선택된 경우에만 filteredCollectionView 표시
+            // 특정 필터가 선택된 경우에만 filteredCollectionView 표시
             self.updateFilteredCollectionViewHeight()
         }
     }
@@ -191,7 +190,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         let bottomSheet = ChangeFilterVC()
         if let sheet = bottomSheet.sheetPresentationController {
             sheet.detents = [.custom(resolver: { context in
-                return context.maximumDetentValue * 0.45 // ✅ 화면 높이의 30% 크기로 설정
+                return context.maximumDetentValue * 0.45
             })]
             sheet.prefersGrabberVisible = false
         }
@@ -219,7 +218,6 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         } else {
             sortingVC.selectedOption = SortSelectionManager.shared.searchBy.name
         }
-        
         sortingVC.modalPresentationStyle = .popover
         sortingVC.modalTransitionStyle = .crossDissolve
         
@@ -227,25 +225,20 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
             let button = sender
             popover.sourceView = button
             
-            // ✅ 버튼의 실제 화면 위치를 가져옴
+            // 버튼의 실제 화면 위치를 가져와서 그에 맞게 vc 띄우기
             if let superview = button.superview {
                 let buttonFrameInSuperview = superview.convert(button.frame, to: view)
-                
-                // ✅ 버튼의 오른쪽 끝 + 5pt만큼 이동
                 popover.sourceRect = CGRect(
-                    x: buttonFrameInSuperview.width + 60, // 버튼 오른쪽 바깥쪽에 위치
-                    y: buttonFrameInSuperview.height / 2, // 버튼 중앙 높이 맞추기
+                    x: buttonFrameInSuperview.width + 60,
+                    y: buttonFrameInSuperview.height / 2,
                     width: 0,
                     height: 0
                 )
             }
-            
-            popover.permittedArrowDirections = [] // 화살표 없애기
+            popover.permittedArrowDirections = []
             popover.delegate = self
             popover.backgroundColor = .white
         }
-        
-        //sortingVC.preferredContentSize = CGSize(width: 122, height: 158) // ✅ 작은 크기로 표시
         present(sortingVC, animated: true)
     }
     
@@ -253,8 +246,6 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
     private func shouldShowFilteredCollectionView() -> Bool {
         let foodList = CategorySelectionManager.shared.getSelectedItems(forCategory: 0)
         let nutritionList = CategorySelectionManager.shared.getSelectedItems(forCategory: 1)
-        
-
         return !foodList.isEmpty || !nutritionList.isEmpty
     }
     
@@ -263,7 +254,7 @@ class FilteredStoresVC: UIViewController, ChangeFilterVCDelegate {
         let shouldShow = shouldShowFilteredCollectionView()
         let targetHeight: CGFloat = shouldShow ? 30 : 0
 
-        // ✅ 높이가 변경될 때만 애니메이션 실행
+        //  높이가 변경될 때만 애니메이션 실행
         guard storeview.filterCollectionView.frame.height != targetHeight else {
             if shouldShow { storeview.filterCollectionView.reloadData() }
             return
@@ -302,38 +293,25 @@ extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView.tag == 0 {
+        switch collectionView.tag {
+        case 0:
             if storeData.isEmpty {
-                guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: EmptyStateCell.identifier,
-                    for: indexPath
-                ) as? EmptyStateCell else {
-                    return UICollectionViewCell()
+                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyStateCell.identifier, for: indexPath) as? EmptyStateCell ?? UICollectionViewCell()
+                } else {
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: StoreCollectionViewCell.identifier, for: indexPath) as? StoreCollectionViewCell else {
+                        return UICollectionViewCell()
+                    }
+                    cell.storeconfigure(model: storeData[indexPath.row])
+                    return cell
                 }
+        case 1:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SmallFilterCell.identifier, for: indexPath) as? SmallFilterCell else { return UICollectionViewCell() }
+                let item = finalArr[indexPath.row]
+                let state: SmallFilterCellState = filterArr.contains(item) ? .filter : item.contains("별점") ? .rating : .recommended
+                cell.updateUI(state: state)
+                cell.label.text = item
                 return cell
-            } else {
-                guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: StoreCollectionViewCell.identifier,
-                    for: indexPath
-                ) as? StoreCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
-                cell.storeconfigure(model: storeData[indexPath.row])
-                return cell
-            }
-        } else if collectionView.tag == 1 {
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SmallFilterCell.identifier,for: indexPath) as? SmallFilterCell else { return UICollectionViewCell() }
-            let item = finalArr[indexPath.row]
-            if filterArr.contains(item) {
-                cell.updateUI(state: .filter)  // ✅ 선택한 값은 selected 상태
-            } else if item.contains("별점") {
-                cell.updateUI(state: .rating)  // ✅ minRating 조건을 만족한 값은 highlighted 상태
-            } else {
-                cell.updateUI(state: .recommended)  // ✅ 랜덤 추가된 값은 random 상태
-            }
-            cell.label.text = finalArr[indexPath.row]
-            return cell
-        } else {
+        default:
             return UICollectionViewCell()
         }
     }
@@ -359,7 +337,7 @@ extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
         
-        // 🔥 마지막 페이지이면 요청 중단
+        //  마지막 페이지이면 요청 중단
         guard !isFetchingData, !isLastPage else { return }
 
         if offsetY > contentHeight - height * 2 {
@@ -385,10 +363,12 @@ extension FilteredStoresVC: SortingDropdownDelegate {
     }
 }
 
-// MARK: - Popover Delegate (화면 터치 시 닫힘)
+// MARK: - Popover Delegate
 extension FilteredStoresVC: UIPopoverPresentationControllerDelegate {
+    
+    //sortingVC의 popover style 유지
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-        return .none // ✅ iPhone에서도 popover 스타일 유지
+        return .none
     }
 }
 

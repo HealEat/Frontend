@@ -10,12 +10,9 @@ class HealthGoalCell: UICollectionViewCell {
     weak var delegate: HealthGoalCellDelegate?
     
     // MARK: - UI Properties
-    private lazy var goalBackgroundStack = UIStackView().then {
-        $0.axis = .horizontal
-        $0.alignment = .center
-        $0.distribution = .fill
-        $0.spacing = 9
-    }
+    private lazy var goalBackgroundStack = createStackView([goalCountLabel, periodLabel, countLabel,goalLabel], distribution: .fill, spacing: 9)
+    private lazy var imageStackView = createStackView([], alignment: .leading, distribution: .fillProportionally, spacing: 5)
+    private lazy var statusStack = createStackView([failButton, progressButton, completeButton], distribution: .fillEqually, spacing: 10)
     
     private lazy var goalBackground = UIView().then {
         $0.backgroundColor = UIColor(hex: "#FBFBFB")
@@ -24,8 +21,6 @@ class HealthGoalCell: UICollectionViewCell {
         $0.layer.borderColor = UIColor(hex: "#CDCDCD")?.cgColor
         $0.layer.borderWidth = 1
     }
-    
-    
     public lazy var goalCountLabel = UILabel().then {
         $0.text = "목표1"
         $0.textColor = UIColor(hex: "7D7D7D")
@@ -47,7 +42,6 @@ class HealthGoalCell: UICollectionViewCell {
         label.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
-        
         $0.layer.cornerRadius = 16
         $0.layer.masksToBounds = true
         $0.layer.borderColor = UIColor(hex: "#CFCFCF")?.cgColor
@@ -121,9 +115,9 @@ class HealthGoalCell: UICollectionViewCell {
         $0.placeholderColor = UIColor.healeatGray6
         $0.textColor = UIColor.healeatGray6
         $0.font = UIFont.systemFont(ofSize: 13, weight: .light)
-        $0.isScrollEnabled = false // 🔥 내용이 많아지면 자동 확장!
+        $0.isScrollEnabled = false
         $0.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        $0.textContainer.lineFragmentPadding = 0 // ✅ 좌우 패딩 제거
+        $0.textContainer.lineFragmentPadding = 0 //  좌우 패딩 제거
         $0.delegate = self
     }
     
@@ -131,25 +125,26 @@ class HealthGoalCell: UICollectionViewCell {
         $0.setImage(UIImage(named: "addImageInCell"), for: .normal)
     }
     
-    private lazy var imageStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.distribution = .fillProportionally
-        $0.alignment = .leading
-        $0.spacing = 5
-    }
-    
     private lazy var failButton = GoalStatusButton(title: "달성 실패", selectedBackground: .healeatGray3, selectedTitleColor: .healeatGray5)
     private lazy var progressButton = GoalStatusButton(title: "진행 중", selectedBackground: .healeatLightGreen, selectedTitleColor: .healeatGreen1)
     private lazy var completeButton = GoalStatusButton(title: "달성 완료", selectedBackground: .healeatLightGreen, selectedTitleColor: .healeatGreen1)
 
-    private lazy var statusStack = UIStackView().then {
-        $0.axis = .horizontal
-        $0.distribution = .fillEqually
-        $0.spacing = 10
+    private func createStackView(
+        _ views: [UIView],
+        axis: NSLayoutConstraint.Axis = .horizontal,
+        alignment: UIStackView.Alignment = .center,
+        distribution: UIStackView.Distribution,
+        spacing: CGFloat
+    ) -> UIStackView {
+        let stackView = UIStackView(arrangedSubviews: views).then {
+            $0.axis = axis
+            $0.alignment = alignment
+            $0.distribution = distribution
+            $0.spacing = spacing
+        }
+        return stackView
     }
 
-    
-    
     
     
     // MARK: - Init Methods
@@ -164,15 +159,9 @@ class HealthGoalCell: UICollectionViewCell {
     }
     
 
-
-    
-    
-    
     // MARK: - UI Methods
     private func setUpConstraints() {
-        [goalCountLabel, periodLabel, countLabel,goalLabel].forEach(goalBackgroundStack.addArrangedSubview(_:))
         
-        [failButton, progressButton, completeButton].forEach(statusStack.addArrangedSubview(_:))
         [memoDescription, memoTextView].forEach { memoView.addSubview($0) }
         [goalBackgroundStack, settingButton].forEach { goalBackground.addSubview($0) }
         [goalBackground, memoView, uploadImageButton, imageStackView, statusStack].forEach { addSubview($0) }
@@ -250,7 +239,7 @@ class HealthGoalCell: UICollectionViewCell {
     }
     
     @objc private func settingButtonTapped() {
-        delegate?.didTapSettingButton(in: self)  // ✅ Delegate 호출하여 ViewController로 이벤트 전달
+        delegate?.didTapSettingButton(in: self)
     }
     
     @objc private func statusButtonTapped(_ sender: GoalStatusButton) {
@@ -266,7 +255,7 @@ class HealthGoalCell: UICollectionViewCell {
             return
         }
         
-        delegate?.didTapStatusButton(in: self, status: status) // ✅ Delegate로 VC에 전달
+        delegate?.didTapStatusButton(in: self, status: status) //  Delegate로 VC에 전달
     }
     
     
@@ -330,7 +319,6 @@ class HealthGoalCell: UICollectionViewCell {
                     }
                 })
             }
-
             imageView.snp.makeConstraints {
                 $0.width.equalTo(imageSize)
                 $0.height.equalTo(imageSize)
@@ -362,28 +350,22 @@ extension HealthGoalCell: UITextViewDelegate {
         placeholderTextView.setNeedsDisplay()
     }
     
+    // 200자 제한
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
-            if let memoText = textView.text, !memoText.isEmpty {
+            if let memoText = textView.text {
                 delegate?.didSubmitMemo(in: self, memo: memoText)
             }
             textView.resignFirstResponder()
             return false  //  줄바꿈 방지
         }
-
         let newText = (textView.text as NSString).replacingCharacters(in: range, with: text)
-        
         if newText.utf16.count > 200 {
             return false
         }
-
         let maxSize = textView.frame.size
         let fittingSize = textView.sizeThatFits(CGSize(width: maxSize.width, height: CGFloat.greatestFiniteMagnitude))
-
-        if fittingSize.height > maxSize.height {
-            return false
-        }
-        
+        if fittingSize.height > maxSize.height { return false }
         return true
     }
     

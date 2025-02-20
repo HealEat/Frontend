@@ -48,8 +48,7 @@ class ProfileEditVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
     override func viewDidLoad() {
         super.viewDidLoad()
         setUp()
-        
-        configureTapGestureForProfileImage()
+        configureTapGesture()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -87,10 +86,19 @@ class ProfileEditVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
     }
     
     //MARK: - Setup Actions
-    func configureTapGestureForProfileImage() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(selectProfileImage))
-        imageView.addGestureRecognizer(tapGesture)
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
+    
+    private func configureTapGesture() {
+        let imageTap = UITapGestureRecognizer(target: self, action: #selector(selectProfileImage))
+        imageView.addGestureRecognizer(imageTap)
+        let viewTap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        viewTap.cancelsTouchesInView = false
+        view.addGestureRecognizer(viewTap)
+    }
+    
     // 프로필 이미지 선택
     @objc func selectProfileImage() {
         let imagePickerController = UIImagePickerController()
