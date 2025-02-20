@@ -48,12 +48,10 @@ class MarketVC: UIViewController {
         
         self.view = marketView
         self.navigationController?.navigationBar.isHidden = true
-        self.navigationController?.tabBarController?.tabBar.isHidden = true
         
         initializeViewControllers()
         initializeHandlers()
         bind()
-        
         getStoreDetail(placeId: param.placeId)
     }
     
@@ -118,6 +116,7 @@ class MarketVC: UIViewController {
         marketView.navigationTitleLabel.text = storeDetailResponseModel.storeInfoDto.placeName
         marketView.titleLabel.text = storeDetailResponseModel.storeInfoDto.placeName
         marketView.subtitleLabel.text = storeDetailResponseModel.storeInfoDto.categoryName
+        marketView.bookmarkButton.isSelected = storeDetailResponseModel.bookmarkId != nil
         marketView.ratingStarView.star = storeDetailResponseModel.isInDBDto.totalHealthScore
         marketView.ratingLabel.text = "\(storeDetailResponseModel.isInDBDto.reviewCount == 0 ? "리뷰 없음" : storeDetailResponseModel.isInDBDto.totalHealthScore.oneDecimalString) (\(storeDetailResponseModel.isInDBDto.reviewCount))"
         marketView.openLabel.text = "영업 중"
@@ -161,7 +160,7 @@ class MarketVC: UIViewController {
     }()
     
     @objc private func onClickNavBack() {
-        navigationController?.popViewController(animated: true)
+        dismiss(animated: true)
     }
     
     @objc private func onClickNaver() {
@@ -170,13 +169,27 @@ class MarketVC: UIViewController {
     }
     
     @objc private func onClickBookmark() {
-        marketView.bookmarkButton.isSelected.toggle()
-        if marketView.bookmarkButton.isSelected {
-            postBookmark(placeId: param.placeId)
-        } else {
-            guard let bookmarkId = storeDetailResponseModel?.bookmarkId else { return }
-            deleteBookmark(placeId: param.placeId, bookmarkId: bookmarkId)
-        }
+        BearerTokenPlugin().checkAuthenticationStatus(completion: { [weak self] token in
+            guard let self = self else { return }
+            if token == nil {
+                let alertDismiss: UIAlertController = UIAlertController(title: "로그인이 필요합니다.", message: "", preferredStyle: .alert)
+                let actionOk: UIAlertAction = UIAlertAction(title: "확인", style: .default, handler: { _ in
+                    self.dismiss(animated: true, completion: nil)
+                })
+                alertDismiss.addAction(actionOk)
+                present(alertDismiss, animated: true, completion: nil)
+                return
+            }
+            marketView.bookmarkButton.isSelected.toggle()
+            if marketView.bookmarkButton.isSelected {
+                postBookmark(placeId: param.placeId)
+            } else {
+                guard let bookmarkId = storeDetailResponseModel?.bookmarkId else { return }
+                deleteBookmark(placeId: param.placeId, bookmarkId: bookmarkId)
+            }
+        })
+        
+        
     }
     
     // MARK: - PanGesture

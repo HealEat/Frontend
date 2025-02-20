@@ -71,12 +71,28 @@ class ImageViewerView: UIView {
         return button
     }()
     
+    lazy var xButton: UIButton = {
+        let button = UIButton()
+        
+        var configuration = UIButton.Configuration.plain()
+        configuration.image = UIImage(systemName: "xmark")?.resize(to: CGSize(width: 16, height: 16))?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        configuration.baseForegroundColor = .white
+        
+        button.configuration = configuration
+        button.layer.cornerRadius = 16
+        button.tintColor = .white
+        button.backgroundColor = .healeatBlack65P
+        button.isHidden = true
+        return button
+    }()
+    
     private func addComponents() {
         self.addSubview(mainImageView)
         self.addSubview(profileView)
         self.addSubview(fakeButton)
         self.addSubview(previousButton)
         self.addSubview(nextButton)
+        self.addSubview(xButton)
         
         profileView.addSubview(profileImageView)
         profileView.addSubview(nameLabel)
@@ -122,6 +138,11 @@ class ImageViewerView: UIView {
             make.top.equalTo(nameLabel.snp.bottom).offset(3)
             make.bottom.equalToSuperview()
             make.leading.equalTo(profileImageView.snp.trailing).offset(5)
+        })
+        xButton.snp.makeConstraints({ make in
+            make.top.equalTo(safeAreaLayoutGuide).offset(16)
+            make.trailing.equalToSuperview().inset(16)
+            make.width.height.equalTo(32)
         })
     }
 }

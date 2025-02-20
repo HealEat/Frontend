@@ -68,7 +68,7 @@ class LoginVC: UIViewController {
             print("로그인 없이 이용 선택됨")
             // 다음 화면으로 이동하거나 다른 로직 추가
 
-            self.navigateToAgreement()
+            self.navigateToBaseVC()
         }
         
         // "아니요" 버튼 추가

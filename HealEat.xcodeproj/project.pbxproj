@@ -7,11 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1317EF7C2D6594BA001183CD /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1317EF7B2D6594BA001183CD /* KeychainSwift */; };
 		132D39452D37D49400E1458B /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 132D39442D37D49400E1458B /* KakaoMapsSDK-SPM */; };
 		13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13C6A6632D3CEC470098B394 /* CoreLocation.framework */; };
+		13C6AA342D4E8D8D0098B394 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13C6AA332D4E8D8D0098B394 /* Kingfisher */; };
 		7CA784752D4108B700041779 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 7CA784742D4108B700041779 /* SDWebImage */; };
 		7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */ = {isa = PBXBuildFile; productRef = 7CA7848C2D41296700041779 /* SwiftyToaster */; };
-		7CC0360C2D64664800669BBF /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7CC0360B2D64664800669BBF /* KeychainSwift */; };
 		968AF0382D4BD1E900F0221B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 968AF0372D4BD1E900F0221B /* Kingfisher */; };
 		968AF03B2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 968AF03A2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout */; };
 		96DB35E82D2E4C2A001FE074 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 96DB35E72D2E4C2A001FE074 /* CombineMoya */; };
@@ -56,13 +57,14 @@
 				96DB35F12D2E4C36001FE074 /* Then in Frameworks */,
 				96DB35EA2D2E4C2A001FE074 /* Moya in Frameworks */,
 				96DB35E82D2E4C2A001FE074 /* CombineMoya in Frameworks */,
+				13C6AA342D4E8D8D0098B394 /* Kingfisher in Frameworks */,
 				96DB35F42D2E4C40001FE074 /* SnapKit in Frameworks */,
 				13C6A6642D3CEC470098B394 /* CoreLocation.framework in Frameworks */,
-				7CC0360C2D64664800669BBF /* KeychainSwift in Frameworks */,
 				968AF0382D4BD1E900F0221B /* Kingfisher in Frameworks */,
 				7CA784752D4108B700041779 /* SDWebImage in Frameworks */,
 				968AF03B2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout in Frameworks */,
 				7CA7848D2D41296700041779 /* SwiftyToaster in Frameworks */,
+				1317EF7C2D6594BA001183CD /* KeychainSwift in Frameworks */,
 				96DB35EE2D2E4C2A001FE074 /* RxMoya in Frameworks */,
 				96DB35EC2D2E4C2A001FE074 /* ReactiveMoya in Frameworks */,
 				132D39452D37D49400E1458B /* KakaoMapsSDK-SPM in Frameworks */,
@@ -125,11 +127,12 @@
 				96DB35F02D2E4C36001FE074 /* Then */,
 				96DB35F32D2E4C40001FE074 /* SnapKit */,
 				132D39442D37D49400E1458B /* KakaoMapsSDK-SPM */,
+				13C6AA332D4E8D8D0098B394 /* Kingfisher */,
 				7CA784742D4108B700041779 /* SDWebImage */,
 				7CA7848C2D41296700041779 /* SwiftyToaster */,
 				968AF0372D4BD1E900F0221B /* Kingfisher */,
 				968AF03A2D4BD1F800F0221B /* CHTCollectionViewWaterfallLayout */,
-				7CC0360B2D64664800669BBF /* KeychainSwift */,
+				1317EF7B2D6594BA001183CD /* KeychainSwift */,
 			);
 			productName = HealEat;
 			productReference = 96DB35792D2E4B83001FE074 /* HealEat.app */;
@@ -168,7 +171,7 @@
 				7CA7848B2D41296700041779 /* XCRemoteSwiftPackageReference "SwiftyToaster" */,
 				968AF0362D4BD1E900F0221B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				968AF0392D4BD1F800F0221B /* XCRemoteSwiftPackageReference "CHTCollectionViewWaterfallLayout" */,
-				7CC0360A2D64664800669BBF /* XCRemoteSwiftPackageReference "keychain-swift" */,
+				1317EF7A2D6594BA001183CD /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 96DB357A2D2E4B83001FE074 /* Products */;
@@ -229,8 +232,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = CACTN7F6PL;
+				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = JU27F4BHH8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealEat/Info.plist;
@@ -247,7 +250,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.neulbo.healeat;
+				PRODUCT_BUNDLE_IDENTIFIER = com.umc7.healeat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -263,7 +266,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = JU27F4BHH8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -433,6 +436,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1317EF7A2D6594BA001183CD /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 24.0.0;
+			};
+		};
 		132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git";
@@ -455,14 +466,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.2;
-			};
-		};
-		7CC0360A2D64664800669BBF /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 24.0.0;
 			};
 		};
 		968AF0362D4BD1E900F0221B /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
@@ -508,10 +511,19 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1317EF7B2D6594BA001183CD /* KeychainSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1317EF7A2D6594BA001183CD /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
+		};
 		132D39442D37D49400E1458B /* KakaoMapsSDK-SPM */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 132D39432D37D49400E1458B /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
 			productName = "KakaoMapsSDK-SPM";
+		};
+		13C6AA332D4E8D8D0098B394 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Kingfisher;
 		};
 		7CA784742D4108B700041779 /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -522,11 +534,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7CA7848B2D41296700041779 /* XCRemoteSwiftPackageReference "SwiftyToaster" */;
 			productName = SwiftyToaster;
-		};
-		7CC0360B2D64664800669BBF /* KeychainSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7CC0360A2D64664800669BBF /* XCRemoteSwiftPackageReference "keychain-swift" */;
-			productName = KeychainSwift;
 		};
 		968AF0372D4BD1E900F0221B /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;

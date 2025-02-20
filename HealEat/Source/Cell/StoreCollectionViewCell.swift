@@ -24,6 +24,7 @@ class StoreCollectionViewCell: UICollectionViewCell {
         foodnameLabel.text = nil
         scoreLabel.text = nil
         features = []
+  
         alltagView.collectionview.reloadData()
     }
     
@@ -54,9 +55,14 @@ class StoreCollectionViewCell: UICollectionViewCell {
         $0.numberOfLines = 0
     }
     
-    private lazy var scrapButton = UIButton().then {
-        $0.setImage(UIImage(named: "scrapimage"), for: .normal)
-    }
+    private lazy var bookmarkButton: UIButton = {
+        let button = UIButton()
+        button.contentMode = .scaleAspectFit
+        button.setImage(UIImage(resource: .bookmark), for: .normal)
+        button.setImage(UIImage(resource: .bookmarkFill), for: .selected)
+        button.tintColor = .healeatBlack
+        return button
+    }()
     
     private lazy var starImage = UIButton().then {
         $0.setImage(UIImage(named: "starimage"), for: .normal)
@@ -87,11 +93,12 @@ class StoreCollectionViewCell: UICollectionViewCell {
         addSubview(storeImage)
         addSubview(storenameLabel)
         addSubview(foodnameLabel)
-        addSubview(scrapButton)
+        addSubview(bookmarkButton)
         addSubview(starImage)
         addSubview(scoreLabel)
         addSubview(scorelist)
         addSubview(alltagView)
+    
     }
     
     private func setConstaints() {
@@ -115,11 +122,11 @@ class StoreCollectionViewCell: UICollectionViewCell {
             $0.top.equalTo(storenameLabel.snp.bottom).offset(12)
         }
         
-        scrapButton.snp.makeConstraints {
+        bookmarkButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().offset(-17)
-            $0.top.equalToSuperview().offset(17)
+            $0.top.equalToSuperview().offset(14)
             $0.width.equalTo(15)
-            $0.height.equalTo(13)
+            $0.height.equalTo(19)
         }
         
         starImage.snp.makeConstraints {
@@ -147,9 +154,8 @@ class StoreCollectionViewCell: UICollectionViewCell {
             $0.trailing.equalToSuperview().offset(-5)
         }
     }
-        
+
     public func storeconfigure(model: StoreResponse) {
-        
         self.features = []
         alltagView.collectionview.reloadData()
         
@@ -161,7 +167,8 @@ class StoreCollectionViewCell: UICollectionViewCell {
         
         self.storenameLabel.text = model.place_name
         self.foodnameLabel.text = model.category_name
-        self.scrapButton.setImage(UIImage(named: "scrapimage"), for: .normal)
+
+
         self.starImage.setImage(UIImage(named: "starimage"), for: .normal)
         if let scoreInfo = model.isInDBInfo {
             self.scoreLabel.text = "\(scoreInfo.totalHealthScore) (\(scoreInfo.reviewCount))"
@@ -173,6 +180,12 @@ class StoreCollectionViewCell: UICollectionViewCell {
         self.features = model.features
         self.alltagView.updateTags(features: model.features)
         
+        if let bookmarkId = model.bookmarkId, bookmarkId != 0 {
+            self.bookmarkButton.isSelected = true
+        } else {
+            self.bookmarkButton.isSelected = false
+        }
+        
         DispatchQueue.main.async {
             self.storeImage.setNeedsLayout()
             self.storeImage.layoutIfNeeded()
@@ -181,7 +194,6 @@ class StoreCollectionViewCell: UICollectionViewCell {
             self.alltagView.collectionview.layoutIfNeeded()
         }
     }
-        
 }
 
 extension StoreCollectionViewCell: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -195,6 +207,15 @@ extension StoreCollectionViewCell: UICollectionViewDataSource, UICollectionViewD
         }
         cell.label.text = features[indexPath.row]
         return cell
+    }
+}
+
+extension UIImage {
+    func resizedImage(to targetSize: CGSize) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
     }
 }
 
