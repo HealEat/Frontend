@@ -11,14 +11,14 @@ struct BookmarkResponseEntity: Codable {
 }
 
 struct BookmarkResponseModel: Codable {
-    let bookmarkId: Int
+    let bookmarkId: Int?
     let memberId: Int
     let placeName: String
     let createdAt: Date
     let deletedAt: Date
     
     init(bookmarkResponseEntity: BookmarkResponseEntity) {
-        self.bookmarkId = bookmarkResponseEntity.bookmarkId ?? 0
+        self.bookmarkId = bookmarkResponseEntity.bookmarkId
         self.memberId = bookmarkResponseEntity.memberId ?? 0
         self.placeName = bookmarkResponseEntity.placeName ?? ""
         self.createdAt = bookmarkResponseEntity.createdAt?.convertISO8601ToDate() ?? Date()

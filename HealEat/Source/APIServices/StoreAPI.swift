@@ -20,7 +20,7 @@ enum StoreAPI {
 
 extension StoreAPI: TargetType {
     var baseURL: URL {
-        guard let url = URL(string: Constants.NetworkManager.baseURL) else {
+        guard let url = URL(string: GlobalConst.baseURL) else {
             fatalError("fatal error - invalid url")
         }
         return url

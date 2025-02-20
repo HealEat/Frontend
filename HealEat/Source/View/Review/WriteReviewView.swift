@@ -164,6 +164,12 @@ class WriteReviewView: UIView {
         button.isHidden = true
         return button
     }()
+    lazy var submitIndicatorView: UIActivityIndicatorView = {
+        let indicatorView = UIActivityIndicatorView()
+        indicatorView.hidesWhenStopped = true
+        indicatorView.color = .healeatBlack
+        return indicatorView
+    }()
     
     private func addComponents() {
         self.addSubview(separatorView0)
@@ -195,6 +201,8 @@ class WriteReviewView: UIView {
         
         reviewImageView.addSubview(addImageButton)
         reviewImageView.addSubview(imageCollectionView)
+        
+        submitButton.addSubview(submitIndicatorView)
         
         setConstraints()
     }
@@ -280,6 +288,9 @@ class WriteReviewView: UIView {
         submitButton.snp.makeConstraints({ make in
             make.height.equalTo(48)
             make.leading.trailing.equalToSuperview()
+        })
+        submitIndicatorView.snp.makeConstraints({ make in
+            make.centerX.centerY.equalToSuperview()
         })
     }
     
