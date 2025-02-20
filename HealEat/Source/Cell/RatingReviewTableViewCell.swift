@@ -16,6 +16,7 @@ class RatingReviewTableViewCell: UITableViewCell {
     
     lazy var ratingReviewView: RatingReviewView = {
         let view = RatingReviewView()
+        view.isUserInteractionEnabled = false
         return view
     }()
     

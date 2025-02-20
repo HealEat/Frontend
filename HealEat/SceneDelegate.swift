@@ -19,16 +19,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // SplashVC를 초기화면으로 설정
         let splashVC = SplashVC() // SplashViewController -> SplashVC로 변경
         window?.rootViewController = splashVC
-        let baseVC = BaseVC()
-        //window?.rootViewController = baseVC
-        let marketVC = MarketVC()
-        marketVC.param = MarketVC.Param(placeId: 13284457)
-        //window?.rootViewController = UINavigationController(rootViewController: marketVC)
+        window?.makeKeyAndVisible()
+//        let baseVC = BaseVC()
+       // window?.rootViewController = baseVC
+//        let marketVC = MarketVC()
+//        marketVC.param = MarketVC.Param(placeId: 13284457)
+//        window?.rootViewController = UINavigationController(rootViewController: marketVC)
         
         // Hosung.Kim 백엔드 분들 리뷰 추가하기 위한 툴 빌드용 ======================================
 //        let testVC = BackTestViewController()
 //        window?.rootViewController = UINavigationController(rootViewController: testVC)
-        window?.makeKeyAndVisible()
+//        window?.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) { }

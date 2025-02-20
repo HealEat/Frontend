@@ -160,5 +160,11 @@ extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
        let marketVC = MarketVC()
        marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)
        navigationController?.pushViewController(marketVC, animated: true)
+        let marketVC = MarketVC()
+        marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)
+        let nav = UINavigationController(rootViewController: marketVC)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+//        navigationController?.pushViewController(marketVC, animated: true)
     }
 }

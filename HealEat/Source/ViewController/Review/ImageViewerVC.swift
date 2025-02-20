@@ -20,6 +20,7 @@ class ImageViewerVC: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         imageViewerView.profileView.isHidden = false
+        imageViewerView.xButton.isHidden = false
         setImage()
     }
     
@@ -28,6 +29,7 @@ class ImageViewerVC: UIViewController {
         view.previousButton.addTarget(self, action: #selector(previousImage), for: .touchUpInside)
         view.nextButton.addTarget(self, action: #selector(nextImage), for: .touchUpInside)
         view.purposeButton.addTarget(self, action: #selector(onClickPurpose), for: .touchUpInside)
+        view.xButton.addTarget(self, action: #selector(dismissSelf), for: .touchUpInside)
         view.profileImageView.image = UIImage(resource: .defaultProfile)
         return view
     }()

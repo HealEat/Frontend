@@ -20,6 +20,7 @@ class WriteReviewVC: UIViewController {
         super.viewDidLoad()
         
         self.view = writeReviewView
+        self.navigationController?.navigationBar.isHidden = true
         
         hideKeyboardWhenTappedAround()
     }
@@ -95,6 +96,8 @@ class WriteReviewVC: UIViewController {
     }
     
     @objc private func onClickSubmit() {
+        writeReviewView.submitIndicatorView.startAnimating()
+        writeReviewView.submitButton.setTitle("", for: .normal)
         let param = ReviewWriteRequest(
             placeId: param.storeDetailResponseModel.storeInfoDto.placeId,
             images: images.compactMap({ $0.jpegData(compressionQuality: 1.0) }),
@@ -105,6 +108,8 @@ class WriteReviewVC: UIViewController {
         StoreRepository.shared.testPostReview(reviewWriteRequest: param)
             .sinkHandledCompletion(receiveValue: { [weak self] reviewWriteResponseModel in
                 print(reviewWriteResponseModel)
+                self?.writeReviewView.submitButton.setTitle("저장", for: .normal)
+                self?.writeReviewView.submitIndicatorView.stopAnimating()
                 self?.navigationController?.popViewController(animated: true)
             })
             .store(in: &cancellable)

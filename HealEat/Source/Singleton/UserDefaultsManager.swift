@@ -4,7 +4,7 @@ import Foundation
 
 private enum UserDefaultsEnum: String {
     case reviewSort
-    case reviewFilters
+//    case reviewFilters
 }
 
 class UserDefaultsManager {
@@ -24,14 +24,14 @@ class UserDefaultsManager {
         }
     }
     
-    var reviewFilters: Set<FilterEnum> {
-        get {
-            return Set(UserDefaults.standard.stringArray(forKey: UserDefaultsEnum.reviewFilters.rawValue)?.compactMap({
-                FilterEnum(rawValue: $0)
-            }) ?? [.diet, .sick, .veget])
-        }
-        set {
-            UserDefaults.standard.setValue(newValue.map({ $0.rawValue }), forKey: UserDefaultsEnum.reviewFilters.rawValue)
-        }
-    }
+//    var reviewFilters: Set<FilterEnum> {
+//        get {
+//            return Set(UserDefaults.standard.stringArray(forKey: UserDefaultsEnum.reviewFilters.rawValue)?.compactMap({
+//                FilterEnum(rawValue: $0)
+//            }) ?? [.diet, .sick, .veget])
+//        }
+//        set {
+//            UserDefaults.standard.setValue(newValue.map({ $0.rawValue }), forKey: UserDefaultsEnum.reviewFilters.rawValue)
+//        }
+//    }
 }
