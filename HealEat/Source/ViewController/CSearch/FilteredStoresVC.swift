@@ -368,6 +368,15 @@ extension FilteredStoresVC: UICollectionViewDataSource, UICollectionViewDelegate
             fetchStoreData()
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let marketVC = MarketVC()
+        marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)
+        let nav = UINavigationController(rootViewController: marketVC)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+//        navigationController?.pushViewController(marketVC, animated: true)
+    }
 }
 
 

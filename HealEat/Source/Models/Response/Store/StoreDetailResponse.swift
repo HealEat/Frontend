@@ -62,7 +62,7 @@ struct StoreDetailResponseModel: Codable {
             self.x = Float(storeInfoDto?.x ?? "") ?? 0
             self.y = Float(storeInfoDto?.y ?? "") ?? 0
             self.placeUrl = URL(string: storeInfoDto?.placeUrl ?? "")
-            self.features = storeInfoDto?.features ?? []
+            self.features = storeInfoDto?.features?.compactMap({ return $0 == "" ? nil : $0 }) ?? []
         }
     }
     struct IsInDBDto: Codable {

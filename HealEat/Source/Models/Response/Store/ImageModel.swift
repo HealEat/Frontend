@@ -27,6 +27,12 @@ class ImageModel {
             self.url = daumInfo.doc_url
             self.currentPurposes = []
         }
+        
+        init(reviewerInfo: ReviewsResponseModel.ReviewList.ReviewerInfo) {
+            self.name = reviewerInfo.name
+            self.url = reviewerInfo.profileImageUrl
+            self.currentPurposes = reviewerInfo.currentPurposes
+        }
     }
     let type: ImageType
     let reviewId: Int
@@ -47,6 +53,14 @@ class ImageModel {
         self.reviewId = 0
         self.imageUrl = daumImage.image_url
         self.info = Info(daumInfo: daumImage)
+        setSize()
+    }
+    
+    init(reviewId: Int, imageUrl: URL, info: ReviewsResponseModel.ReviewList.ReviewerInfo) {
+        self.type = .review
+        self.reviewId = reviewId
+        self.imageUrl = imageUrl
+        self.info = Info(reviewerInfo: info)
         setSize()
     }
     
