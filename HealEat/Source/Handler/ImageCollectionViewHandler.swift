@@ -41,11 +41,8 @@ class ImageCollectionViewHandler: NSObject, UICollectionViewDelegate, UICollecti
         self.presentImageViewer?(imageModels, indexPath.row)
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        guard let collectionView = scrollView as? UICollectionView else { return }
-        guard collectionView.indexPathsForVisibleItems.map(\.row).contains(imageModels.count - 1)
-              && !isLast else { return }
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard indexPath.row == imageModels.count - 1 && !isLast else { return }
         requestImages.send(())
     }
-    
 }
