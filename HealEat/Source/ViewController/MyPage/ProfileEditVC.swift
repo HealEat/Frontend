@@ -6,7 +6,6 @@ import SwiftyToaster
 class ProfileEditVC: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     private var newImage: UIImage?
-    var onImageSelected: ((UIImage) -> Void)? // 클로저 추가
     
     // MARK: - UI Properties
     private lazy var imageView = UIImageView().then {
@@ -16,7 +15,6 @@ class ProfileEditVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
         $0.clipsToBounds = true
     }
     private lazy var textfield = UITextField().then {
-        $0.placeholder = "닉네임 입력하기"
         $0.backgroundColor = .healeatGray2
         $0.layer.borderColor = UIColor.healeatGray4.cgColor
         $0.layer.borderWidth = 1.5
@@ -105,7 +103,6 @@ class ProfileEditVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
         if let selectedImage = info[.originalImage] as? UIImage {
             imageView.image = selectedImage
             newImage = selectedImage
-            onImageSelected?(selectedImage) // 클로저 실행 (데이터 전달)
         } else {
             print("⚠️ 이미지 선택 실패")
         }
@@ -117,8 +114,9 @@ class ProfileEditVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
             Toaster.shared.makeToast("닉네임을 입력해주세요.")
             return
         }
-        let data = MyProfileRequest(name: nickname, profileImageUrl: "string")
-        changeProfile(profile: data) {
+        let selectedImageData: Data? = newImage?.jpegData(compressionQuality: 0.8)
+
+        changeProfile(name: nickname, image: selectedImageData) {
             self.navigationController?.popViewController(animated: true)
         }
     }
@@ -137,84 +135,12 @@ class ProfileEditVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
             }
         }
     }
-    private func fetchReview() {
-        MyPageManager.getMyReviews { result in
-            switch result {
-            case .success(let reviews):
-                print(reviews)
-            case .failure(let error):
-                print("내 리뷰 조회 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-    private func fetchHealthInfo() {
-        MyPageManager.getMyHealthInfo { result in
-            switch result {
-            case .success(let healthInfo):
-                print(healthInfo)
-            case .failure(let error):
-                print("내 건강 정보 조회 실패: \(error.localizedDescription)")
-            }
-        }
-    }
     
-    private func changeProfile(profile: MyProfileRequest, completion: (() -> Void)? = nil) {
-        MyPageManager.changeProfile(profile) { isSuccess, response in
+    private func changeProfile(name: String, image: Data?, completion: (() -> Void)? = nil) {
+        MyPageManager.changeProfile(name: name, image: image) { isSuccess, response in
             if isSuccess {
                 print("프로필 수정 성공: \(response)")
                 completion?()
-            } else {
-                if let data = response?.data,
-                   let errorMessage = String(data: data, encoding: .utf8) {
-                    
-                }
-            }
-        }
-    }
-    
-    private func changeHealthAnswer(questionNum: Int, answers: [String]) {
-        MyPageManager.changeBasicAnswers(HealthInfoAnswerRequest(selectedAnswers: answers), questionNum: questionNum) { isSuccess, response in
-            if isSuccess {
-                print("답변 수정 성공: \(response)")
-            } else {
-                if let data = response?.data,
-                   let errorMessage = String(data: data, encoding: .utf8) {
-                    
-                }
-            }
-        }
-    }
-    
-    private func changeVegetarian(vegetarianInfo: String) {
-        MyPageManager.changeVegetarian(keyword: vegetarianInfo) { isSuccess, response in
-            if isSuccess {
-                print("채식 정보 수정 성공: \(response)")
-            } else {
-                if let data = response?.data,
-                   let errorMessage = String(data: data, encoding: .utf8) {
-                    
-                }
-            }
-        }
-    }
-    
-    private func changeDiet(dietInfo: String) {
-        MyPageManager.changeDiet(keyword: dietInfo) { isSuccess, response in
-            if isSuccess {
-                print("다이어트 정보 수정 성공: \(response)")
-            } else {
-                if let data = response?.data,
-                   let errorMessage = String(data: data, encoding: .utf8) {
-                    
-                }
-            }
-        }
-    }
-    
-    private func deleteReview(reviewId: Int) {
-        MyPageManager.deleteReview(reviewId){ isSuccess, response in
-            if isSuccess {
-                print("리뷰 삭제 성공: \(response)")
             } else {
                 if let data = response?.data,
                    let errorMessage = String(data: data, encoding: .utf8) {

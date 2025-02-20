@@ -5,7 +5,7 @@ import Moya
 
 enum MyPageAPI {
     case getProfile
-    case changeProfile(param: MyProfileRequest)
+    case changeProfile(name: String, image: Data?)
     
     case changeAnswer(questionNum: Int, param: HealthInfoAnswerRequest)
     case changeVegetarian(vegetarian: String)
@@ -59,8 +59,20 @@ extension MyPageAPI: TargetType {
         switch self {
         case .getProfile, .getReview, .getHealthInfo :
             return .requestPlain
-        case .changeProfile(let param) :
-            return .requestJSONEncodable(param)
+            
+            
+            
+        case .changeProfile(let name, let image):
+            var multipartData: [MultipartFormData] = []
+            // 닉네임 JSON 데이터 추가
+            if let jsonData = try? JSONSerialization.data(withJSONObject: ["name": name], options: []) {
+                multipartData.append(MultipartFormData(provider: .data(jsonData), name: "request"))
+            }
+            // 이미지 파일 추가
+            if let imageData = image {
+                multipartData.append(MultipartFormData(provider: .data(imageData), name: "file", fileName: "profile.jpg", mimeType: "image/jpeg"))
+            }
+            return .uploadMultipart(multipartData)
         case .changeAnswer(_, let param) :
             return .requestJSONEncodable(param)
         case .changeVegetarian(let vegetarian) :

@@ -25,8 +25,8 @@ class MyPageManager {
         }
     }
     
-    static func changeProfile(_ userParameter: MyProfileRequest, completion: @escaping (Bool, Response?) -> Void ) {
-        APIManager.MyPageProvider.request(.changeProfile(param: userParameter)) { result in
+    static func changeProfile(name: String, image: Data?, completion: @escaping (Bool, Response?) -> Void ) {
+        APIManager.MyPageProvider.request(.changeProfile(name: name, image: image)) { result in
             switch result {
             case .success(let response):
                 if response.statusCode == 200 {

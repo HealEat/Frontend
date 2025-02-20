@@ -308,7 +308,7 @@ class HealthGoalCell: UICollectionViewCell {
         
         var displayedImages = images.map { $0.imageUrl }
 
-        // 🔹 부족한 개수만큼 빈 칸 추가
+        //  부족한 개수만큼 빈 칸 추가
         while displayedImages.count < maxImages {
             displayedImages.append("") // 빈 칸 추가
         }
@@ -327,13 +327,10 @@ class HealthGoalCell: UICollectionViewCell {
                 imageView.sd_setImage(with: URL(string: url), placeholderImage: nil, options: [], completed: { image, error, cacheType, imageURL in
                     if let error = error {
                         print("❌ 이미지 로드 실패: \(error.localizedDescription)")
-                    } else {
-                        print("✅ 이미지 로드 성공: \(imageURL?.absoluteString ?? "URL 없음")")
                     }
                 })
             }
 
-            // ✅ 크기를 화면 너비 기반으로 설정
             imageView.snp.makeConstraints {
                 $0.width.equalTo(imageSize)
                 $0.height.equalTo(imageSize)

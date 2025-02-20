@@ -114,10 +114,6 @@ class MyPageVC: UIViewController {
     //MARK: - Setup Actions
     @objc private func editBtnClicked() {
         let editVC = ProfileEditVC()
-        editVC.onImageSelected = { [weak self] image in
-            self?.selectedImage = image
-            print("✅ 클로저를 통해 받은 이미지: \(image)")
-        }
         navigationController?.pushViewController(editVC, animated: true)
     }
 
@@ -134,7 +130,7 @@ class MyPageVC: UIViewController {
                 }
                 
                 let profileImgURL = URL(string: data.profileImage)
-                //self.profileImageView.sd_setImage(with: profileImgURL, placeholderImage: UIImage(named: "profile"))
+                self.profileImageView.sd_setImage(with: profileImgURL, placeholderImage: UIImage(named: "profile"))
             case .failure(let error):
                 print("프로필 조회 실패: \(error.localizedDescription)")
             }
