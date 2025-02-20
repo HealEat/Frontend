@@ -65,13 +65,13 @@ class LogOutVC: UIViewController {
         }
         logOutButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview().multipliedBy(1.4)
-            make.centerX.equalToSuperview().multipliedBy(0.5)
+            make.centerX.equalToSuperview().multipliedBy(0.6)
             make.width.equalTo(95)
             make.height.equalTo(34)
         }
         dismissButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview().multipliedBy(1.4)
-            make.centerX.equalToSuperview().multipliedBy(1.5)
+            make.centerX.equalToSuperview().multipliedBy(1.4)
             make.width.equalTo(95)
             make.height.equalTo(34)
         }

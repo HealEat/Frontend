@@ -220,7 +220,7 @@ class MakeGoalsView: UIView, DropDownDataSourceDelegate, UITextFieldDelegate {
             return false
         }
         
-        guard let goal = textField.text else {
+        guard let goal = textField.text, !goal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             Toaster.shared.makeToast("작성된 목표가 없습니다.")
             return false
         }

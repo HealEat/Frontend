@@ -3,6 +3,7 @@
 import Foundation
 import Moya
 import UIKit
+import KeychainSwift
 
 
 enum AuthAPI {
@@ -49,12 +50,19 @@ extension AuthAPI: TargetType {
     
     var task: Moya.Task {
         switch self {
-        case .logout, .naverUnlink, .kakaoUnlink:
+        case .logout:
             return .requestPlain
         case .getTerms, .getTermStatus:
             return .requestPlain
         case .agreeToTerms(let param):
             return .requestJSONEncodable(param)
+        case .naverUnlink, .kakaoUnlink:
+            var parameters: [String: Any] = [:]
+            if let token = KeychainSwift().get("accessToken") {
+                parameters["Authorization"] = token
+            }
+            return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
+            
         }
         
     }
