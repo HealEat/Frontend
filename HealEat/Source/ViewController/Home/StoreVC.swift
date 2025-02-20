@@ -14,7 +14,7 @@ class StoreVC: UIViewController {
     private var storeData: [StoreResponse] = []
     public let storeview = StoreView()
     public let loginVC = LoginVC()
-    public var isloggedIn: Bool = true
+    public var isloggedIn: Bool = UserDefaults.standard.bool(forKey: "isLoggedIn")
     public var hasHealthInfo: Bool = false
     public let notloginview = NotloginView()
     public let healthsettingview = HealthInfoSettingView()
@@ -45,7 +45,15 @@ class StoreVC: UIViewController {
                 healthsettingview.healthsettingButton.addTarget(self, action: #selector(gotohealthsetting), for: .touchUpInside)
             }
         }
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateBookmarkStatus(_:)),
+            name: NSNotification.Name("BookmarkUpdated"),
+            object: nil
+        )
     }
+    
     
     func updateLocation(lat: Double, lon: Double) {
         self.currentLatitude = lat
@@ -101,7 +109,7 @@ class StoreVC: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
     }
-
+    
     private func setupCollectionView() {
         storeview.storeCollectionView.dataSource = self
         storeview.storeCollectionView.delegate = self
@@ -135,6 +143,23 @@ class StoreVC: UIViewController {
         purposevc.modalPresentationStyle = .fullScreen
         present(purposevc, animated: true, completion: nil)
     }
+    
+    @objc private func updateBookmarkStatus(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let placeId = userInfo["placeId"] as? Int,
+              let isBookmarked = userInfo["isBookmarked"] as? Bool else { return }
+
+        // 🔹 storeData 배열에서 해당 매장의 북마크 상태 변경
+        if let index = storeData.firstIndex(where: { $0.id == placeId }) {
+            storeData[index].bookmarkId = isBookmarked ? 1 : 0 // ✅ storeData 내부 값 변경
+
+            DispatchQueue.main.async {
+                // ✅ UI도 변경된 값을 반영하도록 리로드
+                self.storeview.storeCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            }
+        }
+    }
+    
 }
 
 extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -156,11 +181,11 @@ extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
     
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let marketVC = MarketVC()
-        marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)
-        let nav = UINavigationController(rootViewController: marketVC)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
+       let marketVC = MarketVC()
+       marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)
+       let nav = UINavigationController(rootViewController: marketVC)
+       nav.modalPresentationStyle = .fullScreen
+       present(nav, animated: true)
 //        navigationController?.pushViewController(marketVC, animated: true)
     }
 }
