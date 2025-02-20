@@ -28,11 +28,10 @@ class ImageSelectionCollectionView: UICollectionView, UICollectionViewDelegate, 
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
-    /// ✅ VC에서 호출할 수 있도록 images를 업데이트하는 메서드 추가!
+    // VC에서 호출할 수 있도록 images를 업데이트하는 메서드
     func updateImages(_ newImages: [UIImage]) {
         self.images = newImages
     }
-    
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return images.count < maxImages ? images.count + 1 : images.count

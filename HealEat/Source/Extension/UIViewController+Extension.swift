@@ -2,10 +2,6 @@
 
 import UIKit
 
-import UIKit
-
-import UIKit
-
 extension UIViewController {
     private static let loadingIndicatorTag = 999 // 고유 태그
 

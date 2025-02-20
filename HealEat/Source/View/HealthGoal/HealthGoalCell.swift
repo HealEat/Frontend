@@ -9,6 +9,11 @@ class HealthGoalCell: UICollectionViewCell {
     static let identifier = "HealthGoalCell"
     weak var delegate: HealthGoalCellDelegate?
     
+    // `UILabel`을 외부에서 사용할 수 있도록
+    public var periodTextLabel: UILabel?
+    public var countTextLabel: UILabel?
+    public var goalTextLabel: UILabel?
+    
     // MARK: - UI Properties
     private lazy var goalBackgroundStack = createStackView([goalCountLabel, periodLabel, countLabel,goalLabel], distribution: .fill, spacing: 9)
     private lazy var imageStackView = createStackView([], alignment: .leading, distribution: .fillProportionally, spacing: 5)
@@ -26,11 +31,6 @@ class HealthGoalCell: UICollectionViewCell {
         $0.textColor = UIColor(hex: "7D7D7D")
         $0.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
     }
-    // `UILabel`을 외부에서 사용할 수 있도록
-    public var periodTextLabel: UILabel?
-    public var countTextLabel: UILabel?
-    public var goalTextLabel: UILabel?
-    
     public lazy var periodLabel = UIView().then {
         let label = UILabel().then { label in
             label.text = "일주일"
@@ -161,7 +161,6 @@ class HealthGoalCell: UICollectionViewCell {
 
     // MARK: - UI Methods
     private func setUpConstraints() {
-        
         [memoDescription, memoTextView].forEach { memoView.addSubview($0) }
         [goalBackgroundStack, settingButton].forEach { goalBackground.addSubview($0) }
         [goalBackground, memoView, uploadImageButton, imageStackView, statusStack].forEach { addSubview($0) }
