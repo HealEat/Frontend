@@ -66,18 +66,6 @@ class MyReviewsVC: UIViewController {
         }
     }
     
-    private func changeProfile(profile: MyProfileRequest) {
-        MyPageManager.changeProfile(profile) { isSuccess, response in
-            if isSuccess {
-                print("프로필 수정 성공: \(response)")
-            } else {
-                if let data = response?.data,
-                   let errorMessage = String(data: data, encoding: .utf8) {
-                    
-                }
-            }
-        }
-    }
     
     private func changeHealthAnswer(questionNum: Int, answers: [String]) {
         MyPageManager.changeBasicAnswers(HealthInfoAnswerRequest(selectedAnswers: answers), questionNum: questionNum) { isSuccess, response in

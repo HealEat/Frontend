@@ -63,7 +63,7 @@ class FilteredStoresView: UIView {
     
     public let storeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width - 32, height: 123)
-        $0.minimumLineSpacing = 20
+        $0.minimumLineSpacing = 30
         $0.scrollDirection = .vertical
     }).then {
         $0.backgroundColor = .clear

@@ -14,6 +14,13 @@ class StoreCollectionViewCell: UICollectionViewCell {
         setViews()
         setConstaints()
         
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateBookmarkStatus(_:)),
+            name: NSNotification.Name("BookmarkUpdated"),
+            object: nil
+        )
+        
     }
     
     override func prepareForReuse() {
@@ -25,6 +32,7 @@ class StoreCollectionViewCell: UICollectionViewCell {
         mainratingLabel.text = nil
         reviewCountLabel.text = nil
         features = []
+        isBookmarkUpdated = nil
         categoryStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         alltagView.collectionview.reloadData()
     }
@@ -109,6 +117,8 @@ class StoreCollectionViewCell: UICollectionViewCell {
     }
     
     private var features: [String] = []
+    private var isBookmarkUpdated: Bool?
+    private var placeId: Int?
     
     private func setViews() {
         addSubview(storeImage)
@@ -127,7 +137,7 @@ class StoreCollectionViewCell: UICollectionViewCell {
         
         storenameLabel.snp.makeConstraints {
             $0.top.equalToSuperview().offset(14)
-            $0.leading.equalToSuperview().offset(16)
+            $0.leading.equalToSuperview().offset(14)
             $0.height.equalTo(19)
         }
         
@@ -140,7 +150,7 @@ class StoreCollectionViewCell: UICollectionViewCell {
         
         storeImage.snp.makeConstraints {
             $0.width.height.equalTo(95)
-            $0.leading.equalToSuperview().offset(16)
+            $0.leading.equalToSuperview().offset(14)
             $0.top.equalTo(storenameLabel.snp.bottom).offset(12)
         }
         
@@ -178,7 +188,6 @@ class StoreCollectionViewCell: UICollectionViewCell {
             $0.trailing.equalToSuperview()
         }
         
-        
         alltagView.snp.makeConstraints {
             $0.leading.equalTo(storeImage.snp.trailing)
             $0.top.equalTo(categoryStackView.snp.bottom).offset(8)
@@ -188,6 +197,7 @@ class StoreCollectionViewCell: UICollectionViewCell {
     }
 
     public func storeconfigure(model: StoreResponse) {
+        self.placeId = model.id
         self.features = []
         alltagView.collectionview.reloadData()
         
@@ -230,10 +240,10 @@ class StoreCollectionViewCell: UICollectionViewCell {
         self.features = model.features
         self.alltagView.updateTags(features: model.features)
         
-        if let bookmarkId = model.bookmarkId, bookmarkId != 0 {
-            self.bookmarkButton.isSelected = true
+        if let isUpdated = isBookmarkUpdated {
+            bookmarkButton.isSelected = isUpdated
         } else {
-            self.bookmarkButton.isSelected = false
+            bookmarkButton.isSelected = model.bookmarkId != nil && model.bookmarkId != 0
         }
         
         DispatchQueue.main.async {
@@ -269,6 +279,19 @@ class StoreCollectionViewCell: UICollectionViewCell {
         stackView.addArrangedSubview(scoreLabel)
 
         return stackView
+    }
+    
+    @objc private func updateBookmarkStatus(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+        let updatedPlaceId = userInfo["placeId"] as? Int,
+        let newBookmarkState = userInfo["isBookmarked"] as? Bool else { return }
+
+        if self.placeId == updatedPlaceId {
+            DispatchQueue.main.async {
+                self.isBookmarkUpdated = newBookmarkState //  북마크 상태 저장
+                self.bookmarkButton.isSelected = newBookmarkState
+            }
+        }
     }
 }
 

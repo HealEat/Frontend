@@ -8,7 +8,7 @@ protocol SortingDropdownDelegate: AnyObject {
 
 class SortingDropdownVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     var sortingOptions: [String] = []
-    var selectedOption: String? // ✅ 현재 선택된 값 (UserDefaults에서 불러옴)
+    var selectedOption: String? //  현재 선택된 값 (UserDefaults에서 불러옴)
     var isSortBy: Bool = true
     
     weak var delegate: SortingDropdownDelegate?
@@ -37,9 +37,9 @@ class SortingDropdownVC: UIViewController, UITableViewDelegate, UITableViewDataS
         view.layer.masksToBounds = false
         view.layer.shouldRasterize = true
         view.layer.rasterizationScale = UIScreen.main.scale
-        // ✅ Spread 값을 적용하려면 Shadow Path 설정 필요!
+        //  Spread 값을 적용하려면 Shadow Path 설정 필요!
         let spread: CGFloat = 3
-        let rect = view.bounds.insetBy(dx: -spread, dy: -spread) // ✅ Spread 값을 적용
+        let rect = view.bounds.insetBy(dx: -spread, dy: -spread)
         view.layer.shadowPath = UIBezierPath(rect: rect).cgPath
         
         view.addSubview(tableview)
@@ -47,12 +47,10 @@ class SortingDropdownVC: UIViewController, UITableViewDelegate, UITableViewDataS
             make.top.bottom.equalToSuperview().inset(10)
             make.horizontalEdges.equalToSuperview()
         }
-        
-        preferredContentSize = CGSize(width: 122, height: sortingOptions.count * 30 + 20) // ✅ 작은 크기 지정!
+        preferredContentSize = CGSize(width: 122, height: sortingOptions.count * 30 + 20)
     }
     
-    
-    // ✅ UserDefaults에 새로운 값 저장
+    //  UserDefaults에 새로운 값 저장
     private func saveSelectedOption(_ option: String) {
         if isSortBy {
             if let sortBy = SortBy.allCases.first(where: { $0.name == option }) {
@@ -67,16 +65,6 @@ class SortingDropdownVC: UIViewController, UITableViewDelegate, UITableViewDataS
     }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return sortingOptions.count
@@ -86,7 +74,7 @@ class SortingDropdownVC: UIViewController, UITableViewDelegate, UITableViewDataS
         guard let cell = tableView.dequeueReusableCell(withIdentifier: SortDropdownCell.identifier, for: indexPath) as? SortDropdownCell else { return UITableViewCell() }
             
         let option = sortingOptions[indexPath.row]
-        let isSelected = (option == selectedOption) // ✅ 현재 선택된 값과 비교
+        let isSelected = (option == selectedOption) //  현재 선택된 값과 비교
 
         cell.configure(text: option, isSelected: isSelected)
         
@@ -100,14 +88,14 @@ class SortingDropdownVC: UIViewController, UITableViewDelegate, UITableViewDataS
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedOption = sortingOptions[indexPath.row]
 
-        // ✅ UI 업데이트 (선택된 셀 변경)
+        //  UI 업데이트 (선택된 셀 변경)
         self.selectedOption = selectedOption
         tableView.reloadData()
         
-        // ✅ UserDefaults에 저장
+        //  UserDefaults에 저장
         saveSelectedOption(selectedOption)
         
-        // ✅ Delegate 호출 및 화면 닫기
+        //  Delegate 호출 및 화면 닫기
         delegate?.didSelectSortingOption(selectedOption, isSortBy: isSortBy)
         dismiss(animated: true)
     }

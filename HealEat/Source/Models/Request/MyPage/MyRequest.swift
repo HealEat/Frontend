@@ -2,10 +2,6 @@
 
 import Foundation
 
-struct MyProfileRequest: Codable {
-    let name: String
-    let profileImageUrl: String
-}
 
 struct HealthInfoAnswerRequest: Codable {
     let selectedAnswers: [String]

@@ -44,7 +44,7 @@ enum HealthPlanDuration: String, Codable, CaseIterable {
         return self.allCases.first { $0.title == korean }
     }
 
-    /// 한국어 값을 받아서 `rawValue` (ENUM 문자열)로 변환
+    // 한국어 값을 받아서 `rawValue` (ENUM 문자열)로 변환
     static func rawValue(fromKorean korean: String) -> String {
         return self.fromKorean(korean)?.rawValue ?? ""
     }

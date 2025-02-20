@@ -15,6 +15,10 @@ class CustomSearchBar: UIView, UITextFieldDelegate {
         $0.backgroundColor = .white
         $0.layer.cornerRadius = 12
         $0.clipsToBounds = true
+        $0.layer.shadowColor = UIColor.black.cgColor
+        $0.layer.shadowOpacity = 0.2
+        $0.layer.shadowOffset = CGSize(width: 2, height: 2)
+        $0.layer.masksToBounds = false
     }
     
     lazy var searchBar = UITextField().then {
@@ -66,13 +70,13 @@ class CustomSearchBar: UIView, UITextFieldDelegate {
             make.height.equalTo(45)
         }
         searchButton.snp.makeConstraints { make in
-            make.width.height.equalTo(22)
+            make.width.height.equalTo(20)
             make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().offset(10)
+            make.leading.equalToSuperview().offset(15)
         }
         searchBar.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview()
-            make.leading.equalTo(searchButton.snp.leading).offset(6)
+            make.leading.equalTo(searchButton.snp.leading).offset(15)
             make.trailing.equalTo(mikeButton.snp.leading).offset(-6)
         }
         mikeButton.snp.makeConstraints { make in

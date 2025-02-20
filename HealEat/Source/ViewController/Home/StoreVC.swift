@@ -12,7 +12,7 @@ protocol StoreVCDelegate: AnyObject {
 class StoreVC: UIViewController {
     weak var delegate: StoreVCDelegate?
     private var storeData: [StoreResponse] = []
-    public let storeview = StoreView()
+    public lazy var storeview = StoreView()
     public let loginVC = LoginVC()
     public var isloggedIn: Bool = UserDefaults.standard.bool(forKey: "isLoggedIn")
     public var hasHealthInfo: Bool = false
@@ -25,8 +25,13 @@ class StoreVC: UIViewController {
     private var currentLatitude: Double = 37.550874837441
     private var currentLongitude: Double = 126.925554591431
     
+    private lazy var refreshImageView = UIImageView().then {
+        $0.image = UIImage(named: "refresh")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        setUpImageView()
         
         if !isloggedIn {
             self.view = notloginview
@@ -44,6 +49,23 @@ class StoreVC: UIViewController {
                 self.view = healthsettingview
                 healthsettingview.healthsettingButton.addTarget(self, action: #selector(gotohealthsetting), for: .touchUpInside)
             }
+        }
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateBookmarkStatus(_:)),
+            name: NSNotification.Name("BookmarkUpdated"),
+            object: nil
+        )
+    }
+    
+    private func setUpImageView() {
+        storeview.addSubview(refreshImageView)
+        
+        refreshImageView.snp.makeConstraints { make in
+            make.width.height.equalTo(18)
+            make.leading.equalTo(storeview.userRecommendLabel.snp.trailing).offset(5)
+            make.centerY.equalTo(storeview.userRecommendLabel.snp.centerY)
         }
     }
     
@@ -102,7 +124,7 @@ class StoreVC: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
     }
-
+    
     private func setupCollectionView() {
         storeview.storeCollectionView.dataSource = self
         storeview.storeCollectionView.delegate = self
@@ -136,6 +158,23 @@ class StoreVC: UIViewController {
         purposevc.modalPresentationStyle = .fullScreen
         present(purposevc, animated: true, completion: nil)
     }
+    
+    @objc private func updateBookmarkStatus(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let placeId = userInfo["placeId"] as? Int,
+              let isBookmarked = userInfo["isBookmarked"] as? Bool else { return }
+
+        // 🔹 storeData 배열에서 해당 매장의 북마크 상태 변경
+        if let index = storeData.firstIndex(where: { $0.id == placeId }) {
+            storeData[index].bookmarkId = isBookmarked ? 1 : 0 // ✅ storeData 내부 값 변경
+
+            DispatchQueue.main.async {
+                // ✅ UI도 변경된 값을 반영하도록 리로드
+                self.storeview.storeCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            }
+        }
+    }
+    
 }
 
 extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {

@@ -25,8 +25,6 @@ class LoginVC: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.removeObserver(self)
     }
-    
-    
 
     // MARK: - Actions
     private func setupActions() {
@@ -91,16 +89,15 @@ class LoginVC: UIViewController {
             guard let self = self else { return }
             if let token = token {
                 self.checkTermStatus { isAgreed in
-                    self.navigateToAgreement() // 개발용 임시 코드
-//                    if isAgreed {
-//                        UserDefaults.standard.set(true, forKey: "isLoggedIn") // 로그인 상태 저장
-//                        UserDefaults.standard.synchronize()
-//                        NotificationCenter.default.post(name: .loginStatusChanged, object: nil) //  알림 보내기
-//                        
-//                        self.navigateToBaseVC() // 약관 동의했으면 홈 화면 이동
-//                    } else {
-//                        self.navigateToAgreement() // 동의 안 했으면 약관 동의 화면 이동
-//                    }
+                    if isAgreed {
+                        //self.navigateToAgreement() // 개발용 임시 코드
+                        UserDefaults.standard.set(true, forKey: "isLoggedIn") // 로그인 상태 저장
+                        UserDefaults.standard.synchronize()
+                        NotificationCenter.default.post(name: .loginStatusChanged, object: nil) //  알림 보내기
+                        self.navigateToBaseVC() // 약관 동의했으면 홈 화면 이동
+                    } else {
+                        self.navigateToAgreement() // 동의 안 했으면 약관 동의 화면 이동
+                    }
                 }
             } else {
                 Toaster.shared.makeToast("로그인에 실패했습니다.")

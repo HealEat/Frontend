@@ -3,27 +3,34 @@
 import UIKit
 
 class AllKeywordChipsView: UIView {
-
-    // MARK: - UI Properties
-    public lazy var collectionview = UICollectionView(frame: .zero, collectionViewLayout: LeftAlignedCollectionViewFlowLayout().then({
-        $0.scrollDirection = .vertical
-        $0.minimumLineSpacing = 10
-        $0.minimumInteritemSpacing = 6
-        $0.estimatedItemSize = .zero
-    })).then {
-        $0.backgroundColor = .clear
-        $0.isScrollEnabled = true
-        $0.showsHorizontalScrollIndicator = false
-        $0.register(FoodKeywordCell.self, forCellWithReuseIdentifier: FoodKeywordCell.identifier)
-        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 45, right: 0)
+    
+    var isFoodType = true {
+        didSet {
+            foodTypeButton.isSelected = isFoodType
+            nutritionButton.isSelected = !isFoodType
+            collectionview.isFoodType = isFoodType
+        }
     }
 
+    // MARK: - UI Properties
+    lazy var collectionview = AllKeywordChipsCollectionView().then {
+        $0.backgroundColor = .clear
+    }
+    
+    private lazy var foodTypeButton = createCategoryButton(title: "음식 종류")
+    private lazy var nutritionButton = createCategoryButton(title: "음식 특징")
+    
+    private lazy var typeStack = UIStackView(arrangedSubviews: [foodTypeButton, nutritionButton]).then {
+        $0.axis = .horizontal
+        $0.spacing = 10
+        $0.distribution = .fill
+    }
 
     // MARK: - Init Methods
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
-        setUpConstraints()
+        setupUI()
     }
         
     required init?(coder: NSCoder) {
@@ -32,16 +39,42 @@ class AllKeywordChipsView: UIView {
     
     
     // MARK: - UI Methods
-    private func setUpConstraints() {
-        [collectionview,].forEach {
-            addSubview($0)
-        }
+    private func setupUI() {
+        addSubview(typeStack)
+        addSubview(collectionview)
         
+        typeStack.snp.makeConstraints { make in
+            make.top.leading.equalToSuperview().offset(15)
+        }
+
         collectionview.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(15)
-            make.top.bottom.equalToSuperview()
+            make.top.equalTo(typeStack.snp.bottom).offset(5)
+            make.horizontalEdges.equalToSuperview().inset(18)
+            make.bottom.equalToSuperview()
         }
+    }
+
+    
+    private func createCategoryButton(title: String) -> UIButton {
+        let button = UIButton()
+        let unselected = NSAttributedString(string: title, attributes: [
+            .font: UIFont.systemFont(ofSize: 12, weight: .regular),
+            .foregroundColor: UIColor.healeatGray4P5
+        ])
+        let selected = NSAttributedString(string: title, attributes: [
+            .font: UIFont.systemFont(ofSize: 14, weight: .medium),
+            .foregroundColor: UIColor.healeatGray6
+        ])
         
+        button.setAttributedTitle(unselected, for: .normal)
+        button.setAttributedTitle(selected, for: .selected)
+        button.addTarget(self, action: #selector(toggleButtonState), for: .touchUpInside)
+        
+        return button
+    }
+    
+    @objc private func toggleButtonState() {
+        isFoodType.toggle()
     }
     
 

@@ -9,13 +9,9 @@ class StoreView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setViews()
         setConstraints()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-    
     }
     
     override var intrinsicContentSize: CGSize {
@@ -32,22 +28,23 @@ class StoreView: UIView {
     
     public lazy var userRecommendLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = .systemFont(ofSize: 10, weight: .semibold)
+        $0.font = .systemFont(ofSize: 14, weight: .regular)
     }
+
     
     public lazy var healthsettingButton = UIButton().then {
-        $0.layer.cornerRadius = 10
+        $0.layer.cornerRadius = 13
         $0.layer.borderWidth = 0.7
-        $0.layer.borderColor = UIColor(red: 0.51, green: 0.51, blue: 0.51, alpha: 1.00).cgColor
+        $0.layer.borderColor = UIColor.healeatGray6.cgColor
         $0.backgroundColor = .clear
         $0.setTitle("건강 정보 설정하기", for: .normal)
-        $0.setTitleColor(.black , for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 8, weight: .regular)
+        $0.setTitleColor(.healeatGray6 , for: .normal)
+        $0.titleLabel?.font = UIFont.systemFont(ofSize: 10, weight: .regular)
     }
     
     public let storeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout().then {
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width - 32, height: 123)
-        $0.minimumLineSpacing = 10
+        $0.minimumLineSpacing = 20
         $0.scrollDirection = .vertical
     }).then {
         $0.backgroundColor = .clear
@@ -62,22 +59,20 @@ class StoreView: UIView {
     }
     
     private func setConstraints() {
-        
         userRecommendLabel.snp.makeConstraints {
             $0.top.equalToSuperview().offset(30)
             $0.leading.equalToSuperview().offset(16)
-            $0.height.equalTo(12)
         }
         
         healthsettingButton.snp.makeConstraints {
             $0.top.equalToSuperview().offset(27)
             $0.trailing.equalToSuperview().offset(-19)
-            $0.height.equalTo(20)
-            $0.width.equalTo(80)
+            $0.height.equalTo(24)
+            $0.width.equalTo(89)
         }
         
         storeCollectionView.snp.makeConstraints {
-            $0.top.equalTo(userRecommendLabel.snp.bottom).offset(7)
+            $0.top.equalTo(healthsettingButton.snp.bottom).offset(7)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
         }

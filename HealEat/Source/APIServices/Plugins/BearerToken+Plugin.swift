@@ -23,6 +23,9 @@ final class BearerTokenPlugin: PluginType {
         let expiryMillis: Int64
         expiryMillis = createdMillis + (60 * 60 * 1000) // 1시간
         let expiryDate = Date(milliseconds: expiryMillis)
+        print("🔍 저장된 accessTokenCreatedAt: \(createdMillis)")
+        print("🕒 예상 만료 시간: \(expiryMillis) → \(expiryDate)")
+        print("🕒 현재 시간: \(Date().millisecondsSince1970) → \(Date())")
         
         if Date() < expiryDate {
             print("AccessToken 유효. 사용 가능.")
@@ -30,16 +33,17 @@ final class BearerTokenPlugin: PluginType {
         } else {
             Toaster.shared.makeToast("재로그인 필요")
             completion(nil) // 재로그인 필요
+            forceLogin()
         }
     }
     
-    private func forceLogout() { // 무한 회귀, 쓰면 안됨
+    private func forceLogin() {
         DispatchQueue.main.async {
             if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = scene.windows.first {
-                window.rootViewController = SplashVC()
+                window.rootViewController = LoginVC()
                 window.makeKeyAndVisible()
-                print("스플래시 화면으로 이동")
+                print("로그인 화면으로 이동")
             }
         }
     }

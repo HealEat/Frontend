@@ -186,12 +186,20 @@ class MarketVC: UIViewController {
                 return
             }
             marketView.bookmarkButton.isSelected.toggle()
+            let isBookmarked = marketView.bookmarkButton.isSelected
+            
             if marketView.bookmarkButton.isSelected {
                 postBookmark(placeId: param.placeId)
             } else {
                 guard let bookmarkId = storeDetailResponseModel?.bookmarkId else { return }
                 deleteBookmark(placeId: param.placeId, bookmarkId: bookmarkId)
             }
+            
+            NotificationCenter.default.post(
+                name: NSNotification.Name("BookmarkUpdated"),
+                object: nil,
+                userInfo: ["placeId": param.placeId, "isBookmarked": isBookmarked]
+            )
         })
     }
     

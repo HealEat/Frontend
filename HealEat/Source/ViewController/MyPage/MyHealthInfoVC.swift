@@ -26,7 +26,7 @@ class MyHealthInfoVC: UIViewController {
            
         let backImage = UIImage(named: "backimage")?.withRenderingMode(.alwaysOriginal)
         backButton.setImage(backImage, for: .normal)
-        backButton.setTitle(" 마이페이지", for: .normal)
+        backButton.setTitle("마이페이지", for: .normal)
         backButton.setTitleColor(.black, for: .normal)
         backButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
 

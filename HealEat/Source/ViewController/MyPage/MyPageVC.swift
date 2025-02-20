@@ -10,13 +10,12 @@ class MyPageVC: UIViewController {
             profileImageView.image = selectedImage
         }
     }
-    let menu = ["나의 건강 정보", "저장 목록", "내가 남긴 후기", "로그아웃", "회원 탈퇴"]
+    private let menu = ["나의 건강 정보", "저장 목록", "내가 남긴 후기", "로그아웃", "회원 탈퇴"]
     
     // MARK: - UI Properties
     private lazy var profileImageView = UIImageView().then {
         $0.image = UIImage(named: "profile")
         $0.layer.borderColor = UIColor.healeatGray4.cgColor
-        //$0.layer.borderWidth = 5
         $0.layer.cornerRadius = 42
         $0.clipsToBounds = true
     }
@@ -85,7 +84,7 @@ class MyPageVC: UIViewController {
         }
         tableview.dataSource = self
         tableview.delegate = self
-        tableview.register(UITableViewCell.self, forCellReuseIdentifier: "cell") // ✅ 기본 셀 등록
+        tableview.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
         profileEditButton.addTarget(self, action: #selector(editBtnClicked), for: .touchUpInside)
         
@@ -114,10 +113,6 @@ class MyPageVC: UIViewController {
     //MARK: - Setup Actions
     @objc private func editBtnClicked() {
         let editVC = ProfileEditVC()
-        editVC.onImageSelected = { [weak self] image in
-            self?.selectedImage = image
-            print("✅ 클로저를 통해 받은 이미지: \(image)")
-        }
         navigationController?.pushViewController(editVC, animated: true)
     }
 
@@ -134,7 +129,7 @@ class MyPageVC: UIViewController {
                 }
                 
                 let profileImgURL = URL(string: data.profileImage)
-                //self.profileImageView.sd_setImage(with: profileImgURL, placeholderImage: UIImage(named: "profile"))
+                self.profileImageView.sd_setImage(with: profileImgURL, placeholderImage: UIImage(named: "profile"))
             case .failure(let error):
                 print("프로필 조회 실패: \(error.localizedDescription)")
             }
