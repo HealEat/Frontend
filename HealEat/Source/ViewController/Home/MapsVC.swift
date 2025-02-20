@@ -23,7 +23,6 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
     var storevc: StoreVC!
     var storeData: [StoreResponse] = []
     private var existingPoiLocations: Set<String> = []
-    var _clickedPoiID: String = ""
      
     required init?(coder aDecoder: NSCoder) {
         _observerAdded = false
@@ -52,7 +51,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         super.viewDidLoad()
         setupMapView()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
-        //setupUI()
+      
       
         setupLocationManager()
     }
@@ -99,7 +98,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
 
     override func viewDidDisappear(_ animated: Bool) {
         removeObservers()
-        mapController?.resetEngine()     //엔진 정지. 추가되었던 ViewBase들이 삭제된다.
+   //   mapController?.resetEngine()     //엔진 정지. 추가되었던 ViewBase들이 삭제된다.
     }
     
     // 인증 성공시 delegate 호출.
@@ -329,7 +328,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         
         _ = manager.addLabelLayer(option: layerOption)
     }
-
+  
     // POI의 스타일을 생성
     func createStorePoiStyle() {
         guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
@@ -338,12 +337,18 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
         let resizedImage = originalImage?.resized(to: CGSize(width: 20, height: 20)) // 원하는 크기로 줄이기
         
         let iconStyle = PoiIconStyle(symbol: resizedImage ?? originalImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
-        let perLevelStyle = PerLevelPoiStyle(iconStyle: iconStyle, level: 0)
-        let poiStyle = PoiStyle(styleID: "storeStyle", styles: [perLevelStyle])
-        
+        let textStyle = PoiTextStyle(textLineStyles: [
+            PoiTextLineStyle(textStyle: TextStyle(fontSize: 16, fontColor: UIColor.black, strokeThickness: 2, strokeColor: UIColor.white))
+        ])
+        textStyle.textLayouts = [PoiTextLayout.bottom] // 텍스트를 아이콘 아래에 표시
+            
+        // POI 스타일을 생성 (아이콘과 텍스트를 모두 포함)
+        let poiStyle = PoiStyle(styleID: "storeStyle", styles: [
+            PerLevelPoiStyle(iconStyle: iconStyle, textStyle: textStyle, level: 0)
+        ])
         manager.addPoiStyle(poiStyle)
     }
-    
+
     // 서버에서 받은 store 데이터를 POI로 변환해 추가
     func addStorePois(storeData: [StoreResponse]) {
         guard let mapView = mapController?.getView("mapview") as? KakaoMap else { return }
@@ -364,6 +369,7 @@ class MapsVC: UIViewController, MapControllerDelegate, KakaoMapEventDelegate {
             let poiOption = PoiOptions(styleID: "storeStyle", poiID: "\(store.id)")
             poiOption.rank = 1
             poiOption.clickable = true
+            poiOption.addText(PoiText(text: store.place_name, styleIndex: 0))
                 
             let storePoi = layer.addPoi(option: poiOption, at: position) { _ in }
             storePoi?.show()

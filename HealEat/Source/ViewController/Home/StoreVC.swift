@@ -135,7 +135,6 @@ class StoreVC: UIViewController {
         purposevc.modalPresentationStyle = .fullScreen
         present(purposevc, animated: true, completion: nil)
     }
-    
 }
 
 extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -155,17 +154,12 @@ extension StoreVC: UICollectionViewDataSource, UICollectionViewDelegate {
         return cell
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        let contentHeight = scrollView.contentSize.height
-        let height = scrollView.frame.size.height
-
-        if offsetY > contentHeight - height * 2, !isFetchingData {
-            isFetchingData = true
-            fetchStoreData()
-        }
-    }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    //   let marketVC = MarketVC()
+     //  marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)
+      // navigationController?.pushViewController(marketVC, animated: true)
+    }
    /* func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let marketVC = MarketVC()
         marketVC.param = MarketVC.Param(placeId: storeData[indexPath.row].id)

@@ -252,7 +252,7 @@ class MarketVC: UIViewController {
             .store(in: &cancellable)
     }
     
-    private func postBookmark(placeId: Int) {
+    public func postBookmark(placeId: Int) {
         StoreRepository.shared.postBookmark(placeId: placeId)
             .sinkHandledCompletion(receiveValue: { [weak self] bookmarkResponseModel in
                 self?.storeDetailResponseModel?.bookmarkId = bookmarkResponseModel.bookmarkId
@@ -260,7 +260,7 @@ class MarketVC: UIViewController {
             .store(in: &cancellable)
     }
     
-    private func deleteBookmark(placeId: Int, bookmarkId: Int) {
+    public func deleteBookmark(placeId: Int, bookmarkId: Int) {
         StoreRepository.shared.deleteBookmark(placeId: placeId, bookmarkId: bookmarkId)
             .sinkHandledCompletion(receiveValue: { [weak self] bookmarkResponseModel in
                 self?.storeDetailResponseModel?.bookmarkId = nil
