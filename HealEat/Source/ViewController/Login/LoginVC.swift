@@ -25,8 +25,6 @@ class LoginVC: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.removeObserver(self)
     }
-    
-    
 
     // MARK: - Actions
     private func setupActions() {

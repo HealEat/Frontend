@@ -37,7 +37,7 @@ struct StoreResponse: Codable {
     let imageUrl: String?
     let features: [String]
     let isInDBInfo: IsInDBInfo?
-    let bookmarkId: Int?
+    var bookmarkId: Int?
 
     enum CodingKeys: String, CodingKey {
         case storeInfoDto
