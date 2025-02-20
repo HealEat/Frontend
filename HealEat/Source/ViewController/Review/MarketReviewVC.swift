@@ -262,7 +262,16 @@ extension MarketReviewVC: UITableViewDataSource, UITableViewDelegate {
             cell.reviewDateLabel.text = reviewModels[indexPath.row].createdAt.toStringYYYYMMDD
             cell.reviewLabel.text = reviewModels[indexPath.row].body
             cell.updateCollectionViewVisibility(isVisible: !reviewModels[indexPath.row].imageUrls.isEmpty)
-            cell.handler.images = reviewModels[indexPath.row].imageUrls
+            cell.imageModels = reviewModels[indexPath.row].imageUrls.map({ imageUrl in
+                ImageModel(reviewId: reviewModels[indexPath.row].reviewId, imageUrl: imageUrl, info: reviewModels[indexPath.row].reviewerInfo)
+            })
+            cell.presentImageViewer = { [weak self] imageModels, index in
+                let imageViewerVC = ImageViewerVC()
+                imageViewerVC.param = ImageViewerVC.Param(imageModels: imageModels, index: index)
+                imageViewerVC.modalPresentationStyle = .overCurrentContext
+                imageViewerVC.modalTransitionStyle = .crossDissolve
+                self?.present(imageViewerVC, animated: true)
+            }
             cell.imageCollectionView.reloadData()
             return cell
         case .loading:

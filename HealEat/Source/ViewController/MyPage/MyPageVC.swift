@@ -174,6 +174,9 @@ extension MyPageVC: UITableViewDelegate, UITableViewDataSource {
         case 0:
             let myhealthinfoVC = MyHealthInfoVC()
             navigationController?.pushViewController(myhealthinfoVC, animated: true)
+        case 1:
+            let savedStoreVC = SavedStoresVC()
+            navigationController?.pushViewController(savedStoreVC, animated: true)
         case 3:
             let logoutVC = LogOutVC()
             logoutVC.modalPresentationStyle = .overCurrentContext

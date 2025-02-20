@@ -15,6 +15,8 @@ enum MyPageAPI {
     case getHealthInfo
     
     case deleteReview(reviewId: Int)
+    
+    case getBookmarks(page: Int)
 }
 
 
@@ -41,12 +43,14 @@ extension MyPageAPI: TargetType {
         case .getHealthInfo: return "my-page/health-info"
             
         case .deleteReview(let reviewId): return "my-page/reviews/\(reviewId)"
+            
+        case .getBookmarks(let page): return "my-page/bookmarks"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .getProfile, .getReview, .getHealthInfo:
+        case .getProfile, .getReview, .getHealthInfo, .getBookmarks:
             return .get
         case .changeProfile, .changeAnswer, .changeVegetarian, .changeDiet:
             return .patch
@@ -81,6 +85,12 @@ extension MyPageAPI: TargetType {
             return .requestParameters(parameters: ["diet": diet], encoding: URLEncoding.queryString)
         case .deleteReview :
             return .requestPlain
+        case .getBookmarks(let page):
+            return .requestParameters(
+                parameters: [
+                    "page": page,
+                    "size": 10
+                ], encoding: URLEncoding.queryString)
         }
     }
     

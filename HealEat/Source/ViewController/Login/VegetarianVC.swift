@@ -157,24 +157,21 @@ class VegetarianVC: UIViewController {
         UserDefaults.standard.set(selectedOption, forKey: "vegetarianType")
 
         // ✅ API 요청 실행 (선택한 베지테리언 타입 PATCH 요청)
-        VegetarianService.shared.updateVegetarianType(type: selectedOption) { result in
+        VegetarianService.shared.updateVegetarianType(type: selectedOption) { [weak self] result in
             switch result {
             case .success:
                 print("✅ 베지테리언 타입 업데이트 성공!")
 
                 DispatchQueue.main.async {
+                    guard let parent = self?.parent as? QuestionBaseVC else { return }
                     if selectedOption == "플렉시테리언" {
                         // ✅ 플렉시테리언이면 NEED 질문 진행
-                        let needDietVC = NeedDietVC()
-                        needDietVC.delegate = self.delegate
-                        needDietVC.modalPresentationStyle = .fullScreen
-                        self.present(needDietVC, animated: true, completion: nil)
-                    } else {
-                        // ✅ 플렉시테리언 제외 베지테리언이면 바로 FinalStep 이동
-                        let finalStepVC = FinalStepVC()
-                        finalStepVC.modalPresentationStyle = .fullScreen
-                        self.present(finalStepVC, animated: true, completion: nil)
+                        if !parent.viewControllers[.common]!.contains(.needDiet) {
+                            parent.viewControllers[.common]?.insert(.needDiet, at: 0)
+                        }
                     }
+                    parent.viewControllers[.veget]?.removeAll(where: { $0 == .vegeterian })
+                    parent.setupContainerViewController()
                 }
 
             case .failure(let error):

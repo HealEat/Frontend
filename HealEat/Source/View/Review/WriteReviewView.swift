@@ -143,6 +143,9 @@ class WriteReviewView: UIView {
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
         textView.font = UIFont.systemFont(ofSize: 12)
+        textView.autocorrectionType = .no
+        textView.autocapitalizationType = .none
+        textView.spellCheckingType = .no
         return textView
     }()
     

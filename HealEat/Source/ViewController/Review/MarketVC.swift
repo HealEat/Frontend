@@ -121,6 +121,11 @@ class MarketVC: UIViewController {
         marketView.ratingLabel.text = "\(storeDetailResponseModel.isInDBDto.reviewCount == 0 ? "리뷰 없음" : storeDetailResponseModel.isInDBDto.totalHealthScore.oneDecimalString) (\(storeDetailResponseModel.isInDBDto.reviewCount))"
         marketView.openLabel.text = "영업 중"
         marketView.openHourLabel.text = "9:30 - 20:30"
+        if storeDetailResponseModel.storeInfoDto.features.isEmpty {
+            marketView.featureCollectionView.snp.updateConstraints({ make in
+                make.height.equalTo(0)
+            })
+        }
     }
     
     private func bind() {
@@ -196,8 +201,6 @@ class MarketVC: UIViewController {
                 userInfo: ["placeId": param.placeId, "isBookmarked": isBookmarked]
             )
         })
-        
-        
     }
     
     // MARK: - PanGesture
@@ -234,6 +237,7 @@ class MarketVC: UIViewController {
         StoreRepository.shared.getStoreDetail(placeId: placeId)
             .sinkHandledCompletion(receiveValue: { [weak self] storeDetailResponseModel in
                 guard let self = self else { return }
+                print(storeDetailResponseModel)
                 self.storeDetailResponseModel = storeDetailResponseModel
                 initializeView(storeDetailResponseModel: storeDetailResponseModel)
                 setStoreToHandlers(storeDetailResponseModel: storeDetailResponseModel)

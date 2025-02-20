@@ -6,6 +6,8 @@ import Moya
 enum InfoAPI {
     case postInfo(questionNum: Int, param: InfoAnswerRequest)
     case postProfile(param: InfoProfileRequest)
+    case searchDisease(keyword: String)
+    case postDisease(param: DiseaseRequest)
 }
 
 
@@ -22,6 +24,8 @@ extension InfoAPI: TargetType {
         switch self {
         case .postInfo(let questionNum, let param): return "info/\(questionNum)"
         case .postProfile(_): return "info/profile"
+        case .searchDisease: return "info/disease/search"
+        case .postDisease: return "info/member/disease"
         }
     }
 
@@ -29,6 +33,10 @@ extension InfoAPI: TargetType {
         switch self {
         case .postInfo, .postProfile:
             return .post
+        case .searchDisease:
+            return .get
+        case .postDisease:
+            return .patch
         }
     }
 
@@ -37,6 +45,12 @@ extension InfoAPI: TargetType {
         case .postInfo(let questionNum, let param) :
             return .requestJSONEncodable(param)
         case .postProfile(let param):
+            return .requestJSONEncodable(param)
+        case .searchDisease(let keyword):
+            return .requestParameters(parameters: [
+                "keyword": keyword
+            ], encoding: URLEncoding.queryString)
+        case .postDisease(let param):
             return .requestJSONEncodable(param)
         }
     }

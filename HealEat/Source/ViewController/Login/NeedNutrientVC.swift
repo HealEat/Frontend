@@ -4,9 +4,12 @@
 import UIKit
 import SnapKit
 import Then
+import Combine
 
 class NeedNutrientVC: UIViewController {
     weak var delegate: PurposeCompletionDelegate?
+    
+    private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
 
     private let backButton = UIButton().then {
         $0.setTitle("< 이전", for: .normal)
@@ -158,8 +161,13 @@ class NeedNutrientVC: UIViewController {
             print("옵션을 선택해주세요.")
             return
         }
-        let needToAvoidVC = NeedToAvoidVC()
-        needToAvoidVC.modalPresentationStyle = .fullScreen
-        present(needToAvoidVC, animated: true, completion: nil)
+        InfoRepository.shared.saveQuestion(questionNum: 3, param: InfoAnswerRequest(selectedAnswers: Array(selectedOptions)))
+            .sinkHandledCompletion(receiveValue: { [weak self] savedAnswerResponseModel in
+                guard let parent = self?.parent as? QuestionBaseVC else { return }
+                print(savedAnswerResponseModel)
+                parent.viewControllers[.common]?.removeAll(where: { $0 == .needNutrient })
+                parent.setupContainerViewController()
+            })
+            .store(in: &cancellable)
     }
 }

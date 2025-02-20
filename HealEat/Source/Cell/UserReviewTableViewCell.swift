@@ -5,6 +5,9 @@ import SnapKit
 
 class UserReviewTableViewCell: UITableViewCell {
     
+    var imageModels: [ImageModel] = []
+    var presentImageViewer: (([ImageModel], Int) -> Void)?
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .white
@@ -83,7 +86,6 @@ class UserReviewTableViewCell: UITableViewCell {
         return label
     }()
     
-    let handler = ReviewImageCollectionViewHandler()
     lazy var imageCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -92,8 +94,8 @@ class UserReviewTableViewCell: UITableViewCell {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.backgroundColor = .clear
         collectionView.register(PreviewCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: PreviewCollectionViewCell.self))
-        collectionView.delegate = handler
-        collectionView.dataSource = handler
+        collectionView.delegate = self
+        collectionView.dataSource = self
         return collectionView
     }()
     
@@ -155,5 +157,35 @@ class UserReviewTableViewCell: UITableViewCell {
         imageCollectionView.snp.updateConstraints({ make in
             make.height.equalTo(isVisible ? 108 : 0)
         })
+    }
+}
+
+extension UserReviewTableViewCell: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return imageModels.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: PreviewCollectionViewCell.self), for: indexPath) as? PreviewCollectionViewCell else {
+            return UICollectionViewCell()
+        }
+        cell.previewImageView.kf.setImage(with: imageModels[indexPath.row].imageUrl)
+        cell.previewImageView.layer.cornerRadius = 6
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 108, height: 108)
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 4
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 4
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        presentImageViewer?(imageModels, indexPath.row)
     }
 }
