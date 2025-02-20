@@ -324,8 +324,13 @@ class HealthGoalCell: UICollectionViewCell {
                 // 빈 칸 처리 (흰 배경)
                 imageView.backgroundColor = .white
             } else {
-                // 정상 이미지 로드
-                imageView.sd_setImage(with: URL(string: url))
+                imageView.sd_setImage(with: URL(string: url), placeholderImage: nil, options: [], completed: { image, error, cacheType, imageURL in
+                    if let error = error {
+                        print("❌ 이미지 로드 실패: \(error.localizedDescription)")
+                    } else {
+                        print("✅ 이미지 로드 성공: \(imageURL?.absoluteString ?? "URL 없음")")
+                    }
+                })
             }
 
             // ✅ 크기를 화면 너비 기반으로 설정
