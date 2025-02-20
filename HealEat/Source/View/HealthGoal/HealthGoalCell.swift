@@ -321,10 +321,10 @@ class HealthGoalCell: UICollectionViewCell {
             imageView.layer.masksToBounds = true
 
             if url.isEmpty {
-                // 🔹 빈 칸 처리 (흰 배경)
+                // 빈 칸 처리 (흰 배경)
                 imageView.backgroundColor = .white
             } else {
-                // 🔹 정상 이미지 로드
+                // 정상 이미지 로드
                 imageView.sd_setImage(with: URL(string: url))
             }
 
@@ -348,6 +348,9 @@ protocol HealthGoalCellDelegate: AnyObject {
     func didTapSettingButton(in cell: HealthGoalCell)
     func didTapStatusButton(in cell: HealthGoalCell, status: HealthPlanStatus)
     func didSubmitMemo(in cell: HealthGoalCell, memo: String)
+    
+    func textViewDidBeginEditing(_ textView: UITextView)
+    func textViewDidEndEditing(_ textView: UITextView)
 }
 
 
@@ -355,7 +358,6 @@ extension HealthGoalCell: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         guard let placeholderTextView = textView as? MemoTextView else { return }
         placeholderTextView.setNeedsDisplay()
-        
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
@@ -381,6 +383,14 @@ extension HealthGoalCell: UITextViewDelegate {
         }
         
         return true
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        delegate?.textViewDidBeginEditing(textView)
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        delegate?.textViewDidEndEditing(textView) 
     }
 
 }
