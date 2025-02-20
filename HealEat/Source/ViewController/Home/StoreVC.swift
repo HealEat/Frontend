@@ -12,7 +12,7 @@ protocol StoreVCDelegate: AnyObject {
 class StoreVC: UIViewController {
     weak var delegate: StoreVCDelegate?
     private var storeData: [StoreResponse] = []
-    public let storeview = StoreView()
+    public lazy var storeview = StoreView()
     public let loginVC = LoginVC()
     public var isloggedIn: Bool = UserDefaults.standard.bool(forKey: "isLoggedIn")
     public var hasHealthInfo: Bool = false
@@ -25,8 +25,13 @@ class StoreVC: UIViewController {
     private var currentLatitude: Double = 37.550874837441
     private var currentLongitude: Double = 126.925554591431
     
+    private lazy var refreshImageView = UIImageView().then {
+        $0.image = UIImage(named: "refresh")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        setUpImageView()
         
         if !isloggedIn {
             self.view = notloginview
@@ -52,6 +57,16 @@ class StoreVC: UIViewController {
             name: NSNotification.Name("BookmarkUpdated"),
             object: nil
         )
+    }
+    
+    private func setUpImageView() {
+        storeview.addSubview(refreshImageView)
+        
+        refreshImageView.snp.makeConstraints { make in
+            make.width.height.equalTo(18)
+            make.leading.equalTo(storeview.userRecommendLabel.snp.trailing).offset(5)
+            make.centerY.equalTo(storeview.userRecommendLabel.snp.centerY)
+        }
     }
     
     

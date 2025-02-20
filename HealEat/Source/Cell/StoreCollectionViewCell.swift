@@ -137,7 +137,7 @@ class StoreCollectionViewCell: UICollectionViewCell {
         
         storenameLabel.snp.makeConstraints {
             $0.top.equalToSuperview().offset(14)
-            $0.leading.equalToSuperview().offset(16)
+            $0.leading.equalToSuperview().offset(14)
             $0.height.equalTo(19)
         }
         
@@ -150,7 +150,7 @@ class StoreCollectionViewCell: UICollectionViewCell {
         
         storeImage.snp.makeConstraints {
             $0.width.height.equalTo(95)
-            $0.leading.equalToSuperview().offset(16)
+            $0.leading.equalToSuperview().offset(14)
             $0.top.equalTo(storenameLabel.snp.bottom).offset(12)
         }
         
@@ -288,7 +288,7 @@ class StoreCollectionViewCell: UICollectionViewCell {
 
         if self.placeId == updatedPlaceId {
             DispatchQueue.main.async {
-                self.isBookmarkUpdated = newBookmarkState // ✅ 북마크 상태 저장
+                self.isBookmarkUpdated = newBookmarkState //  북마크 상태 저장
                 self.bookmarkButton.isSelected = newBookmarkState
             }
         }

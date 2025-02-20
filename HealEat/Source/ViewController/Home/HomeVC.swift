@@ -67,10 +67,10 @@ class HomeVC: UIViewController {
             // 위치 업데이트 후 매장 요청
             if self.isFirstLocationUpdate {
                 self.isFirstLocationUpdate = false
-                self.storeVC.updateLocation(lat: 37.4682787075426, lon: 127.039136433366)
+                self.storeVC.updateLocation(lat: lat, lon: lon)
             }
-            self.mapsVC?.updateMapPosition(lat: 37.4682787075426, lon: 127.039136433366)
-            self.mapsVC?.updateCurrentLocationMarker(lat: 37.4682787075426, lon: 127.039136433366)
+            self.mapsVC?.updateMapPosition(lat: lat, lon: lon)
+            self.mapsVC?.updateCurrentLocationMarker(lat: lat, lon: lon)
         }
     }
     
