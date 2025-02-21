@@ -90,12 +90,12 @@ class LoginVC: UIViewController {
             if let token = token {
                 self.checkTermStatus { isAgreed in
                     if isAgreed {
-                        self.navigateToAgreement() // 개발용 임시 코드
+//                        self.navigateToAgreement() // 개발용 임시 코드
                         UserDefaults.standard.set(true, forKey: "isLoggedIn") // 로그인 상태 저장
                         UserDefaults.standard.synchronize()
                         NotificationCenter.default.post(name: .loginStatusChanged, object: nil) //  알림 보내기
-//                        self.navigateToBaseVC() // 약관 동의했으면 홈 화면 이동
-                    } else {
+                        self.navigateToBaseVC() // 약관 동의했으면 홈 화면 이동
+                    } else  {
                         self.navigateToAgreement() // 동의 안 했으면 약관 동의 화면 이동
                     }
                 }

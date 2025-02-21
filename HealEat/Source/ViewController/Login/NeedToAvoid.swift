@@ -31,7 +31,7 @@ class NeedToAvoidVC: UIViewController {
         $0.textAlignment = .center
     }
 
-    private let options = ["육류", "밀가루 음식", "날고기/생선(회)", "생선류", "연체류", "매운 음식"]
+    private let options = ["육류", "밀가루 음식", "날 고기/생선(회)", "생선류", "연체류", "매운 음식"]
     private var selectedOptions: Set<String> = []
 
     private var optionButtons: [UIButton] = []

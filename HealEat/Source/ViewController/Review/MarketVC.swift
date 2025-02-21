@@ -48,6 +48,7 @@ class MarketVC: UIViewController {
         
         self.view = marketView
         self.navigationController?.navigationBar.isHidden = true
+        showLoadingIndicator()
         
         initializeViewControllers()
         initializeHandlers()
@@ -260,6 +261,7 @@ class MarketVC: UIViewController {
                     self?.getDaumImgs(placeId: placeId)
                 }
                 self?.reloadImages()
+                self?.hideLoadingIndicator()
             })
             .store(in: &cancellable)
     }

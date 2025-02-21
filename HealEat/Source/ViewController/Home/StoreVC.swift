@@ -31,6 +31,7 @@ class StoreVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        showLoadingIndicator()
         setUpImageView()
         
         if !isloggedIn {
@@ -81,7 +82,8 @@ class StoreVC: UIViewController {
         
         isFetchingData = true
 
-        APIManager.HomeProvider.request(.getStores(lon: currentLongitude, lat: currentLatitude, radius: 1000, page: currentPage)) { result in
+        APIManager.HomeProvider.request(.getStores(lon: currentLongitude, lat: currentLatitude, radius: 1000, page: currentPage)) { [weak self] result in
+            guard let self = self else { return }
             self.isFetchingData = false
 
             switch result {
@@ -104,6 +106,7 @@ class StoreVC: UIViewController {
                         DispatchQueue.main.async {
                             self.storeview.storeCollectionView.reloadData()
                             print("📌 StoreVC -> didFetchStoreData 호출")
+                            self.hideLoadingIndicator()
                             self.delegate?.didFetchStoreData(storeData: self.storeData)
                         }
                         

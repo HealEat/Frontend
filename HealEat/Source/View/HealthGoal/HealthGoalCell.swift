@@ -226,7 +226,7 @@ class HealthGoalCell: UICollectionViewCell {
             make.horizontalEdges.equalToSuperview().inset(15)
         }
         statusStack.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().offset(-20)
+            make.bottom.equalToSuperview().offset(-15)
             make.horizontalEdges.equalToSuperview().inset(15)
             make.height.equalTo(40)
         }
