@@ -2,8 +2,12 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 class FinalStepVC: UIViewController {
+    
+    private var cancellable: Set<AnyCancellable> = Set<AnyCancellable>()
+    
     // MARK: - UI Elements
     private var messageLabel = UILabel().then {
         $0.text = "이용자님을 위한 추천 매장을 선정하고 있습니다."
@@ -31,6 +35,7 @@ class FinalStepVC: UIViewController {
         view.backgroundColor = .white
         setupLayout()
         fetchProfile()
+        loadInfo()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             self.animateTransitionToBaseVC()
@@ -93,6 +98,14 @@ class FinalStepVC: UIViewController {
             window.rootViewController = baseVC
             window.makeKeyAndVisible()
         }
+    }
+    
+    private func loadInfo() {
+        InfoRepository.shared.loadInfo()
+            .sinkHandledCompletion(receiveValue: { infoLoadResponseModel in
+                print(infoLoadResponseModel)
+            })
+            .store(in: &cancellable)
     }
 }
 

@@ -8,6 +8,7 @@ enum InfoAPI {
     case postProfile(param: InfoProfileRequest)
     case searchDisease(keyword: String)
     case postDisease(param: DiseaseRequest)
+    case loadInfo
 }
 
 
@@ -26,6 +27,7 @@ extension InfoAPI: TargetType {
         case .postProfile(_): return "info/profile"
         case .searchDisease: return "info/disease/search"
         case .postDisease: return "info/member/disease"
+        case .loadInfo: return "info/loading"
         }
     }
 
@@ -35,7 +37,7 @@ extension InfoAPI: TargetType {
             return .post
         case .searchDisease:
             return .get
-        case .postDisease:
+        case .postDisease, .loadInfo:
             return .patch
         }
     }
@@ -52,6 +54,8 @@ extension InfoAPI: TargetType {
             ], encoding: URLEncoding.queryString)
         case .postDisease(let param):
             return .requestJSONEncodable(param)
+        case .loadInfo:
+            return .requestPlain
         }
     }
     

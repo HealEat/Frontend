@@ -69,6 +69,7 @@ class SelectDiseaseVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupLayout()
+        hideKeyboardWhenTappedAround()
         textFieldEvent
             .debounce(for: 1, scheduler: RunLoop.main)
             .sink(receiveValue: { [weak self] text in
@@ -76,6 +77,16 @@ class SelectDiseaseVC: UIViewController {
                 self?.search(text: text)
             })
             .store(in: &cancellable)
+    }
+    
+    private func hideKeyboardWhenTappedAround() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func setupLayout() {

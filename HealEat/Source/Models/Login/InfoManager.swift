@@ -55,4 +55,11 @@ class InfoRepository {
             .map({ DiseaseResponseModel(diseaseResponseEntity: $0) })
             .manageThread()
     }
+    
+    func loadInfo() -> AnyPublisher<InfoLoadResponseModel, HealEatError> {
+        return provider.requestPublisher(.loadInfo)
+            .extractResult(InfoLoadResponseEntity.self)
+            .map({ InfoLoadResponseModel(infoLoadResponseEntity: $0) })
+            .manageThread()
+    }
 }

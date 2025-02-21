@@ -292,7 +292,7 @@ class HomeVC: UIViewController {
     }
     
     private lazy var gotocurrentButton = UIButton().then {
-        $0.setImage(UIImage(named: "gotocurrent"), for: .normal)
+        $0.setImage(UIImage(resource: .gotoCurrent), for: .normal)
     }
     
     private func setupUI() {

@@ -33,7 +33,7 @@ final class BearerTokenPlugin: PluginType {
         } else {
             Toaster.shared.makeToast("재로그인 필요")
             completion(nil) // 재로그인 필요
-            forceLogin()
+//            forceLogin()
         }
     }
     
